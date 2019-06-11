@@ -1,0 +1,34 @@
+package domain;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name ="customer_order")
+public class CustomerOrder {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  private Long id;
+
+  private LocalDate date;
+
+  @Column(scale = 2, precision = 19)
+  private BigDecimal discount;
+
+  private Integer quantity;
+
+  @OneToOne(cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "customer_id", unique = true)
+  private Customer customer;
+
+  @OneToOne(cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "payment_id")
+  private Payment payment;
+
+  @ManyToOne(cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "product_id")
+  private Product product;
+
+}

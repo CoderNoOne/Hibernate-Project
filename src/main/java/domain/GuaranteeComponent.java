@@ -1,18 +1,32 @@
 package domain;
 
 import domain.enums.EGuarantee;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-public class GuaranteeComponent {
+@Table(name = "guarantee_components")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class GuaranteeComponent  {
 
   @Id
-  private Long productId;
+  @Column(name = "product_id")
+  private Long id;
 
-  @Enumerated(EnumType.STRING)
+  @MapsId
+  @ManyToOne(cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "product_id", unique = true)
+  private Product product;
+
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "guarantee_component")
   private EGuarantee guaranteeComponent;
 }

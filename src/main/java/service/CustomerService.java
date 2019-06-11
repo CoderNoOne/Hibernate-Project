@@ -1,13 +1,26 @@
 package service;
 
-import dao.impl.CustomerDao;
 import domain.Customer;
+import repository.abstract_repository.entity.CustomerRepository;
+import repository.impl.CustomerRepositoryImpl;
+import validator.impl.CustomerValidator;
+
+import java.util.Optional;
+
 
 public class CustomerService {
 
-  private CustomerDao customerDao = new CustomerDao();
+  private final CustomerRepository customerRepository;
+  private final CustomerValidator customerValidator;
 
-  public boolean saveCustomer(Customer customer){
-    customerDao.add(customer);
+  public CustomerService() {
+    customerRepository = new CustomerRepositoryImpl();
+    customerValidator = new CustomerValidator();
   }
+
+  public Optional<Customer> addCustomerToDb(Customer customer) {
+
+    return customerRepository.addOrUpdate(customer);
+  }
+
 }
