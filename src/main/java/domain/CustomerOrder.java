@@ -19,11 +19,11 @@ public class CustomerOrder {
 
   private Integer quantity;
 
-  @OneToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "customer_id", unique = true)
   private Customer customer;
 
-  @OneToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "payment_id")
   private Payment payment;
 

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -23,4 +24,7 @@ public class Shop {
   @ManyToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "country_id")
   private Country country;
+
+  @OneToMany(mappedBy = "shop")
+  private List<Stock> stocks;
 }

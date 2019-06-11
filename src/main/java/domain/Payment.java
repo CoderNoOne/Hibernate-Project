@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "payment")
@@ -16,7 +17,6 @@ import javax.persistence.*;
 @Builder
 public class Payment {
 
-
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
@@ -24,4 +24,7 @@ public class Payment {
   @Column(unique = true)
   @Enumerated(EnumType.ORDINAL)
   private Epayment payment;
+
+  @OneToMany(mappedBy = "payment")
+  private List<CustomerOrder> customerOrders;
 }

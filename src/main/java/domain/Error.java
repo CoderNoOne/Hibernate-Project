@@ -18,9 +18,6 @@ public class Error {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
-
   private LocalDateTime date;
   private String message;
-
-
 }

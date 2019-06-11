@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table
@@ -26,5 +27,8 @@ public class Customer {
   @ManyToOne
   @JoinColumn(name = "country_id")
   private Country country;
+
+  @OneToMany(mappedBy = "customer")
+  private List<CustomerOrder> customerOrders;
 
 }

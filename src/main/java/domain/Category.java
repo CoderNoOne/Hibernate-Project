@@ -3,6 +3,8 @@ package domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -20,4 +22,6 @@ public class Category {
   @Column(unique = true)
   private String name;
 
+  @OneToMany(mappedBy = "product")
+  private List<Product> products;
 }

@@ -5,10 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -20,5 +18,10 @@ public class Trade {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
+
+  @Column(unique = true)
   private String name;
+
+  @OneToMany(mappedBy = "trade")
+  private List<Producer> producers;
 }

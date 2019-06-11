@@ -1,4 +1,4 @@
-package utils.entityUtils;
+package utils.entity_utils;
 
 import domain.Country;
 import domain.Customer;
@@ -17,27 +17,27 @@ public final class CustomerUtil {
   private CustomerUtil() {
   }
 
-  public static Customer createCustomer() {
+  public static Customer createCustomerFromUserInput() {
 
     var name = getString("Input customer name");
     var surname = getString("Input customer surname");
     var age = getInt("Input customer age");
     var country = Country.builder().name(getString("Input country name")).build();
 
-    var customer = Customer.builder()
+    return Customer.builder()
             .age(age)
             .surname(surname)
             .name(name).country(country)
             .build();
 
     //walidacja poprawnosci danych
-    var errorsMap = customerValidator.validate(customer);
-
-    if (customerValidator.hasErrors()) {
-      printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
-      throw new AppException("Car is not valid");
-    }
-
-    return customer;
+//    var errorsMap = customerValidator.validate(customer);
+//
+//    if (customerValidator.hasErrors()) {
+//      printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
+//      throw new AppException("Car is not valid");
+//    }
+//
+//    return customer;
   }
 }

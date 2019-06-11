@@ -3,6 +3,8 @@ package domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -22,4 +24,13 @@ public class Country {
     this.id = country.id;
     this.name = country.name;
   }
+
+  @OneToMany(mappedBy = "country")
+  private Set<Shop> shop;
+
+  @OneToMany(mappedBy = "country")
+  private List<Customer> customers;
+
+  @OneToMany(mappedBy = "country")
+  private List<Producer> producers;
 }

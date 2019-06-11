@@ -23,7 +23,9 @@ public class CountryService {
   }
 
 
-  public Optional<Country> findCountryByName(String name) {
+  public Optional<Country> getCountryByName(String name) {
     return countryRepository.findCountryByName(name);
   }
+
+
 }

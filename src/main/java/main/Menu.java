@@ -7,13 +7,15 @@ import helper.OptionalHelper;
 import service.CountryService;
 import service.CustomerService;
 import service.ErrorService;
+import service.ShopService;
 import utils.UserDataUtils;
-import utils.entityUtils.CustomerUtil;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import static utils.UserDataUtils.printMessage;
+import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
 
 
 class Menu {
@@ -21,6 +23,7 @@ class Menu {
   private final CustomerService customerService = new CustomerService();
   private final CountryService countryService = new CountryService();
   private final ErrorService errorService = new ErrorService();
+  private final ShopService shopService = new ShopService();
 
 
   void mainMenu() {
@@ -30,13 +33,15 @@ class Menu {
 
         int option = UserDataUtils.getInt("Input your option");
         switch (option) {
-          case 1 -> showOption1();
-          case 2 -> showOption2();
+          case 1 -> executeOption1();
+          case 2 -> executeOption2();
           case 3 -> showOption3();
           case 4 -> showOption4();
           case 10 -> DbConnection.close();
         }
       } catch (AppException e) {
+        System.out.println(e.getMessage());
+        System.out.println(Arrays.toString(e.getStackTrace()));
         errorService.addErrorToDb(Error.builder()
                 .date(LocalDateTime.now()).message(e.getMessage()).build());
       }
@@ -59,16 +64,8 @@ class Menu {
                     "Option no. 11 - {10}",
 
             "Add new Customer",
-            "Add new movie from json file",
-            "Generate example data for table movies and customers",
-            "Movie and customer table management",
-            "Buy a ticket",
-            "History - summary",
-            "Some statistics",
-            "Move in time forwardly",
-            "Move in time backwardly",
-            "Show main menu options",
-            "Exit the program"
+            "Add new shop"
+
     ));
   }
 
@@ -80,21 +77,38 @@ class Menu {
 
   }
 
-  private void showOption2() {
+  private void executeOption2() {
+
+//    try {
+    var validatedShop = shopService.getValidatedShopFromUserInput();
+
+    OptionalHelper.of(countryService
+            .getCountryByName(validatedShop.getCountry().getName()))
+            .
+                    shopService.addShopToDb(validatedShop);
+
+//    } catch (Exception e) {
+//
+//      throw new AppException("");
+//    }
 
   }
 
-  private void showOption1() {
+  private void executeOption1() {
 
-    var customer = CustomerUtil.createCustomer();
+    try {
+      var customer = createCustomerFromUserInput();
 
-    var country = OptionalHelper.of(countryService.
-            findCountryByName(customer.getCountry().getName()))
-            .ifNotPresent(() ->
-                    countryService.addCountryToDb(customer.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
+      var country = OptionalHelper.of(countryService
+              .getCountryByName(customer.getCountry().getName()))
+              .ifNotPresent(() ->
+                      countryService.addCountryToDb(customer.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
 
-    customer.setCountry(country);
-    customerService.addCustomerToDb(customer);
-
+      customer.setCountry(country);
+      customerService.addCustomerToDb(customer);
+    } catch (Exception e) {
+      //logowanie bledow
+      throw new AppException("");
+    }
   }
 }

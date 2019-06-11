@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -33,5 +33,11 @@ public class Product {
   private Producer producer;
 
   @OneToMany(mappedBy = "product")
-  private Set<GuaranteeComponent> guaranteeComponent;
+  private List<GuaranteeComponent> guaranteeComponent;
+
+  @OneToMany(mappedBy = "product")
+  private List<CustomerOrder> customerOrders;
+
+  @OneToMany(mappedBy = "product")
+  private List<Stock> stocks;
 }
