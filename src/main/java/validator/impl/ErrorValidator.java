@@ -5,6 +5,7 @@ import domain.Error;
 
 import java.util.Map;
 
+/*czy tu będzie validator?*/
 public class ErrorValidator implements Validator<Error> {
   @Override
   public Map<String, String> validate(Error error) {
@@ -16,8 +17,4 @@ public class ErrorValidator implements Validator<Error> {
     return false;
   }
 
-  @Override
-  public boolean validateEntity(Error error) {
-    return false;
-  }
 }

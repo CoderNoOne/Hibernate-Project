@@ -1,5 +1,6 @@
 package repository.impl;
 
+import domain.Country;
 import domain.Shop;
 import exception.AppException;
 import repository.abstract_repository.base.AbstractCrudRepository;
@@ -12,7 +13,7 @@ import java.util.Optional;
 public class ShopRepositoryImpl extends AbstractCrudRepository<Shop, Long> implements ShopRepository {
 
   @Override
-  public Optional<Shop> findShopByNameAndCountry(String name, Long countryId) {
+  public Optional<Shop> findShopByNameAndCountry(String name, Country country) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
@@ -22,9 +23,9 @@ public class ShopRepositoryImpl extends AbstractCrudRepository<Shop, Long> imple
     try {
       tx.begin();
       item = entityManager
-              .createQuery("select e from " + entityType.getSimpleName() + " e where e.name = :name and e.country_id = :countryId", entityType)
+              .createQuery("select e from " + entityType.getSimpleName() + " e where e.name = :name and e.country.name = :countryName", entityType)
               .setParameter("name", name)
-              .setParameter("countryId", countryId)
+              .setParameter("countryName", country.getName())
               .getResultList()
               .stream()
               .findFirst();
@@ -33,7 +34,7 @@ public class ShopRepositoryImpl extends AbstractCrudRepository<Shop, Long> imple
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException("find shop by name and country- exception");
+      throw new AppException("find shop by name and country - exception");
     } finally {
       if (entityManager != null) {
         entityManager.close();

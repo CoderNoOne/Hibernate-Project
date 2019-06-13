@@ -2,18 +2,19 @@ package utils.entity_utils;
 
 import domain.Country;
 import domain.Shop;
-import service.ShopService;
+import exception.AppException;
 import validator.impl.ShopValidator;
 
 
+import java.util.stream.Collectors;
 
 import static utils.UserDataUtils.getString;
+import static utils.UserDataUtils.printMessage;
 
 
 public final class ShopUtil {
 
   private static final ShopValidator shopValidator = new ShopValidator();
-  private static final ShopService shopService = new ShopService();
 
   private ShopUtil() {
   }
@@ -24,7 +25,15 @@ public final class ShopUtil {
 
     var country = Country.builder().name(getString("Input country name")).build();
 
-    return Shop.builder().name(shopName).country(country).build();
+    Shop shop = Shop.builder().name(shopName).country(country).build();
+    var errorsMap = shopValidator.validate(shop);
+
+    if (shopValidator.hasErrors()) {
+      printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
+      throw new AppException("Shop is not valid");
+    }
+
+    return shop;
 
   }
 }

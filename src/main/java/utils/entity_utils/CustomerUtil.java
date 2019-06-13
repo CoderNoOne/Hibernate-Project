@@ -24,20 +24,21 @@ public final class CustomerUtil {
     var age = getInt("Input customer age");
     var country = Country.builder().name(getString("Input country name")).build();
 
-    return Customer.builder()
+    var customer = Customer.builder()
             .age(age)
             .surname(surname)
-            .name(name).country(country)
+            .name(name)
+            .country(country)
             .build();
 
-    //walidacja poprawnosci danych
-//    var errorsMap = customerValidator.validate(customer);
-//
-//    if (customerValidator.hasErrors()) {
-//      printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
-//      throw new AppException("Car is not valid");
-//    }
-//
-//    return customer;
+    var errorsMap = customerValidator.validate(customer);
+
+    if (customerValidator.hasErrors()) {
+      printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
+      throw new AppException("Customer is not valid: " + customerValidator.getErrors());
+    }
+
+    return customer;
   }
+
 }

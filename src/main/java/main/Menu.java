@@ -4,20 +4,24 @@ import configuration.DbConnection;
 import domain.Error;
 import exception.AppException;
 import helper.OptionalHelper;
+import lombok.extern.slf4j.Slf4j;
 import service.CountryService;
 import service.CustomerService;
 import service.ErrorService;
 import service.ShopService;
 import utils.UserDataUtils;
+import utils.entity_utils.ShopUtil;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import static helper.enums.ErrorMessage.ERROR_WHILE_INSERTING;
+import static helper.enums.TableNames.*;
 import static utils.UserDataUtils.printMessage;
 import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
 
-
+@Slf4j
 class Menu {
 
   private final CustomerService customerService = new CustomerService();
@@ -27,21 +31,21 @@ class Menu {
 
 
   void mainMenu() {
-    showMenuOptions();
     while (true) {
+      showMenuOptions();
       try {
 
         int option = UserDataUtils.getInt("Input your option");
         switch (option) {
           case 1 -> executeOption1();
           case 2 -> executeOption2();
-          case 3 -> showOption3();
-          case 4 -> showOption4();
+          case 3 -> executeOption3();
+          case 4 -> executeOption4();
           case 10 -> DbConnection.close();
         }
       } catch (AppException e) {
-        System.out.println(e.getMessage());
-        System.out.println(Arrays.toString(e.getStackTrace()));
+        log.info(e.getMessage());
+        log.error(Arrays.toString(e.getStackTrace()));
         errorService.addErrorToDb(Error.builder()
                 .date(LocalDateTime.now()).message(e.getMessage()).build());
       }
@@ -69,28 +73,34 @@ class Menu {
     ));
   }
 
-  private void showOption4() {
+  private void executeOption4() {
 
   }
 
-  private void showOption3() {
+  private void executeOption3() {
 
   }
 
   private void executeOption2() {
 
-//    try {
-    var validatedShop = shopService.getValidatedShopFromUserInput();
+    try {
+      var shop = ShopUtil.createShopFromUserInput();
 
-    OptionalHelper.of(countryService
-            .getCountryByName(validatedShop.getCountry().getName()))
-            .
-                    shopService.addShopToDb(validatedShop);
+//      var validatedShop = shopService.getValidatedShopFromUserInput();
 
-//    } catch (Exception e) {
-//
-//      throw new AppException("");
-//    }
+      var country = OptionalHelper.of(countryService
+              .getCountryByName(shop.getCountry().getName()))
+              .ifNotPresent(() ->
+                      countryService.addCountryToDb(shop.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
+
+      shop.setCountry(country);
+
+      shopService.addShopToDbFromUserInput(shop);
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", SHOP, ERROR_WHILE_INSERTING, e.getMessage()));
+    }
 
   }
 
@@ -99,16 +109,19 @@ class Menu {
     try {
       var customer = createCustomerFromUserInput();
 
+      //walidacja czy country istnieje juz w bazie danych
       var country = OptionalHelper.of(countryService
               .getCountryByName(customer.getCountry().getName()))
               .ifNotPresent(() ->
                       countryService.addCountryToDb(customer.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
 
       customer.setCountry(country);
-      customerService.addCustomerToDb(customer);
+      //walidacja uniqueness customera na podstawie imie + nazwisko + country + dodanie jesli unique
+      customerService.addCustomerToDbFromUserInput(customer);
     } catch (Exception e) {
-      //logowanie bledow
-      throw new AppException("");
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_WHILE_INSERTING, e.getMessage()));
     }
   }
 }

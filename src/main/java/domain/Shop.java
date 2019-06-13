@@ -21,7 +21,7 @@ public class Shop {
 
   private String name;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne/*(cascade = CascadeType.PERSIST)*/
   @JoinColumn(name = "country_id")
   private Country country;
 

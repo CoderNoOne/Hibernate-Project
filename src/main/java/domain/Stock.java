@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Data
@@ -21,6 +20,7 @@ public class Stock {
   private Long id;
 
   private String name;
+  private Integer quantity;
 
   @ManyToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "shop_id")
