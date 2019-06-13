@@ -1,14 +1,13 @@
 package utils.entity_utils;
 
-import domain.Category;
-import domain.Country;
-import domain.Producer;
-import domain.Product;
+import domain.*;
 import exception.AppException;
 import utils.UserDataUtils;
 import validator.impl.ProductValidator;
 
 import java.util.stream.Collectors;
+
+import static utils.UserDataUtils.*;
 
 public final class ProductUtil {
 
@@ -19,25 +18,23 @@ public final class ProductUtil {
 
   public static Product createProductFromUserInput() {
 
-    var name = UserDataUtils.getString("Input product name");
-    var price = UserDataUtils.getBigDecimal("Input product price");
-    var category = Category.builder().name(UserDataUtils.getString("Input category name")).build();
-    var country = Country.builder().name(UserDataUtils.getString("Input country name")).build();
-    var producer = Producer.builder().name(UserDataUtils.getString("Input producer name")).country(country).build();
-
-    // nazwy usług gwarancyjnych  jeszcze trzeba dodać
-
     var product = Product.builder()
-            .category(category)
-            .name(name)
-            .price(price)
-            .producer(producer)
+            .category(Category.builder().name(getString("Input category name")).build())
+            .name(getString("Input product name"))
+            .price(getBigDecimal("Input product price"))
+            .producer(Producer.builder()
+                    .name(getString("Input producer name"))
+                    .country(Country.builder().name(getString("Input country name")).build())
+                    .trade(Trade.builder().name(getString("Input trade name")).build())
+                    .build())
             .build();
+
+    // nazwy usług gwarancyjnych  jeszcze trzeba dodać guarantee_components
 
     var errorsMap = productValidator.validate(product);
 
     if (productValidator.hasErrors()) {
-      UserDataUtils.printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
+      printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
       throw new AppException("Product is not valid: " + productValidator.getErrors());
     }
     return product;

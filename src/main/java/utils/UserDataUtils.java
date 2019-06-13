@@ -58,21 +58,25 @@ public final class UserDataUtils {
     System.out.println(message);
   }
 
-  public static void close() {
-    if (sc != null) {
-      sc.close();
-      sc = null;
-    }
-  }
 
   public static BigDecimal getBigDecimal(String inputMessage) {
 
     if (inputMessage == null) {
-      throw new AppException("GET LOCAL DATE TIME - MESSAGE IS NULL");
+      throw new AppException("GET BIG DECIMAL - MESSAGE IS NULL");
     }
 
     printMessage(inputMessage);
-    return sc.nextBigDecimal();
+    String input = sc.nextLine();
+
+    if(input.length() == 0){
+      throw new AppException("You didn't input any value");
+    }
+
+    if(!input.matches("\\d+(\\.\\d+)*")){
+      throw new AppException("Big Decimal Value is not correct: " + input);
+    }
+
+    return new BigDecimal(input);
   }
 
   public static LocalDateTime getLocalDateTime(String message) {
@@ -86,9 +90,6 @@ public final class UserDataUtils {
       String date = sc.nextLine();
       return LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     } catch (DateTimeParseException e) {
-
-//      log.info(e.getMessage());
-//      log.error(Arrays.toString(e.getStackTrace()), e);
       throw new AppException("DATE FORMAT NOT SUPPORTED");
     }
   }
@@ -104,9 +105,15 @@ public final class UserDataUtils {
       String date = sc.nextLine();
       return LocalDate.parse(date);
     } catch (DateTimeParseException e) {
-//      log.info(e.getMessage());
-//      log.error(Arrays.toString(e.getStackTrace()), e);
       throw new AppException("DATE FORMAT NOT SUPPORTED");
     }
   }
+
+  public static void close() {
+    if (sc != null) {
+      sc.close();
+      sc = null;
+    }
+  }
+
 }

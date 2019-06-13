@@ -1,26 +1,29 @@
 package repository.impl;
 
-import domain.Trade;
+import domain.Category;
 import exception.AppException;
 import repository.abstract_repository.base.AbstractCrudRepository;
-import repository.abstract_repository.entity.TradeRepository;
+import repository.abstract_repository.entity.CategoryRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import java.util.Arrays;
 import java.util.Optional;
 
-public class TradeRepositoryImpl extends AbstractCrudRepository<Trade, Long> implements TradeRepository {
+public class CategoryRepositoryImpl extends AbstractCrudRepository<Category, Long> implements CategoryRepository {
 
   @Override
-  public Optional<Trade> findByName(String name) {
-//    if (name == null) {
-//      throw new AppException("Trade name is null");
-//    }
+  public Optional<Category> findCategoryByName(String name) {
+
+
+    if (name == null) {
+      throw new AppException("Category name is null");
+    }
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
 
-    Optional<Trade> item = Optional.empty();
+    Optional<Category> item = Optional.empty();
 
     try {
       tx.begin();
@@ -32,10 +35,12 @@ public class TradeRepositoryImpl extends AbstractCrudRepository<Trade, Long> imp
               .findFirst();
       tx.commit();
     } catch (Exception e) {
+      System.out.println(e.getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException("find trade by name - exception");
+      throw new AppException("find category by name - exception");
     } finally {
       if (entityManager != null) {
         entityManager.close();
@@ -43,7 +48,5 @@ public class TradeRepositoryImpl extends AbstractCrudRepository<Trade, Long> imp
     }
 
     return item;
-
   }
 }
-

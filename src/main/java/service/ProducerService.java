@@ -43,4 +43,7 @@ public class ProducerService {
             || !producerRepository.findByNameAndTradeAndCountry(name, trade, country).get().getTrade().getName().equals(trade.getName());*/
   }
 
+  public Optional<Producer> getProducerByNameAndTradeAndCountry(String name, Trade trade, Country country) {
+    return producerRepository.findByNameAndTradeAndCountry(name, trade, country);
+  }
 }

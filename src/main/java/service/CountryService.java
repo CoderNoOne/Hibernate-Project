@@ -3,18 +3,17 @@ package service;
 import domain.Country;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.impl.CountryRepositoryImpl;
-import validator.impl.CustomerValidator;
+
 
 import java.util.Optional;
 
 public class CountryService {
 
   private final CountryRepository countryRepository;
-  private final CustomerValidator customerValidator;
+
 
   public CountryService() {
     countryRepository = new CountryRepositoryImpl();
-    customerValidator = new CustomerValidator();
   }
 
   public Optional<Country> addCountryToDb(Country country) {
@@ -26,6 +25,5 @@ public class CountryService {
   public Optional<Country> getCountryByName(String name) {
     return countryRepository.findCountryByName(name);
   }
-
 
 }

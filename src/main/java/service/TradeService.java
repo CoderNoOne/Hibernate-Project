@@ -32,7 +32,6 @@ public class TradeService {
   }
 
   public Optional<Trade> getTradeByName(String name) {
-    return tradeRepository
-            .findByName(name);
+    return tradeRepository.findByName(name);
   }
 }

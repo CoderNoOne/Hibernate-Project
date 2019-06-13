@@ -29,7 +29,8 @@ class Menu {
   private final ShopService shopService = new ShopService();
   private final ProducerService producerService = new ProducerService();
   private final TradeService tradeService = new TradeService();
-
+  private final CategoryService categoryService = new CategoryService();
+  private final ProductService productService = new ProductService();
 
   void mainMenu() {
     while (true) {
@@ -78,18 +79,54 @@ class Menu {
     ));
   }
 
+
+  private void executeOption6() {
+  }
+
+  private void executeOption5() {
+  }
+
   private void executeOption4() {
 
-    try{
-
+    try {
       var product = ProductUtil.createProductFromUserInput();
 
+      var category = OptionalHelper.of(categoryService
+              .getCategoryByName(product.getCategory().getName()))
+              .ifNotPresent(() ->
+                      categoryService.addCategoryToDb(product.getCategory()).orElseThrow(() -> new AppException("Category is null")));
 
-    }catch (Exception e){
+      var country = OptionalHelper.of(countryService
+              .getCountryByName(product.getProducer().getCountry().getName()))
+              .ifNotPresent(() ->
+                      countryService.addCountryToDb(product.getProducer().getCountry()).orElseThrow(() -> new AppException("Country is null")));
+
+      product.getProducer().setCountry(country);
+
+      var trade = OptionalHelper.of(tradeService
+              .getTradeByName(product.getProducer().getTrade().getName()))
+              .ifNotPresent(() ->
+                      tradeService.addTradeToDb(product.getProducer().getTrade()).orElseThrow(() -> new AppException("Trade is null")));
+
+      product.getProducer().setTrade(trade);
+
+      var producer = OptionalHelper.of(producerService
+              .getProducerByNameAndTradeAndCountry(
+                      product.getProducer().getName(), product.getProducer().getTrade(), product.getProducer().getCountry()))
+              .ifNotPresent(() ->
+                      producerService.addProducerToDb(product.getProducer()).orElseThrow(() -> new AppException("Producer is null")));
+
+
+      producer.setTrade(trade);
+      product.setCategory(category);
+      product.setProducer(producer);
+      productService.
+
+    } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", PRODUCT, ERROR_WHILE_INSERTING, e.getMessage()));
     }
-
   }
 
   private void executeOption3() {
@@ -100,12 +137,12 @@ class Menu {
       var country = OptionalHelper.of(countryService
               .getCountryByName(producer.getCountry().getName()))
               .ifNotPresent(() ->
-                      countryService.addCountryToDb(producer.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
+                      countryService.addCountryToDb(producer.getCountry()).orElseThrow(() -> new AppException("Country is null")));
 
       var trade = OptionalHelper.of(tradeService
               .getTradeByName(producer.getTrade().getName()))
               .ifNotPresent(() ->
-                      tradeService.addTradeToDb(producer.getTrade()).orElseThrow(() -> new AppException(";Trade is null")));
+                      tradeService.addTradeToDb(producer.getTrade()).orElseThrow(() -> new AppException("Trade is null")));
 
       producer.setCountry(country);
       producer.setTrade(trade);
@@ -126,7 +163,7 @@ class Menu {
       var country = OptionalHelper.of(countryService
               .getCountryByName(shop.getCountry().getName()))
               .ifNotPresent(() ->
-                      countryService.addCountryToDb(shop.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
+                      countryService.addCountryToDb(shop.getCountry()).orElseThrow(() -> new AppException("Country is null")));
 
       shop.setCountry(country);
 
@@ -148,7 +185,7 @@ class Menu {
       var country = OptionalHelper.of(countryService
               .getCountryByName(customer.getCountry().getName()))
               .ifNotPresent(() ->
-                      countryService.addCountryToDb(customer.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
+                      countryService.addCountryToDb(customer.getCountry()).orElseThrow(() -> new AppException("Country is null")));
 
       customer.setCountry(country);
       //walidacja uniqueness customera na podstawie imie + nazwisko + country + dodanie jesli unique
