@@ -5,11 +5,10 @@ import domain.Error;
 import exception.AppException;
 import helper.OptionalHelper;
 import lombok.extern.slf4j.Slf4j;
-import service.CountryService;
-import service.CustomerService;
-import service.ErrorService;
-import service.ShopService;
+import service.*;
 import utils.UserDataUtils;
+import utils.entity_utils.ProducerUtil;
+import utils.entity_utils.ProductUtil;
 import utils.entity_utils.ShopUtil;
 
 import java.text.MessageFormat;
@@ -28,6 +27,8 @@ class Menu {
   private final CountryService countryService = new CountryService();
   private final ErrorService errorService = new ErrorService();
   private final ShopService shopService = new ShopService();
+  private final ProducerService producerService = new ProducerService();
+  private final TradeService tradeService = new TradeService();
 
 
   void mainMenu() {
@@ -68,25 +69,59 @@ class Menu {
                     "Option no. 11 - {10}",
 
             "Add new Customer",
-            "Add new shop"
+            "Add new shop",
+            "Add new producer",
+            "Add new product",
+            "Add new stock",
+            "Add new Customer order"
 
     ));
   }
 
   private void executeOption4() {
 
+    try{
+
+      var product = ProductUtil.createProductFromUserInput();
+
+
+    }catch (Exception e){
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+    }
+
   }
 
   private void executeOption3() {
 
+    try {
+      var producer = ProducerUtil.createProducerFromUserInput();
+
+      var country = OptionalHelper.of(countryService
+              .getCountryByName(producer.getCountry().getName()))
+              .ifNotPresent(() ->
+                      countryService.addCountryToDb(producer.getCountry()).orElseThrow(() -> new AppException(";Country is null")));
+
+      var trade = OptionalHelper.of(tradeService
+              .getTradeByName(producer.getTrade().getName()))
+              .ifNotPresent(() ->
+                      tradeService.addTradeToDb(producer.getTrade()).orElseThrow(() -> new AppException(";Trade is null")));
+
+      producer.setCountry(country);
+      producer.setTrade(trade);
+      producerService.addProducerToDb(producer);
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", PRODUCER, ERROR_WHILE_INSERTING, e.getMessage()));
+    }
   }
 
   private void executeOption2() {
 
     try {
       var shop = ShopUtil.createShopFromUserInput();
-
-//      var validatedShop = shopService.getValidatedShopFromUserInput();
 
       var country = OptionalHelper.of(countryService
               .getCountryByName(shop.getCountry().getName()))

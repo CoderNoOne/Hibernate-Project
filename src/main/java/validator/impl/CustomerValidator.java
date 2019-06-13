@@ -66,7 +66,7 @@ public class CustomerValidator implements Validator<Customer> {
 //  }
 
   private boolean isCountryValid(Customer customer){
-    return ! getCountryValidator(customer).hasErrors();
+    return !getCountryValidator(customer).hasErrors();
 
   }
 

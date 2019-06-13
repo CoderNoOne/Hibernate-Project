@@ -36,9 +36,9 @@ public class CustomerService {
     }
 
     return customerRepository
-            .findByNameAndSurnameAndCountry(name, surname, country).isEmpty()
-            || !customerRepository.findByNameAndSurnameAndCountry(name, surname, country).get()
+            .findByNameAndSurnameAndCountry(name, surname, country).isEmpty();
+         /*   || !customerRepository.findByNameAndSurnameAndCountry(name, surname, country).get()
             .getCountry().getName().equals(country.getName());
-
+*/
   }
 }

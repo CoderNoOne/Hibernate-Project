@@ -31,6 +31,13 @@ public class ProductValidator implements Validator<Product> {
       errors.put("Product price", "Product price should be greater than 0");
     }
 
+    if(!isProducerValid(product)){
+      errors.putAll(getProducerValidator(product).getErrors());
+    }
+    if(!isCategoryValid(product)){
+      errors.putAll(getCategoryValidator(product).getErrors());
+    }
+
     return errors;
   }
 
@@ -49,5 +56,25 @@ public class ProductValidator implements Validator<Product> {
 
   private boolean isProductPriceValid(Product product) {
     return product.getPrice().compareTo(BigDecimal.ZERO) > 0;
+  }
+
+  private boolean isProducerValid(Product product){
+    return !getProducerValidator(product).hasErrors();
+  }
+
+  private boolean isCategoryValid(Product product){
+    return !getCategoryValidator(product).hasErrors();
+  }
+
+ private CategoryValidator getCategoryValidator(Product product){
+    CategoryValidator categoryValidator = new CategoryValidator();
+    categoryValidator.validate(product.getCategory());
+    return categoryValidator;
+ }
+
+  private ProducerValidator getProducerValidator(Product product){
+    ProducerValidator producerValidator =  new ProducerValidator();
+    producerValidator.validate(product.getProducer());
+    return producerValidator;
   }
 }
