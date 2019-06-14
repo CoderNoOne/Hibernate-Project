@@ -27,5 +27,4 @@ public class Producer {
   @ManyToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "trade_id")
   private Trade trade;
-
 }

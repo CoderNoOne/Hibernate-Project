@@ -38,6 +38,6 @@ public class CategoryValidator implements Validator<Category> {
   }
 
   private boolean isCategoryNameValid(Category category) {
-    return category.getName().matches("[A-Z]+(\\s[A-Z])*");
+    return category.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 }

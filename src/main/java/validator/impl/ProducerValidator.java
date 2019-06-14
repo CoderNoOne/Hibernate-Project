@@ -46,7 +46,7 @@ public class ProducerValidator implements Validator<Producer> {
   }
 
   private boolean isProducerNameValid(Producer producer) {
-    return producer.getName().matches("[A-Z]+(\\s[A-Z])*");
+    return producer.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isTradeValid(Producer producer) {

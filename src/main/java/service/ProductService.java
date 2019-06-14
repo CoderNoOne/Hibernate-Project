@@ -22,15 +22,15 @@ public class ProductService {
   }
 
   public void addProductToDbFromUserInput(Product product) {
-    if (!) {
+    if (isProductUniqueByNameAndCategoryAndProducer(product.getName(),product.getCategory(),product.getProducer())) {
       addProductToDb(product);
     } else {
-      throw new AppException("Couldn't add new product to db - product's not unique by name and category and producent");
+      throw new AppException("Couldn't add new product to db - product's not unique by name and category and producer");
     }
   }
 
   private boolean isProductUniqueByNameAndCategoryAndProducer(String name, Category category, Producer producer){
-    return productRepository.findByNameAndCategoryAndProducer(name, category, producer);
+    return productRepository.findByNameAndCategoryAndProducer(name, category, producer).isEmpty();
   }
 
 }

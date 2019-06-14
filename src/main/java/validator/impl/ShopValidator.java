@@ -30,7 +30,7 @@ public class ShopValidator implements Validator<Shop> {
   }
 
   private boolean isNameValid(Shop shop) {
-    return shop.getName().matches("[A-Z]+(\\s[A-Z])*");
+    return shop.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   @Override

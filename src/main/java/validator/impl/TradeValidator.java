@@ -39,7 +39,7 @@ public class TradeValidator implements Validator<Trade> {
   }
 
   private boolean isTradeNameValid(Trade trade) {
-    return trade.getName().matches("[A-Z]+(\\s[A-Z])*");
+    return trade.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
 }

@@ -51,7 +51,7 @@ public class ProductValidator implements Validator<Product> {
   }
 
   private boolean isProductNameValid(Product product) {
-    return product.getName().matches("[A-Z]+(\\s[A-Z])*");
+    return product.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isProductPriceValid(Product product) {

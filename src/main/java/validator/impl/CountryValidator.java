@@ -45,7 +45,7 @@ public class CountryValidator implements Validator<Country> {
   }
 
   private boolean isCountryNameValid(Country country) {
-    return country.getName().matches("[A-Z]+(\\s[A-Z])*");
+    return country.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
 //  private boolean isCountryNameUnique(Country country) {

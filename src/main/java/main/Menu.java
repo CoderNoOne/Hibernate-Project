@@ -117,10 +117,10 @@ class Menu {
                       producerService.addProducerToDb(product.getProducer()).orElseThrow(() -> new AppException("Producer is null")));
 
 
-      producer.setTrade(trade);
       product.setCategory(category);
       product.setProducer(producer);
-      productService.
+
+      productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
       log.info(e.getMessage());

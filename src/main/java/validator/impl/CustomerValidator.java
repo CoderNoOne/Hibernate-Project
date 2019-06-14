@@ -50,11 +50,11 @@ public class CustomerValidator implements Validator<Customer> {
   }
 
   private boolean isCustomerNameValid(Customer customer) {
-    return customer.getName().matches("[A-Z]+(\\s[A-Z])*");
+    return customer.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isCustomerSurnameValid(Customer customer) {
-    return customer.getSurname().matches("[A-Z]+(\\s[A-Z])*");
+    return customer.getSurname().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isCustomerAgeValid(Customer customer) {

@@ -20,11 +20,6 @@ public class Country {
   @Column
   private String name;
 
-  public void setCountryInfo(Country country){
-    this.id = country.id;
-    this.name = country.name;
-  }
-
   @OneToMany(mappedBy = "country")
   private Set<Shop> shop;
 
