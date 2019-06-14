@@ -5,6 +5,7 @@ import validator.Validator;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class ProductValidator implements Validator<Product> {
@@ -31,13 +32,16 @@ public class ProductValidator implements Validator<Product> {
       errors.put("Product price", "Product price should be greater than 0");
     }
 
-    if(!isProducerValid(product)){
-      errors.putAll(getProducerValidator(product).getErrors());
-    }
-    if(!isCategoryValid(product)){
-      errors.putAll(getCategoryValidator(product).getErrors());
+    if (!areGuaranteeComponentsValid(product)) {
+      errors.put("Guarantee components", "Guarantee components should be unique");
     }
 
+    if (!isProducerValid(product)) {
+      errors.putAll(getProducerValidator(product).getErrors());
+    }
+    if (!isCategoryValid(product)) {
+      errors.putAll(getCategoryValidator(product).getErrors());
+    }
     return errors;
   }
 
@@ -58,23 +62,28 @@ public class ProductValidator implements Validator<Product> {
     return product.getPrice().compareTo(BigDecimal.ZERO) > 0;
   }
 
-  private boolean isProducerValid(Product product){
+  private boolean isProducerValid(Product product) {
     return !getProducerValidator(product).hasErrors();
   }
 
-  private boolean isCategoryValid(Product product){
+  private boolean isCategoryValid(Product product) {
     return !getCategoryValidator(product).hasErrors();
   }
 
- private CategoryValidator getCategoryValidator(Product product){
+  private boolean areGuaranteeComponentsValid(Product product) {
+    return product.getGuaranteeComponent().stream().allMatch(new HashSet<>()::add);
+  }
+
+  private CategoryValidator getCategoryValidator(Product product) {
     CategoryValidator categoryValidator = new CategoryValidator();
     categoryValidator.validate(product.getCategory());
     return categoryValidator;
- }
+  }
 
-  private ProducerValidator getProducerValidator(Product product){
-    ProducerValidator producerValidator =  new ProducerValidator();
+  private ProducerValidator getProducerValidator(Product product) {
+    ProducerValidator producerValidator = new ProducerValidator();
     producerValidator.validate(product.getProducer());
     return producerValidator;
   }
+
 }

@@ -1,5 +1,6 @@
 package domain;
 
+import domain.enums.EGuarantee;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,8 +33,11 @@ public class Product {
   @JoinColumn(name = "producer_id")
   private Producer producer;
 
-  @OneToMany(mappedBy = "product")
-  private List<GuaranteeComponent> guaranteeComponent;
+  @ElementCollection
+  @CollectionTable(name = "guarantee_component", joinColumns = @JoinColumn(name = "product_id"))
+  @Column(name = "guarantee_component")
+  @Enumerated(EnumType.ORDINAL)
+  private List<EGuarantee> guaranteeComponent;
 
   @OneToMany(mappedBy = "product")
   private List<CustomerOrder> customerOrders;
