@@ -39,9 +39,14 @@ public class ShopService {
     }
 
     return shopRepository
-            .findShopByNameAndCountry(name, country).isEmpty()
-            || !shopRepository.findShopByNameAndCountry(name, country).get()
-            .getCountry().getName().equals(country.getName());
+            .findShopByNameAndCountry(name, country.getName()).isEmpty();
+           /* || !shopRepository.findShopByNameAndCountry(name, country.getName()).get()
+            .getCountry().getName().equals(country.getName());*/
+
+  }
+
+  public Optional<Shop> getShopByNameAndCountry(String name, String countryName) {
+    return shopRepository.findShopByNameAndCountry(name, countryName);
 
   }
 }

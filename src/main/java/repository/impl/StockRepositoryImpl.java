@@ -1,31 +1,31 @@
 package repository.impl;
 
-import domain.Country;
+import domain.Product;
 import domain.Shop;
+import domain.Stock;
 import exception.AppException;
 import repository.abstract_repository.base.AbstractCrudRepository;
-import repository.abstract_repository.entity.ShopRepository;
+import repository.abstract_repository.entity.StockRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import java.util.Optional;
 
-public class ShopRepositoryImpl extends AbstractCrudRepository<Shop, Long> implements ShopRepository {
+public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> implements StockRepository {
 
   @Override
-  public Optional<Shop> findShopByNameAndCountry(String name, String countryName) {
-
+  public Optional<Stock> findStockByShopAndProduct(Shop shop, Product product) {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
 
-    Optional<Shop> item = Optional.empty();
+    Optional<Stock> item = Optional.empty();
 
     try {
       tx.begin();
       item = entityManager
-              .createQuery("select e from " + entityType.getSimpleName() + " e where e.name = :name and e.country.name = :countryName", entityType)
-              .setParameter("name", name)
-              .setParameter("countryName", countryName)
+              .createQuery("select e from " + entityType.getSimpleName() + " as e where e.shop.name = :shopName and e.product.name = :productName", entityType)
+              .setParameter("shopName", shop.getName())
+              .setParameter("productName", product.getName())
               .getResultList()
               .stream()
               .findFirst();
@@ -34,7 +34,7 @@ public class ShopRepositoryImpl extends AbstractCrudRepository<Shop, Long> imple
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException("find shop by name and country - exception");
+      throw new AppException("find trade by name - exception");
     } finally {
       if (entityManager != null) {
         entityManager.close();
@@ -42,6 +42,6 @@ public class ShopRepositoryImpl extends AbstractCrudRepository<Shop, Long> imple
     }
 
     return item;
+
   }
 }
-

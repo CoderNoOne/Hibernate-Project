@@ -10,6 +10,7 @@ import utils.UserDataUtils;
 import utils.entity_utils.ProducerUtil;
 import utils.entity_utils.ProductUtil;
 import utils.entity_utils.ShopUtil;
+import utils.entity_utils.StockUtil;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ class Menu {
   private final TradeService tradeService = new TradeService();
   private final CategoryService categoryService = new CategoryService();
   private final ProductService productService = new ProductService();
+  private final StockService stockService = new StockService();
 
   void mainMenu() {
     while (true) {
@@ -43,6 +45,8 @@ class Menu {
           case 2 -> executeOption2();
           case 3 -> executeOption3();
           case 4 -> executeOption4();
+          case 5 -> executeOption5();
+          case 6 -> executeOption6();
           case 10 -> DbConnection.close();
         }
       } catch (AppException e) {
@@ -91,12 +95,73 @@ class Menu {
   }
 
 
-
   private void executeOption5() {
 
     try {
 
+      var stock = StockUtil.createStockFromUserInput();
 
+      var shopCountry = OptionalHelper.of(countryService
+              .getCountryByName(stock.getShop().getCountry().getName()))
+              .ifNotPresent(() ->
+                      countryService.addCountryToDb(stock.getShop().getCountry()).orElseThrow(() ->
+                              new AppException("Shop country from db is null - something went wrong")));
+
+      stock.getShop().setCountry(shopCountry);
+
+      var category = OptionalHelper.of(categoryService
+              .getCategoryByName(stock.getProduct().getCategory().getName()))
+              .ifNotPresent(() ->
+                      categoryService.addCategoryToDb(stock.getProduct().getCategory()).orElseThrow(() ->
+                              new AppException("Category from db is null - something went wrong")));
+
+      stock.getShop().setCountry(shopCountry);
+
+      var shop = OptionalHelper.of(shopService
+              .getShopByNameAndCountry(stock.getShop().getName(), stock.getShop().getCountry().getName()))
+              .ifNotPresent(() ->
+                      shopService.addShopToDb(stock.getShop()).orElseThrow(()
+                              -> new AppException("Shop from db is null - something went wrong")));
+
+      stock.getProduct().setCategory(category);
+
+      var trade = OptionalHelper.of(tradeService
+              .getTradeByName(stock.getProduct().getProducer().getTrade().getName()))
+              .ifNotPresent(() ->
+                      tradeService.addTradeToDb(stock.getProduct().getProducer().getTrade()).orElseThrow(() ->
+                              new AppException("Trade object from db is null - something went wrong")));
+
+      stock.getProduct().getProducer().setTrade(trade);
+
+      var producerCountry = OptionalHelper.of(countryService
+              .getCountryByName(stock.getProduct().getProducer().getCountry().getName()))
+              .ifNotPresent(() ->
+                      countryService.addCountryToDb(stock.getProduct().getProducer().getCountry()).orElseThrow(() ->
+                              new AppException("Producer country from db is null - something went wrong")));
+
+      stock.getProduct().getProducer().setCountry(producerCountry);
+
+
+      var producer = OptionalHelper.of(producerService
+              .getProducerByNameAndTradeAndCountry(
+                      stock.getProduct().getProducer().getName(), stock.getProduct().getProducer().getTrade(),
+                      stock.getProduct().getProducer().getCountry()))
+              .ifNotPresent(() ->
+                      producerService.addProducerToDb(stock.getProduct().getProducer()).orElseThrow(() ->
+                              new AppException("Producer object from db is null - something went wrong")));
+
+      stock.getProduct().setProducer(producer);
+
+      var product = OptionalHelper.of(productService
+              .getProductByNameAndCategoryAndProducer(stock.getProduct().getName(), stock.getProduct().getCategory(),
+                      stock.getProduct().getProducer()))
+              .ifNotPresent(() ->
+                      productService.addProductToDb(stock.getProduct()).orElseThrow(() ->
+                              new AppException("Product from db is null - something went wrong")));
+
+      stock.setProduct(product);
+      stock.setShop(shop);
+      stockService.addStockToDbFromUserInput(stock);
 
     } catch (Exception e) {
       log.info(e.getMessage());

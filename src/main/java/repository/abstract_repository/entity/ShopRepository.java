@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface ShopRepository extends CrudRepository<Shop, Long> {
 
-  Optional<Shop> findShopByNameAndCountry(String name, Country country);
+  Optional<Shop> findShopByNameAndCountry(String name, String countryName);
 }

@@ -19,14 +19,13 @@ public class Stock {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  private String name;
   private Integer quantity;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(/*cascade = CascadeType.PERSIST*/)
   @JoinColumn(name = "shop_id")
   private Shop shop;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(/*cascade = CascadeType.PERSIST*/)
   @JoinColumn(name = "product_id")
   private Product product;
 

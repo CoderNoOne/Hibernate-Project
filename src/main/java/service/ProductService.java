@@ -33,4 +33,7 @@ public class ProductService {
     return productRepository.findByNameAndCategoryAndProducer(name, category, producer).isEmpty();
   }
 
+  public Optional<Product> getProductByNameAndCategoryAndProducer(String name, Category category, Producer producer) {
+    return productRepository.findByNameAndCategoryAndProducer(name, category, producer);
+  }
 }
