@@ -23,7 +23,7 @@ public class Payment {
 
   @Column(unique = true)
   @Enumerated(EnumType.ORDINAL)
-  private Epayment payment;
+  private Epayment epayment;
 
   @OneToMany(mappedBy = "payment"/*, cascade = CascadeType.MERGE*/)
   private List<CustomerOrder> customerOrders;

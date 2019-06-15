@@ -35,10 +35,13 @@ public class CustomerService {
       throw new AppException("Customer is null");
     }
 
-    return customerRepository
-            .findByNameAndSurnameAndCountry(name, surname, country).isEmpty();
+    return getCustomerByNameAndSurnameAndCountry(name, surname, country).isEmpty();
          /*   || !customerRepository.findByNameAndSurnameAndCountry(name, surname, country).get()
             .getCountry().getName().equals(country.getName());
 */
+  }
+
+  public Optional<Customer> getCustomerByNameAndSurnameAndCountry(String name, String surname, Country country){
+    return customerRepository.findByNameAndSurnameAndCountry(name, surname, country);
   }
 }

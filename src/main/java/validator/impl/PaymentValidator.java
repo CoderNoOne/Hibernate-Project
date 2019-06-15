@@ -27,4 +27,8 @@ public class PaymentValidator implements Validator<Payment> {
   public boolean hasErrors() {
     return !errors.isEmpty();
   }
+
+  public Map<String, String> getErrors() {
+    return errors;
+  }
 }

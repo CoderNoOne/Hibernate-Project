@@ -18,6 +18,41 @@ public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long>
 
 
   @Override
+  public List<Product> findProductsByNameAndCategory(String name, Category category) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    List<Product> resultList = new ArrayList<>();
+
+    try {
+      tx.begin();
+
+      resultList = entityManager
+              .createQuery("select e from " + entityType.getSimpleName() + " as e where e.name = :name and e.category.name = :categoryName", entityType)
+              .setParameter("name", name)
+              .setParameter("categoryName", category.getName())
+              .getResultStream()
+              .collect(Collectors.toList());
+
+      tx.commit();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find products by name and category - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+    return resultList;
+  }
+
+  @Override
   public List<Product> findProductsOrderedByClientsFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();

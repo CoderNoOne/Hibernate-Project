@@ -12,7 +12,9 @@ import java.util.Optional;
 public interface ProductRepository extends CrudRepository <Product, Long> {
   Optional<Product> findByNameAndCategoryAndProducer(String name, Category category, Producer producer);
 
-  Map<Category, Product> findProductsWithMostPriceInEveryCategory();
 
+  List<Product> findProductsByNameAndCategory(String name, Category category);
+
+  Map<Category, Product> findProductsWithMostPriceInEveryCategory();
   List<Product> findProductsOrderedByClientsFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge);
 }
