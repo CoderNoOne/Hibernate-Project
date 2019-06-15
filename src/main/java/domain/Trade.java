@@ -1,9 +1,6 @@
 package domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -23,5 +20,7 @@ public class Trade {
   private String name;
 
   @OneToMany(mappedBy = "trade")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<Producer> producers;
 }

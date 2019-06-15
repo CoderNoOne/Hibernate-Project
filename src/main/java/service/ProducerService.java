@@ -2,11 +2,13 @@ package service;
 
 import domain.Country;
 import domain.Producer;
+import domain.Product;
 import domain.Trade;
 import exception.AppException;
 import repository.abstract_repository.entity.ProducerRepository;
 import repository.impl.ProducerRepositoryImpl;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ProducerService {
@@ -46,4 +48,10 @@ public class ProducerService {
   public Optional<Producer> getProducerByNameAndTradeAndCountry(String name, Trade trade, Country country) {
     return producerRepository.findByNameAndTradeAndCountry(name, trade, country);
   }
+
+//  public List<Product> getMostExpensiveProductsInEachCategory(){
+//
+//
+//
+//  }
 }

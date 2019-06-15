@@ -89,12 +89,12 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
 
     try {
       tx.begin();
-      item = entityManager
-              .createQuery("select e from " + entityType.getSimpleName() + " e where e.id = :id", entityType)
-              .setParameter("id", id)
-              .getResultList()
+      item = Optional.ofNullable(entityManager.find(entityType, id));
+//              .createQuery("select e from " + entityType.getSimpleName() + " e where e.id = :id", entityType)
+//              .setParameter("id", id)
+              /*.getResultList()
               .stream()
-              .findFirst();
+              .findFirst();*/
       tx.commit();
     } catch (Exception e) {
       if (tx != null) {

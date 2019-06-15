@@ -21,11 +21,17 @@ public class Country {
   private String name;
 
   @OneToMany(mappedBy = "country")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private Set<Shop> shop;
 
   @OneToMany(mappedBy = "country")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<Customer> customers;
 
   @OneToMany(mappedBy = "country")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<Producer> producers;
 }

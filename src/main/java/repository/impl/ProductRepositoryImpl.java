@@ -1,6 +1,7 @@
 package repository.impl;
 
 import domain.Category;
+import domain.CustomerOrder;
 import domain.Producer;
 import domain.Product;
 import exception.AppException;
@@ -9,10 +10,84 @@ import repository.abstract_repository.entity.ProductRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long> implements ProductRepository {
+
+
+  @Override
+  public List<Product> findProductsOrderedByClientsFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    List<Product> resultList = new ArrayList<>();
+
+    try {
+      tx.begin();
+
+      resultList = entityManager
+              .createQuery("from " + entityType.getSimpleName(), entityType)
+              .getResultStream()
+              .filter(product -> product.getCustomerOrders().stream().anyMatch(
+                      customerOrder -> customerOrder.getCustomer().getCountry().getName().equals(countryName) &&
+                              customerOrder.getCustomer().getAge() >= minAge && customerOrder.getCustomer().getAge() <= maxAge))
+              .sorted(Comparator.comparing(Product::getPrice).reversed())
+              .collect(Collectors.toList());
+
+      tx.commit();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find product by name category and producer - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+    return resultList;
+  }
+
+  @Override
+  public Map<Category, Product> findProductsWithMostPriceInEveryCategory() {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    Map<Category, Product> resultantMap = new HashMap<>();
+
+    try {
+      tx.begin();
+
+      resultantMap = entityManager
+              .createQuery("from " + entityType.getSimpleName(), entityType)
+              .getResultStream()
+              .collect(Collectors.collectingAndThen(Collectors.groupingBy(Product::getCategory,
+                      Collectors.maxBy(Comparator.comparing(Product::getPrice))),
+                      map -> map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()))));
+      tx.commit();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find product by name category and producer - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+    return resultantMap;
+  }
+
 
   @Override
   public Optional<Product> findByNameAndCategoryAndProducer(String name, Category category, Producer producer) {

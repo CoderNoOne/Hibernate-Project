@@ -1,10 +1,7 @@
 package domain;
 
 import domain.enums.EGuarantee;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -25,11 +22,11 @@ public class Product {
   private String name;
   private BigDecimal price;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(/*cascade = CascadeType.PERSIST*/)
   @JoinColumn(name = "category_id")
   private Category category;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(/*cascade = CascadeType.PERSIST*/)
   @JoinColumn(name = "producer_id")
   private Producer producer;
 
@@ -37,11 +34,17 @@ public class Product {
   @CollectionTable(name = "guarantee_component", joinColumns = @JoinColumn(name = "product_id"))
   @Column(name = "guarantee_component")
   @Enumerated(EnumType.ORDINAL)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<EGuarantee> guaranteeComponent;
 
   @OneToMany(mappedBy = "product")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<CustomerOrder> customerOrders;
 
   @OneToMany(mappedBy = "product")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<Stock> stocks;
 }

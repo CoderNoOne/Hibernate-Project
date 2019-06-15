@@ -15,7 +15,7 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
-import static helper.enums.ErrorMessage.ERROR_WHILE_INSERTING;
+import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
 import static utils.UserDataUtils.printMessage;
 import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
@@ -79,11 +79,30 @@ class Menu {
     ));
   }
 
-
   private void executeOption6() {
+
+    try {
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", CUSTOMER_ORDER, ERROR_DURING_INSERTION, e.getMessage()));
+    }
   }
 
+
+
   private void executeOption5() {
+
+    try {
+
+
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", STOCK, ERROR_DURING_INSERTION, e.getMessage()));
+    }
   }
 
   private void executeOption4() {
@@ -116,16 +135,14 @@ class Menu {
               .ifNotPresent(() ->
                       producerService.addProducerToDb(product.getProducer()).orElseThrow(() -> new AppException("Producer is null")));
 
-
       product.setCategory(category);
       product.setProducer(producer);
-
       productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("%s;%s: %s", PRODUCT, ERROR_WHILE_INSERTING, e.getMessage()));
+      throw new AppException(String.format("%s;%s: %s", PRODUCT, ERROR_DURING_INSERTION, e.getMessage()));
     }
   }
 
@@ -151,7 +168,7 @@ class Menu {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("%s;%s: %s", PRODUCER, ERROR_WHILE_INSERTING, e.getMessage()));
+      throw new AppException(String.format("%s;%s: %s", PRODUCER, ERROR_DURING_INSERTION, e.getMessage()));
     }
   }
 
@@ -171,7 +188,7 @@ class Menu {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("%s;%s: %s", SHOP, ERROR_WHILE_INSERTING, e.getMessage()));
+      throw new AppException(String.format("%s;%s: %s", SHOP, ERROR_DURING_INSERTION, e.getMessage()));
     }
 
   }
@@ -193,7 +210,7 @@ class Menu {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_WHILE_INSERTING, e.getMessage()));
+      throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_INSERTION, e.getMessage()));
     }
   }
 }
