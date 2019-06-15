@@ -1,7 +1,10 @@
 package main;
 
 import configuration.DbConnection;
+import domain.Category;
+import domain.Country;
 import domain.Error;
+import domain.Shop;
 import exception.AppException;
 import helper.OptionalHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -101,6 +104,44 @@ class Menu {
 
       var stock = StockUtil.createStockFromUserInput();
 
+      var shopCountry = countryService.getCountryByName(stock.getShop().getCountry().getName()).orElse(stock.getShop().getCountry());
+
+      stock.getShop().setCountry(shopCountry);
+
+      var category = categoryService.getCategoryByName(stock.getProduct().getCategory().getName()).orElse(stock.getProduct().getCategory());
+
+      var shop = shopService
+              .getShopByNameAndCountry(stock.getShop().getName(), stock.getShop().getCountry().getName()).orElse(stock.getShop());
+
+      stock.getProduct().setCategory(category);
+
+      var trade = tradeService
+              .getTradeByName(stock.getProduct().getProducer().getTrade().getName()).orElse(stock.getProduct().getProducer().getTrade());
+
+      stock.getProduct().getProducer().setTrade(trade);
+
+      var prodcuerCountry = countryService
+              .getCountryByName(stock.getProduct().getProducer().getCountry().getName()).orElse(stock.getProduct().getProducer().getCountry());
+
+      stock.getProduct().getProducer().setCountry(prodcuerCountry);
+
+      var producer = producerService
+              .getProducerByNameAndTradeAndCountry(
+                      stock.getProduct().getProducer().getName(), stock.getProduct().getProducer().getTrade(),
+                      stock.getProduct().getProducer().getCountry()).orElse(stock.getProduct().getProducer());
+
+      stock.getProduct().setProducer(producer);
+
+      var product = productService
+              .getProductByNameAndCategoryAndProducer(stock.getProduct().getName(), stock.getProduct().getCategory(),
+                      stock.getProduct().getProducer()).orElse(stock.getProduct());
+
+      stock.setProduct(product);
+      stock.setShop(shop);
+      stockService.addStockToDbFromUserInput(stock);
+
+      /*var stock = StockUtil.createStockFromUserInput();
+
       var shopCountry = OptionalHelper.of(countryService
               .getCountryByName(stock.getShop().getCountry().getName()))
               .ifNotPresent(() ->
@@ -115,7 +156,7 @@ class Menu {
                       categoryService.addCategoryToDb(stock.getProduct().getCategory()).orElseThrow(() ->
                               new AppException("Category from db is null - something went wrong")));
 
-      stock.getShop().setCountry(shopCountry);
+
 
       var shop = OptionalHelper.of(shopService
               .getShopByNameAndCountry(stock.getShop().getName(), stock.getShop().getCountry().getName()))
@@ -161,7 +202,7 @@ class Menu {
 
       stock.setProduct(product);
       stock.setShop(shop);
-      stockService.addStockToDbFromUserInput(stock);
+      stockService.addStockToDbFromUserInput(stock);*/
 
     } catch (Exception e) {
       log.info(e.getMessage());

@@ -22,11 +22,11 @@ public class Product {
   private String name;
   private BigDecimal price;
 
-  @ManyToOne(/*cascade = CascadeType.PERSIST*/)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "category_id")
   private Category category;
 
-  @ManyToOne(/*cascade = CascadeType.PERSIST*/)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "producer_id")
   private Producer producer;
 
@@ -38,12 +38,12 @@ public class Product {
   @EqualsAndHashCode.Exclude
   private List<EGuarantee> guaranteeComponent;
 
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product"/*,cascade = CascadeType.MERGE*/)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<CustomerOrder> customerOrders;
 
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product"/*, cascade = CascadeType.MERGE*/)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<Stock> stocks;

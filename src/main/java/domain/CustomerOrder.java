@@ -28,15 +28,15 @@ public class CustomerOrder {
 
   private Integer quantity;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "customer_id", unique = true)
   private Customer customer;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "payment_id")
   private Payment payment;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "product_id")
   private Product product;
 

@@ -20,17 +20,17 @@ public class Country {
   @Column
   private String name;
 
-  @OneToMany(mappedBy = "country")
+  @OneToMany(mappedBy = "country"/*, cascade = CascadeType.MERGE*/)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private Set<Shop> shop;
 
-  @OneToMany(mappedBy = "country")
+  @OneToMany(mappedBy = "country"/*, cascade = CascadeType.MERGE*/)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<Customer> customers;
 
-  @OneToMany(mappedBy = "country")
+  @OneToMany(mappedBy = "country"/*, cascade = CascadeType.MERGE*/)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<Producer> producers;

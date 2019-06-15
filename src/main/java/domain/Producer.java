@@ -20,11 +20,11 @@ public class Producer {
 
   private String name;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "country_id")
   private Country country;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "trade_id")
   private Trade trade;
 }

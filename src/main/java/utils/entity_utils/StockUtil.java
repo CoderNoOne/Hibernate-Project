@@ -26,6 +26,7 @@ public class StockUtil {
                     .category(Category.builder()
                             .name(getString("Input category name"))
                             .build())
+                    .price(getBigDecimal("Input product price"))
                     .producer(Producer.builder()
                             .name(getString("Input producer name"))
                             .country(Country.builder()

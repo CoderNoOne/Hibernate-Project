@@ -21,10 +21,10 @@ public class Shop {
 
   private String name;
 
-  @ManyToOne/*(cascade = CascadeType.PERSIST)*/
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "country_id")
   private Country country;
 
-  @OneToMany(mappedBy = "shop")
+  @OneToMany(mappedBy = "shop"/*, cascade = CascadeType.MERGE*/)
   private List<Stock> stocks;
 }

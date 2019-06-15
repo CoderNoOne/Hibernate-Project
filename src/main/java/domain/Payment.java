@@ -25,6 +25,6 @@ public class Payment {
   @Enumerated(EnumType.ORDINAL)
   private Epayment payment;
 
-  @OneToMany(mappedBy = "payment")
+  @OneToMany(mappedBy = "payment"/*, cascade = CascadeType.MERGE*/)
   private List<CustomerOrder> customerOrders;
 }

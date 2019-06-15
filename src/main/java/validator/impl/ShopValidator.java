@@ -38,5 +38,7 @@ public class ShopValidator implements Validator<Shop> {
     return !errors.isEmpty();
   }
 
-
+  public Map<String, String> getErrors() {
+    return errors;
+  }
 }

@@ -24,11 +24,11 @@ public class Customer {
   private String name;
   private String surname;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "country_id")
   private Country country;
 
-  @OneToMany(mappedBy = "customer")
+  @OneToMany(mappedBy = "customer"/*, cascade = CascadeType.MERGE*/)
   private List<CustomerOrder> customerOrders;
 
 }

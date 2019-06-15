@@ -19,7 +19,7 @@ public class Trade {
   @Column(unique = true)
   private String name;
 
-  @OneToMany(mappedBy = "trade")
+  @OneToMany(mappedBy = "trade"/*, cascade = CascadeType.MERGE*/)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<Producer> producers;
