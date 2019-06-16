@@ -59,7 +59,7 @@ public class ProductValidator implements Validator<Product> {
   }
 
   private boolean isProductPriceValid(Product product) {
-    return product.getPrice().compareTo(BigDecimal.ZERO) > 0;
+    return product.getPrice() == null || product.getPrice().compareTo(BigDecimal.ZERO) > 0;
   }
 
   private boolean isProducerValid(Product product) {

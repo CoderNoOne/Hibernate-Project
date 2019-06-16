@@ -16,9 +16,12 @@ import java.util.Arrays;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
-import static utils.UserDataUtils.printCollectionWithNumeration;
 import static utils.UserDataUtils.printMessage;
 import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
+import static utils.entity_utils.ProductUtil.*;
+import static utils.entity_utils.ShopUtil.*;
+import static utils.entity_utils.StockUtil.createStockDetailFromUserInput;
+import static utils.entity_utils.StockUtil.getStockIfValid;
 
 @Slf4j
 class Menu {
@@ -45,7 +48,7 @@ class Menu {
           case 2 -> executeOption2();
           case 3 -> executeOption3();
           case 4 -> executeOption4();
-          case 5 -> executeOption5();
+          case 5 -> executeOption5b();
           case 6 -> executeOption6();
           case 10 -> DbConnection.close();
         }
@@ -135,11 +138,101 @@ class Menu {
   }
 
 
+  /*1*/
+  private Country getCountryFromDbIfExists(Country country) {
+    return countryService.getCountryByName(country.getName()).orElse(country);
+  }
+
+  /*2*/
+  private Category getCategoryFromDbIfExists(Category category) {
+
+    return categoryService.getCategoryByName(category.getName()).orElse(category);
+  }
+
+
+  /*3*/
+  private Shop getShopFromDbIfExists(Shop shop) {
+    return shopService.getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);
+  }
+
+  /*4*/
+
+  private Trade getTradeFromDbIfExists(Trade trade) {
+    return tradeService.getTradeByName(trade.getName()).orElse(trade);
+  }
+
+  /*5*/
+  private Producer getProducerFromDbIfExists(Producer producer) {
+    return producerService.getProducerByNameAndTradeAndCountry(
+            producer.getName(), producer.getTrade(),
+            producer.getCountry()).orElse(producer);
+  }
+
+  /*6*/
+  private Product getProductFromDbIfExists(Product product) {
+    return productService
+            .getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
+                    product.getProducer()).orElse(product);
+  }
+
+
+  private void executeOption5b() {
+
+
+    try {
+
+      var stock = getStockIfValid(specifyShop(specifyProduct(createStockDetailFromUserInput())));
+
+      stock.getProduct().setCategory(getCategoryFromDbIfExists(stock.getProduct().getCategory()));
+      stock.getProduct().setProducer(getProducerFromDbIfExists(stock.getProduct().getProducer()));
+
+      stock.getProduct().getProducer().setTrade(getTradeFromDbIfExists(stock.getProduct().getProducer().getTrade()));
+      stock.getProduct().getProducer().setCountry(getCountryFromDbIfExists(stock.getProduct().getProducer().getCountry()));
+
+      stock.getShop().setCountry(getCountryFromDbIfExists(stock.getShop().getCountry()));
+
+      stock.setProduct(getProductFromDbIfExists(stock.getProduct()));
+      stock.setShop(getShopFromDbIfExists(stock.getShop()));
+
+      stockService.addStockToDbFromUserInput(stock);
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", STOCK, ERROR_DURING_INSERTION, e.getMessage()));
+    }
+
+  }
+
+  private Stock specifyProduct(Stock stockDetailFromUserInput) {
+
+    var productList = productService.getProductsByNameAndCategory(stockDetailFromUserInput.getProduct().getName(),
+            stockDetailFromUserInput.getProduct().getCategory());
+
+    var product = !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductIfValid(preciseProductDetails(stockDetailFromUserInput));
+
+    stockDetailFromUserInput.setProduct(product);
+    return stockDetailFromUserInput;
+  }
+
+
+  private Stock specifyShop(Stock stockFromUserInput) {
+
+    var shopsByName = shopService.getShopsByName(stockFromUserInput.getShop().getName());
+
+    var shop = !shopsByName.isEmpty() ?
+            chooseAvailableShop(shopsByName) : getShopIfValid(preciseShopDetails(stockFromUserInput));
+
+    stockFromUserInput.setShop(shop);
+    return stockFromUserInput;
+
+  }
+
   private void executeOption5() {
 
     try {
 
-      var stock = StockUtil.createStockFromUserInput();
+      /*var stock = createStockDetailFromUserInput();
 
       var shopCountry = countryService.getCountryByName(stock.getShop().getCountry().getName()).orElse(stock.getShop().getCountry());
 
@@ -175,7 +268,7 @@ class Menu {
 
       stock.setProduct(product);
       stock.setShop(shop);
-      stockService.addStockToDbFromUserInput(stock);
+      stockService.addStockToDbFromUserInput(stock);*/
 
     } catch (Exception e) {
       log.info(e.getMessage());
@@ -248,7 +341,7 @@ class Menu {
 
     try {
 
-      var shop = ShopUtil.createShopFromUserInput();
+      var shop = createShopFromUserInput();
       var country = countryService.getCountryByName(shop.getCountry().getName()).orElse(shop.getCountry());
       shop.setCountry(country);
       shopService.addShopToDbFromUserInput(shop);

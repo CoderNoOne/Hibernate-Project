@@ -6,6 +6,8 @@ import exception.AppException;
 import repository.abstract_repository.entity.ShopRepository;
 import repository.impl.ShopRepositoryImpl;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -48,6 +50,10 @@ public class ShopService {
   public Optional<Shop> getShopByNameAndCountry(String name, String countryName) {
     return shopRepository.findShopByNameAndCountry(name, countryName);
 
+  }
+
+  public List<Shop> getShopsByName(String name) {
+    return shopRepository.findShopListByName(name);
   }
 }
 

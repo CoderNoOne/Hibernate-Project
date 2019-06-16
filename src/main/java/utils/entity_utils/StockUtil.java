@@ -2,7 +2,6 @@ package utils.entity_utils;
 
 import domain.*;
 import exception.AppException;
-import utils.UserDataUtils;
 import validator.impl.StockValidator;
 
 import java.util.stream.Collectors;
@@ -13,39 +12,31 @@ import static utils.UserDataUtils.printMessage;
 
 public class StockUtil {
 
-  private static final StockValidator stockValidator = new StockValidator();
-
   private StockUtil() {
   }
 
-  public static Stock createStockFromUserInput() {
+  public static Stock createStockDetailFromUserInput() {
 
-    var stock = Stock.builder()
+    return Stock.builder()
             .product(Product.builder()
                     .name(getString("Input product name"))
                     .category(Category.builder()
                             .name(getString("Input category name"))
                             .build())
-                    .price(getBigDecimal("Input product price"))
-                    .producer(Producer.builder()
-                            .name(getString("Input producer name"))
-                            .country(Country.builder()
-                                    .name(getString("Input producer country"))
-                                    .build())
-                            .trade(Trade.builder()
-                                    .name(getString("Input producer trade"))
-                                    .build())
-                            .build())
                     .build())
             .shop(Shop.builder()
                     .name(getString("Input shop name"))
-                    .country(Country.builder()
-                            .name(getString("Input shop country name"))
-                            .build())
                     .build())
             .quantity(getInt("Input stock quantity"))
             .build();
+  }
 
+  public static Stock getStockIfValid(Stock stock) {
+
+    if (stock == null) {
+      throw new AppException("Stock is null");
+    }
+    var stockValidator = new StockValidator();
     var errorsMap = stockValidator.validate(stock);
 
     if (stockValidator.hasErrors()) {
@@ -54,5 +45,4 @@ public class StockUtil {
     }
     return stock;
   }
-
 }

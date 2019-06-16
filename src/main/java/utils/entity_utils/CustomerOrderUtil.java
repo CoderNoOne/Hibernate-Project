@@ -35,7 +35,7 @@ public class CustomerOrderUtil {
             .quantity(UserDataUtils.getInt("Input order quantity"))
             .discount(UserDataUtils.getBigDecimal("Input order discount <0.0,1.0>"))
             .payment(Payment.builder()
-                    .payment(Epayment.valueOf(UserDataUtils.getString("Input payment type")))
+                    .epayment(Epayment.valueOf(UserDataUtils.getString("Input payment type")))
                     .build())
             .build();
 

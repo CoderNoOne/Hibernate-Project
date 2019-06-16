@@ -2,12 +2,14 @@ package repository.abstract_repository.base;
 
 import configuration.DbConnection;
 import exception.AppException;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +40,8 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
       if (tx != null) {
         tx.rollback();
       }
+      System.out.println(e.getMessage());
+      System.out.println(Arrays.toString(e.getStackTrace()));
       throw new AppException(entityType.getSimpleName() + ";add or update - exception");
     } finally {
       if (entityManager != null) {

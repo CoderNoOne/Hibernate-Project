@@ -22,8 +22,10 @@ public final class ProductUtil {
 
   public static Product createProductFromUserInput() {
 
-    var product = Product.builder()
-            .category(Category.builder().name(getString("Input category name")).build())
+    return Product.builder()
+            .category(Category.builder()
+                    .name(getString("Input category name"))
+                    .build())
             .name(getString("Input product name"))
             .price(getBigDecimal("Input product price"))
             .producer(Producer.builder()
@@ -33,14 +35,40 @@ public final class ProductUtil {
                     .build())
             .guaranteeComponent(createGuaranteeComponentsFromUserInput())
             .build();
+  }
 
+  public static Product getProductIfValid(Product product) {
+
+    var productValidator = new ProductValidator();
     var errorsMap = productValidator.validate(product);
 
     if (productValidator.hasErrors()) {
       printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
-      throw new AppException("Product is not valid: " + productValidator.getErrors());
+      throw new AppException("Product is not valid" + errorsMap);
     }
     return product;
+  }
+
+  public static Product preciseProductDetails(Stock stock) {
+
+    printMessage(String.format("Any product with specified name:%s and category: %s  exists in a DB. You need to specify product details: "
+            , stock.getProduct().getName(), stock.getProduct().getCategory().getName()));
+
+    return Product.builder()
+            .name(stock.getProduct().getName())
+            .category(stock.getProduct().getCategory())
+            .price(getBigDecimal("Input product price"))
+            .guaranteeComponent(createGuaranteeComponentsFromUserInput())
+            .producer(Producer.builder()
+                    .name(getString("Input producer name"))
+                    .country(Country.builder()
+                            .name(getString("Input producer country name"))
+                            .build())
+                    .trade(Trade.builder()
+                            .name(getString("Input producer trade name"))
+                            .build())
+                    .build())
+            .build();
   }
 
   private static List<EGuarantee> createGuaranteeComponentsFromUserInput() {
@@ -57,9 +85,22 @@ public final class ProductUtil {
         case 2 -> guaranteeListInput.add(EGuarantee.MONEY_BACK);
         case 3 -> guaranteeListInput.add(EGuarantee.SERVICE);
         case 4 -> guaranteeListInput.add(EGuarantee.EXCHANGE);
-        default -> System.out.println("Not proper value");
+        default -> printMessage("Not proper value");
       }
     }
     return guaranteeListInput;
   }
+
+  public static Product chooseAvailableProduct(List<Product> productList) {
+
+    int productNumber;
+    do {
+      printCollectionWithNumeration(productList.stream().map(Product::getName).collect(Collectors.toList()));
+      productNumber = getInt("Choose product by number");
+    } while (!(productNumber >= 1 && productNumber <= productList.size()));
+
+    return productList.get(productNumber);
+  }
+
 }
+
