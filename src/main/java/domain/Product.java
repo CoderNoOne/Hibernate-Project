@@ -38,12 +38,12 @@ public class Product {
   @EqualsAndHashCode.Exclude
   private List<EGuarantee> guaranteeComponent;
 
-  @OneToMany(mappedBy = "product"/*,cascade = CascadeType.MERGE*/)
+  @OneToMany(mappedBy = "product")
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<CustomerOrder> customerOrders;
 
-  @OneToMany(mappedBy = "product"/*, cascade = CascadeType.MERGE*/)
+  @OneToMany(mappedBy = "product")
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<Stock> stocks;

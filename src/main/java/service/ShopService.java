@@ -1,6 +1,7 @@
 package service;
 
 import domain.Country;
+import domain.Product;
 import domain.Shop;
 import exception.AppException;
 import repository.abstract_repository.entity.ShopRepository;
@@ -55,6 +56,7 @@ public class ShopService {
   public List<Shop> getShopsByName(String name) {
     return shopRepository.findShopListByName(name);
   }
+
 }
 
 

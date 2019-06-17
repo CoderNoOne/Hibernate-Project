@@ -93,6 +93,10 @@ public final class ProductUtil {
 
   public static Product chooseAvailableProduct(List<Product> productList) {
 
+    if(productList.isEmpty()){
+      throw new AppException("There are no products who meet specified criteria");
+    }
+
     int productNumber;
     do {
       printCollectionWithNumeration(productList.stream().map(Product::getName).collect(Collectors.toList()));

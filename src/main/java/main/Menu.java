@@ -12,8 +12,10 @@ import utils.entity_utils.*;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
@@ -93,8 +95,22 @@ class Menu {
   private void executeOption6() {
 
     try {
-
       var customerOrder = getCustomerOrderIfValid(specifyOrderedProductDetail(createCustomerOrderFromUserInput()));
+
+//      decreaseStockQuantityIfValid(specifyShopDetailForCustomerOrder(customerOrder));
+//
+//      customerOrder.getCustomer().setCountry(getCountryFromDbIfExists(customerOrder.getCustomer().getCountry()));
+//
+//      getCustomerFromDbIfExists(customerOrder.getCustomer());
+//
+//      customerOrder.setPayment(getPaymentFromDbIfExists(customerOrder.getPayment()));
+//
+//      customerOrder.getProduct().setCategory(getCategoryFromDbIfExists(customerOrder.getProduct().getCategory()));
+//
+//
+//      // najpierw wybierz sklep z tymi produktem
+//      //pozniej sprawdz dosttepnosc produktu w wybanymm sklepie
+//      productService.getProductQuantity
 
 
 
@@ -104,6 +120,8 @@ class Menu {
       var customerCountry = countryService.getCountryByName(customerOrder.getCustomer().getCountry().getName())
               .orElse(customerOrder.getCustomer().getCountry());
       customerOrder.getCustomer().setCountry(customerCountry);
+
+
       //customer
       var customer = customerService.getCustomerByNameAndSurnameAndCountry(
               customerOrder.getCustomer().getName(), customerOrder.getCustomer().getSurname(), customerOrder.getCustomer().getCountry())
@@ -144,6 +162,23 @@ class Menu {
     }
   }
 
+  private void decreaseStockQuantityIfValid(CustomerOrder specifyShopDetailForCustomerOrder) {
+
+  }
+
+
+  private CustomerOrder specifyShopDetailForCustomerOrder(CustomerOrder customerOrder) {
+
+    Map<Shop, Integer> shopListWithProductInStock = stockService.getShopListWithProductInStock(customerOrder);
+
+    if (!shopListWithProductInStock.isEmpty()) {
+      var shop = chooseAvailableShop(new ArrayList<>(shopListWithProductInStock.keySet()));
+    }
+
+    return customerOrder;
+  }
+
+
   private CustomerOrder specifyOrderedProductDetail(CustomerOrder customerOrderFromUserInput) {
 
     var productsByNameAndCategory = customerOrderService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
@@ -167,6 +202,13 @@ class Menu {
     return categoryService.getCategoryByName(category.getName()).orElse(category);
   }
 
+  private Payment getPaymentFromDbIfExists(Payment payment) {
+    return paymentService.getPaymentByEpayment(payment.getEpayment()).orElse(payment);
+  }
+
+  private Customer getCustomerFromDbIfExists(Customer customer) {
+    return customerService.getCustomerByNameAndSurnameAndCountry(customer.getName(), customer.getSurname(), customer.getCountry()).orElse(customer);
+  }
 
   private Shop getShopFromDbIfExists(Shop shop) {
     return shopService.getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);

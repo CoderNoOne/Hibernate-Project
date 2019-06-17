@@ -9,6 +9,7 @@ import validator.impl.ShopValidator;
 
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static utils.UserDataUtils.*;
@@ -56,6 +57,9 @@ public final class ShopUtil {
 
   public static Shop chooseAvailableShop(List<Shop> shopList) {
 
+    if(shopList.isEmpty()){
+      throw new AppException("There are no shops which meet specified criteria");
+    }
     int shopNumber;
     do {
       printCollectionWithNumeration(shopList.stream().map(Shop::getName).collect(Collectors.toList()));
@@ -64,4 +68,5 @@ public final class ShopUtil {
 
     return shopList.get(shopNumber - 1);
   }
+
 }

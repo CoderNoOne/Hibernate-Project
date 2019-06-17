@@ -25,11 +25,11 @@ public class CustomerOrderUtil {
                     .surname(getString("Input customer surname"))
                     .country(Country.builder()
                             .name(getString("Input country name"))
-                            .build())
+                            .build())/*customer moze istniec w db - lub nie*/
                     .build())
             .date(getLocalDate("Input order date"))
             .quantity(getInt("Input order quantity"))
-            .product(Product.builder()
+            .product(Product.builder()/*moze byc kilka ze względu na innego producenta*/
                     .name("Input product name")
                     .category(Category.builder()
                             .name("Input category name")

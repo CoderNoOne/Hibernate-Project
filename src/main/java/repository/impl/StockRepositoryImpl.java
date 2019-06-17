@@ -1,5 +1,6 @@
 package repository.impl;
 
+import domain.CustomerOrder;
 import domain.Product;
 import domain.Shop;
 import domain.Stock;
@@ -9,9 +10,46 @@ import repository.abstract_repository.entity.StockRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> implements StockRepository {
+
+
+  @Override
+  public Map<Shop, Integer> findShopsWithProductInStock(CustomerOrder customerOrder) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    Map<Shop, Integer> resultantMap = new HashMap<>();
+    try {
+      tx.begin();
+
+      resultantMap = entityManager
+              .createQuery("from " + entityType.getSimpleName(), entityType)
+              .getResultStream()
+              .filter(stock ->stock.getProduct().equals(customerOrder.getProduct()))
+              .map(Stock::getShop)
+              .collect(Collectors.toMap(
+                      shop -> shop,
+                      shop -> shop.getStocks().stream().mapToInt(Stock::getQuantity).sum()));
+//
+
+      tx.commit();
+    } catch (Exception e) {
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find trade by name - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+    return resultantMap;
+
+  }
 
   @Override
   public Integer readStockQuantityById(Long id) {

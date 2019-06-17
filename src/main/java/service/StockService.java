@@ -1,5 +1,6 @@
 package service;
 
+import domain.CustomerOrder;
 import domain.Product;
 import domain.Shop;
 import domain.Stock;
@@ -7,6 +8,8 @@ import exception.AppException;
 import repository.abstract_repository.entity.StockRepository;
 import repository.impl.StockRepositoryImpl;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class StockService {
@@ -41,5 +44,9 @@ public class StockService {
 
   private Optional<Stock> getStockByShopAndProduct(Shop shop, Product product) {
     return stockRepository.findStockByShopAndProduct(shop, product);
+  }
+
+  public Map<Shop,Integer> getShopListWithProductInStock(CustomerOrder customerOrder) {
+    return stockRepository.findShopsWithProductInStock(customerOrder);
   }
 }
