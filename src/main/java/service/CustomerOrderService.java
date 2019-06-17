@@ -21,7 +21,7 @@ public class CustomerOrderService {
     return customerOrderRepository.addOrUpdate(customerOrder);
   }
 
-  public void addCustomerOrderToDbFromUserInput(CustomerOrder customerOrder){
-
+  public void addCustomerOrderToDbFromUserInput(CustomerOrder customerOrder) {
+    addCustomerOrderToDb(customerOrder);
   }
 }

@@ -97,60 +97,13 @@ class Menu {
 
       customerOrder.setPayment(getPaymentFromDbIfExists(customerOrder.getPayment()));
       customerOrder.getProduct().setCategory(getCategoryFromDbIfExists(customerOrder.getProduct().getCategory()));
-      customerOrder.setCustomer(getCustomerFromDbIfExists(customerOrder.getCustomer()))
+      customerOrder.setProduct(getProductFromDbIfExists(customerOrder.getProduct()));
       customerOrder.getCustomer().setCountry(getCountryFromDbIfExists(customerOrder.getCustomer().getCountry()));
+      customerOrder.setCustomer(getCustomerFromDbIfExists(customerOrder.getCustomer()));
 
-      Stock updatedStock = decreaseStockQuantityIfValid(specifyShopDetailForCustomerOrder(customerOrder), customerOrder.getProduct());
+      decreaseStockQuantityIfValid(specifyShopDetailForCustomerOrder(customerOrder), customerOrder);
 
-
-
-
-
-
-
-
-
- /*
-      //1
-      //customerCountry
-      var customerCountry = countryService.getCountryByName(customerOrder.getCustomer().getCountry().getName())
-              .orElse(customerOrder.getCustomer().getCountry());
-      customerOrder.getCustomer().setCountry(customerCountry);
-
-
-      //customer
-      var customer = customerService.getCustomerByNameAndSurnameAndCountry(
-              customerOrder.getCustomer().getName(), customerOrder.getCustomer().getSurname(), customerOrder.getCustomer().getCountry())
-              .orElse(customerOrder.getCustomer());
-
-      //2
-      //category
-      var category = categoryService.getCategoryByName(customerOrder.getProduct().getCategory().getName()).orElse(
-              customerOrder.getProduct().getCategory());
-
-      customerOrder.getProduct().setCategory(category);
-
-      //product
-      var productsList = productService
-              .getProductsByNameAndCategory(customerOrder.getProduct().getName(), customerOrder.getProduct().getCategory());
-
-      if(!productsList.isEmpty()){
-        //wtedy wyjatek ?
-      }else {
-        // zdecyduj ktory wyvrac z powyzszych + sprawdz czy quantity <= w stocku quantity
-      }
-      printCollectionWithNumeration(productsList);
-      //3
-      var payment = paymentService.getPaymentByEpayment(customerOrder.getPayment().getEpayment())
-              .orElse(customerOrder.getPayment());
-
-      customerOrder.getProduct().setProducer(producer);
-      customerOrder.setPayment(payment);
-
-      customerOrderService.
-      //payment*/
-
-
+      customerOrderService.addCustomerOrderToDbFromUserInput(customerOrder);
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -176,22 +129,21 @@ class Menu {
     return customerOrder;
   }
 
-  private Stock decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrder customerOrder) {
+  private void decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrder customerOrder) {
 
-//    Optional<Stock> stock = stockService.getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct());
 
     stockService.getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct())
             .ifPresentOrElse(stock -> {
               if (stock.getQuantity() >= customerOrder.getQuantity()) {
-                //update do bazy danych ze zmniejszeniem quantity
+                stockService.decreaseStockQuantityBySpecifiedAmount(stock, customerOrder.getQuantity());
               } else {
-                throw new AppException("");
+                throw new AppException(String.format("Not enough products in stock. Customer wants %d but there is only %d products in the stock",
+                        customerOrder.getQuantity(), stock.getQuantity()));
               }
             }, () -> {
-              throw new AppException("");
+              throw new AppException(String.format("No stock were found for product: %s and for shop: %s",
+                      customerOrder.getProduct().getName(), map.keySet().iterator().next().getName()));
             });
-
-    stock.get().getQuantity() >= customerOrder.getQuantity()
   }
 
 
@@ -201,7 +153,7 @@ class Menu {
 
     if (!shopMap.isEmpty()) {
       var shop = chooseAvailableShop(new ArrayList<>(shopMap.keySet()));
-      
+
       return Collections.singletonMap(shop, shopMap.get(shop));
     }
 
@@ -230,14 +182,13 @@ class Menu {
       var stock = getStockIfValid(specifyShop(specifyProduct(createStockDetailFromUserInput())));
 
       stock.getProduct().setCategory(getCategoryFromDbIfExists(stock.getProduct().getCategory()));
-      stock.getProduct().setProducer(getProducerFromDbIfExists(stock.getProduct().getProducer()));
-
       stock.getProduct().getProducer().setTrade(getTradeFromDbIfExists(stock.getProduct().getProducer().getTrade()));
       stock.getProduct().getProducer().setCountry(getCountryFromDbIfExists(stock.getProduct().getProducer().getCountry()));
 
-      stock.getShop().setCountry(getCountryFromDbIfExists(stock.getShop().getCountry()));
-
+      stock.getProduct().setProducer(getProducerFromDbIfExists(stock.getProduct().getProducer()));
       stock.setProduct(getProductFromDbIfExists(stock.getProduct()));
+
+      stock.getShop().setCountry(getCountryFromDbIfExists(stock.getShop().getCountry()));
       stock.setShop(getShopFromDbIfExists(stock.getShop()));
 
       stockService.addStockToDbFromUserInput(stock);

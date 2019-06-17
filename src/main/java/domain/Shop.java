@@ -25,6 +25,6 @@ public class Shop {
   @JoinColumn(name = "country_id")
   private Country country;
 
-  @OneToMany(mappedBy = "shop"/*, cascade = CascadeType.MERGE*/)
+  @OneToMany(mappedBy = "shop")
   private List<Stock> stocks;
 }

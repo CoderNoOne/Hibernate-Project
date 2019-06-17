@@ -29,8 +29,9 @@ public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> imp
       resultantMap = entityManager
               .createQuery("from " + entityType.getSimpleName(), entityType)
               .getResultStream()
-              .filter(stock ->stock.getProduct().equals(product))
+              .filter(stock -> stock.getProduct().getName().equals(product.getName()))
               .map(Stock::getShop)
+              .distinct()
               .collect(Collectors.toMap(
                       shop -> shop,
                       shop -> shop.getStocks().stream().mapToInt(Stock::getQuantity).sum()));

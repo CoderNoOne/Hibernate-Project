@@ -8,7 +8,6 @@ import exception.AppException;
 import repository.abstract_repository.entity.StockRepository;
 import repository.impl.StockRepositoryImpl;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -46,7 +45,12 @@ public class StockService {
     return stockRepository.findStockByShopAndProduct(shop, product);
   }
 
-  public Map<Shop,Integer> getShopListWithProductInStock(Product product) {
+  public Map<Shop, Integer> getShopListWithProductInStock(Product product) {
     return stockRepository.findShopsWithProductInStock(product);
+  }
+
+  public void decreaseStockQuantityBySpecifiedAmount(Stock stock, Integer quantity) {
+    stock.setQuantity(getStockQuantity(stock) - quantity);
+    addStockToDb(stock);
   }
 }
