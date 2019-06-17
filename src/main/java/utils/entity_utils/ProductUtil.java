@@ -99,7 +99,7 @@ public final class ProductUtil {
       productNumber = getInt("Choose product by number");
     } while (!(productNumber >= 1 && productNumber <= productList.size()));
 
-    return productList.get(productNumber);
+    return productList.get(productNumber - 1);
   }
 
 }

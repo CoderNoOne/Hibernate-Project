@@ -13,10 +13,13 @@ import utils.entity_utils.*;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
 import static utils.UserDataUtils.printMessage;
+import static utils.entity_utils.CustomerOrderUtil.*;
+import static utils.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
 import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
 import static utils.entity_utils.ProductUtil.*;
 import static utils.entity_utils.ShopUtil.*;
@@ -36,6 +39,7 @@ class Menu {
   private final ProductService productService = new ProductService();
   private final StockService stockService = new StockService();
   private final PaymentService paymentService = new PaymentService();
+  private final CustomerOrderService customerOrderService = new CustomerOrderService();
 
   void mainMenu() {
     while (true) {
@@ -48,7 +52,7 @@ class Menu {
           case 2 -> executeOption2();
           case 3 -> executeOption3();
           case 4 -> executeOption4();
-          case 5 -> executeOption5b();
+          case 5 -> executeOption5();
           case 6 -> executeOption6();
           case 10 -> DbConnection.close();
         }
@@ -90,8 +94,11 @@ class Menu {
 
     try {
 
-      /*var customerOrder = CustomerOrderUtil.createCustomerOrderFromUserInput();
+      var customerOrder = getCustomerOrderIfValid(specifyOrderedProductDetail(createCustomerOrderFromUserInput()));
 
+
+
+ /*
       //1
       //customerCountry
       var customerCountry = countryService.getCountryByName(customerOrder.getCustomer().getCountry().getName())
@@ -137,38 +144,44 @@ class Menu {
     }
   }
 
+  private CustomerOrder specifyOrderedProductDetail(CustomerOrder customerOrderFromUserInput) {
 
-  /*1*/
+    var productsByNameAndCategory = customerOrderService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
+            customerOrderFromUserInput.getProduct().getCategory());
+
+    if (!productsByNameAndCategory.isEmpty()) {
+      customerOrderFromUserInput.setProduct(chooseAvailableProduct(productsByNameAndCategory));
+      return customerOrderFromUserInput;
+    }
+
+    throw new AppException(String.format("There wasn't any product in a db for product name: %s and product category: %s",
+            customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory()));
+  }
+
   private Country getCountryFromDbIfExists(Country country) {
     return countryService.getCountryByName(country.getName()).orElse(country);
   }
 
-  /*2*/
   private Category getCategoryFromDbIfExists(Category category) {
 
     return categoryService.getCategoryByName(category.getName()).orElse(category);
   }
 
 
-  /*3*/
   private Shop getShopFromDbIfExists(Shop shop) {
     return shopService.getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);
   }
-
-  /*4*/
 
   private Trade getTradeFromDbIfExists(Trade trade) {
     return tradeService.getTradeByName(trade.getName()).orElse(trade);
   }
 
-  /*5*/
   private Producer getProducerFromDbIfExists(Producer producer) {
     return producerService.getProducerByNameAndTradeAndCountry(
             producer.getName(), producer.getTrade(),
             producer.getCountry()).orElse(producer);
   }
 
-  /*6*/
   private Product getProductFromDbIfExists(Product product) {
     return productService
             .getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
@@ -176,8 +189,7 @@ class Menu {
   }
 
 
-  private void executeOption5b() {
-
+  private void executeOption5() {
 
     try {
 
@@ -228,87 +240,17 @@ class Menu {
 
   }
 
-  private void executeOption5() {
-
-    try {
-
-      /*var stock = createStockDetailFromUserInput();
-
-      var shopCountry = countryService.getCountryByName(stock.getShop().getCountry().getName()).orElse(stock.getShop().getCountry());
-
-      stock.getShop().setCountry(shopCountry);
-
-      var category = categoryService.getCategoryByName(stock.getProduct().getCategory().getName()).orElse(stock.getProduct().getCategory());
-
-      var shop = shopService
-              .getShopByNameAndCountry(stock.getShop().getName(), stock.getShop().getCountry().getName()).orElse(stock.getShop());
-
-      stock.getProduct().setCategory(category);
-
-      var trade = tradeService
-              .getTradeByName(stock.getProduct().getProducer().getTrade().getName()).orElse(stock.getProduct().getProducer().getTrade());
-
-      stock.getProduct().getProducer().setTrade(trade);
-
-      var prodcuerCountry = countryService
-              .getCountryByName(stock.getProduct().getProducer().getCountry().getName()).orElse(stock.getProduct().getProducer().getCountry());
-
-      stock.getProduct().getProducer().setCountry(prodcuerCountry);
-
-      var producer = producerService
-              .getProducerByNameAndTradeAndCountry(
-                      stock.getProduct().getProducer().getName(), stock.getProduct().getProducer().getTrade(),
-                      stock.getProduct().getProducer().getCountry()).orElse(stock.getProduct().getProducer());
-
-      stock.getProduct().setProducer(producer);
-
-      var product = productService
-              .getProductByNameAndCategoryAndProducer(stock.getProduct().getName(), stock.getProduct().getCategory(),
-                      stock.getProduct().getProducer()).orElse(stock.getProduct());
-
-      stock.setProduct(product);
-      stock.setShop(shop);
-      stockService.addStockToDbFromUserInput(stock);*/
-
-    } catch (Exception e) {
-      log.info(e.getMessage());
-      log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("%s;%s: %s", STOCK, ERROR_DURING_INSERTION, e.getMessage()));
-    }
-  }
-
   private void executeOption4() {
 
     try {
       var product = ProductUtil.createProductFromUserInput();
 
-      var category = OptionalHelper.of(categoryService
-              .getCategoryByName(product.getCategory().getName()))
-              .ifNotPresent(() ->
-                      categoryService.addCategoryToDb(product.getCategory()).orElseThrow(() -> new AppException("Category is null")));
+      product.setCategory(getCategoryFromDbIfExists(product.getCategory()));
+      product.setProducer(getProducerFromDbIfExists(product.getProducer()));
 
-      var country = OptionalHelper.of(countryService
-              .getCountryByName(product.getProducer().getCountry().getName()))
-              .ifNotPresent(() ->
-                      countryService.addCountryToDb(product.getProducer().getCountry()).orElseThrow(() -> new AppException("Country is null")));
+      product.getProducer().setCountry(getCountryFromDbIfExists(product.getProducer().getCountry()));
+      product.getProducer().setTrade(getTradeFromDbIfExists(product.getProducer().getTrade()));
 
-      product.getProducer().setCountry(country);
-
-      var trade = OptionalHelper.of(tradeService
-              .getTradeByName(product.getProducer().getTrade().getName()))
-              .ifNotPresent(() ->
-                      tradeService.addTradeToDb(product.getProducer().getTrade()).orElseThrow(() -> new AppException("Trade is null")));
-
-      product.getProducer().setTrade(trade);
-
-      var producer = OptionalHelper.of(producerService
-              .getProducerByNameAndTradeAndCountry(
-                      product.getProducer().getName(), product.getProducer().getTrade(), product.getProducer().getCountry()))
-              .ifNotPresent(() ->
-                      producerService.addProducerToDb(product.getProducer()).orElseThrow(() -> new AppException("Producer is null")));
-
-      product.setCategory(category);
-      product.setProducer(producer);
       productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
@@ -323,11 +265,10 @@ class Menu {
     try {
 
       var producer = ProducerUtil.createProducerFromUserInput();
-      var country = countryService.getCountryByName(producer.getCountry().getName()).orElse(producer.getCountry());
-      var trade = tradeService.getTradeByName(producer.getTrade().getName()).orElse(producer.getTrade());
 
-      producer.setCountry(country);
-      producer.setTrade(trade);
+      producer.setCountry(getCountryFromDbIfExists(producer.getCountry()));
+      producer.setTrade(getTradeFromDbIfExists(producer.getTrade()));
+
       producerService.addProducerToDb(producer);
 
     } catch (Exception e) {
@@ -342,8 +283,7 @@ class Menu {
     try {
 
       var shop = createShopFromUserInput();
-      var country = countryService.getCountryByName(shop.getCountry().getName()).orElse(shop.getCountry());
-      shop.setCountry(country);
+      shop.setCountry(getCountryFromDbIfExists(shop.getCountry()));
       shopService.addShopToDbFromUserInput(shop);
 
     } catch (Exception e) {
@@ -359,8 +299,7 @@ class Menu {
     try {
 
       var customer = createCustomerFromUserInput();
-      var country = countryService.getCountryByName(customer.getCountry().getName()).orElse(customer.getCountry());
-      customer.setCountry(country);
+      customer.setCountry(getCountryFromDbIfExists(customer.getCountry()));
       customerService.addCustomerToDbFromUserInput(customer);
 
     } catch (Exception e) {

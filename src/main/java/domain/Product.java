@@ -30,7 +30,7 @@ public class Product {
   @JoinColumn(name = "producer_id")
   private Producer producer;
 
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   @CollectionTable(name = "guarantee_component", joinColumns = @JoinColumn(name = "product_id"))
   @Column(name = "guarantee_component")
   @Enumerated(EnumType.ORDINAL)

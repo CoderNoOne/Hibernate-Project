@@ -1,9 +1,12 @@
 package service;
 
+import domain.Category;
 import domain.CustomerOrder;
+import domain.Product;
 import repository.abstract_repository.entity.CustomerOrderRepository;
-import repository.impl.CustomerOrderImpl;
+import repository.impl.CustomerOrderRepositoryImpl;
 
+import java.util.List;
 import java.util.Optional;
 
 public class CustomerOrderService {
@@ -11,7 +14,7 @@ public class CustomerOrderService {
   private final CustomerOrderRepository customerOrderRepository;
 
   public CustomerOrderService() {
-    this.customerOrderRepository = new CustomerOrderImpl();
+    this.customerOrderRepository = new CustomerOrderRepositoryImpl();
   }
 
   private Optional<CustomerOrder> addCustomerOrderToDb(CustomerOrder customerOrder) {
@@ -20,5 +23,9 @@ public class CustomerOrderService {
 
   public void addCustomerOrderToDbFromUserInput(CustomerOrder customerOrder){
 
+  }
+
+  public List<Product> getProductsByNameAndCategory(String name, Category category) {
+    return customerOrderRepository.getProductsByNameAndCategory(name, category);
   }
 }

@@ -14,6 +14,34 @@ import java.util.Optional;
 public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> implements StockRepository {
 
   @Override
+  public Integer readStockQuantityById(Long id) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    Integer quantity = -1;
+    try {
+      tx.begin();
+      quantity = entityManager
+              .createQuery("select e.quantity from " + entityType.getSimpleName() + " as e where e.id = :id", entityType)
+              .setParameter("id", id)
+              .getFirstResult();
+      tx.commit();
+    } catch (Exception e) {
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find trade by name - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+    return quantity;
+
+  }
+
+  @Override
   public Optional<Stock> findStockByShopAndProduct(Shop shop, Product product) {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();

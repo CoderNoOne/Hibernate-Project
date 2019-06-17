@@ -22,14 +22,24 @@ public class StockService {
   }
 
   public void addStockToDbFromUserInput(Stock stock) {
-    if (isStockUniqueByShopAndProduct(stock.getShop(), stock.getProduct())) {
-      addStockToDb(stock);
-    } else {
-      throw new AppException("You couldn't add shop to db. Stock is not unique by .....");
+    if (!isStockUniqueByShopAndProduct(stock.getShop(), stock.getProduct())) {
+      var stockFromDb = getStockByShopAndProduct(stock.getShop(), stock.getProduct()).orElseThrow(() -> new AppException("Stock doesn't exist in db"));
+      stockFromDb.setQuantity(getStockQuantity(stockFromDb) + stock.getQuantity());
+      stock = stockFromDb;
     }
+    addStockToDb(stock);
   }
 
   private boolean isStockUniqueByShopAndProduct(Shop shop, Product product) {
     return stockRepository.findStockByShopAndProduct(shop, product).isEmpty();
+  }
+
+  private Integer getStockQuantity(Stock stock) {
+    return stockRepository.findStockByShopAndProduct(stock.getShop(), stock.getProduct())
+            .orElseThrow(() -> new AppException("No such stock exists")).getQuantity();
+  }
+
+  private Optional<Stock> getStockByShopAndProduct(Shop shop, Product product) {
+    return stockRepository.findStockByShopAndProduct(shop, product);
   }
 }

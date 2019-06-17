@@ -8,6 +8,8 @@ import validator.impl.CustomerOrderValidator;
 
 import java.util.stream.Collectors;
 
+import static utils.UserDataUtils.*;
+import static utils.UserDataUtils.getLocalDate;
 import static utils.UserDataUtils.printMessage;
 
 public class CustomerOrderUtil {
@@ -17,28 +19,30 @@ public class CustomerOrderUtil {
 
   public static CustomerOrder createCustomerOrderFromUserInput() {
 
-    var customerOrder = CustomerOrder.builder()
+    return CustomerOrder.builder()
             .customer(Customer.builder()
-                    .name(UserDataUtils.getString("Input customer name"))
-                    .surname(UserDataUtils.getString("Input customer surname"))
+                    .name(getString("Input customer name"))
+                    .surname(getString("Input customer surname"))
                     .country(Country.builder()
-                            .name(UserDataUtils.getString("Input country name"))
+                            .name(getString("Input country name"))
                             .build())
                     .build())
-            .date(UserDataUtils.getLocalDate("Input order date"))
+            .date(getLocalDate("Input order date"))
+            .quantity(getInt("Input order quantity"))
             .product(Product.builder()
                     .name("Input product name")
                     .category(Category.builder()
                             .name("Input category name")
                             .build())
                     .build())
-            .quantity(UserDataUtils.getInt("Input order quantity"))
-            .discount(UserDataUtils.getBigDecimal("Input order discount <0.0,1.0>"))
+            .discount(getBigDecimal("Input order discount <0.0,1.0>"))
             .payment(Payment.builder()
-                    .epayment(Epayment.valueOf(UserDataUtils.getString("Input payment type")))
+                    .epayment(Epayment.valueOf(getString("Input payment type")))
                     .build())
             .build();
+  }
 
+  public static CustomerOrder getCustomerOrderIfValid(CustomerOrder customerOrder) {
     var customerOrderValidator = new CustomerOrderValidator();
     var errorsMap = customerOrderValidator.validate(customerOrder);
 
