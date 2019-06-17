@@ -3,7 +3,7 @@ package utils.entity_utils;
 import domain.*;
 import domain.enums.EGuarantee;
 import exception.AppException;
-import utils.UserDataUtils;
+import utils.others.UserDataUtils;
 import validator.impl.ProductValidator;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static utils.UserDataUtils.*;
+import static utils.others.UserDataUtils.*;
 
 public final class ProductUtil {
 

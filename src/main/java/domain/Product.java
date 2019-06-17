@@ -34,8 +34,8 @@ public class Product {
   @CollectionTable(name = "guarantee_component", joinColumns = @JoinColumn(name = "product_id"))
   @Column(name = "guarantee_component")
   @Enumerated(EnumType.ORDINAL)
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
+//  @ToString.Exclude
+//  @EqualsAndHashCode.Exclude
   private List<EGuarantee> guaranteeComponent;
 
   @OneToMany(mappedBy = "product")

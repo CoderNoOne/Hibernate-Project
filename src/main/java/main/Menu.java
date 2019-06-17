@@ -4,22 +4,19 @@ import configuration.DbConnection;
 import domain.*;
 import domain.Error;
 import exception.AppException;
-import helper.OptionalHelper;
 import lombok.extern.slf4j.Slf4j;
 import service.*;
-import utils.UserDataUtils;
+import utils.others.UserDataUtils;
 import utils.entity_utils.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
-import static utils.UserDataUtils.printMessage;
+import static utils.others.UserDataUtils.printMessage;
 import static utils.entity_utils.CustomerOrderUtil.*;
 import static utils.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
 import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
@@ -95,22 +92,21 @@ class Menu {
   private void executeOption6() {
 
     try {
-      var customerOrder = getCustomerOrderIfValid(specifyOrderedProductDetail(createCustomerOrderFromUserInput()));
 
-//      decreaseStockQuantityIfValid(specifyShopDetailForCustomerOrder(customerOrder));
-//
-//      customerOrder.getCustomer().setCountry(getCountryFromDbIfExists(customerOrder.getCustomer().getCountry()));
-//
-//      getCustomerFromDbIfExists(customerOrder.getCustomer());
-//
-//      customerOrder.setPayment(getPaymentFromDbIfExists(customerOrder.getPayment()));
-//
-//      customerOrder.getProduct().setCategory(getCategoryFromDbIfExists(customerOrder.getProduct().getCategory()));
-//
-//
-//      // najpierw wybierz sklep z tymi produktem
-//      //pozniej sprawdz dosttepnosc produktu w wybanymm sklepie
-//      productService.getProductQuantity
+      var customerOrder = getCustomerOrderIfValid(specifyCustomerDetail(specifyOrderedProductDetail(createCustomerOrderFromUserInput())));
+
+      customerOrder.setPayment(getPaymentFromDbIfExists(customerOrder.getPayment()));
+      customerOrder.getProduct().setCategory(getCategoryFromDbIfExists(customerOrder.getProduct().getCategory()));
+      customerOrder.setCustomer(getCustomerFromDbIfExists(customerOrder.getCustomer()))
+      customerOrder.getCustomer().setCountry(getCountryFromDbIfExists(customerOrder.getCustomer().getCountry()));
+
+      Stock updatedStock = decreaseStockQuantityIfValid(specifyShopDetailForCustomerOrder(customerOrder), customerOrder.getProduct());
+
+
+
+
+
+
 
 
 
@@ -162,26 +158,60 @@ class Menu {
     }
   }
 
-  private void decreaseStockQuantityIfValid(CustomerOrder specifyShopDetailForCustomerOrder) {
+  private CustomerOrder specifyCustomerDetail(CustomerOrder customerOrder) {
 
+    var customerName = customerOrder.getCustomer().getName();
+    var customerSurname = customerOrder.getCustomer().getSurname();
+    var customerCountry = customerOrder.getCustomer().getCountry();
+
+    customerService.getCustomerByNameAndSurnameAndCountry(customerName,
+            customerSurname, customerCountry)
+            .ifPresentOrElse(
+                    customerOrder::setCustomer,
+                    () -> {
+                      throw new AppException(String.format("There is no customer in a db with: %s surname: %s country: %s",
+                              customerName, customerSurname, customerCountry.getName()));
+                    });
+
+    return customerOrder;
+  }
+
+  private Stock decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrder customerOrder) {
+
+//    Optional<Stock> stock = stockService.getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct());
+
+    stockService.getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct())
+            .ifPresentOrElse(stock -> {
+              if (stock.getQuantity() >= customerOrder.getQuantity()) {
+                //update do bazy danych ze zmniejszeniem quantity
+              } else {
+                throw new AppException("");
+              }
+            }, () -> {
+              throw new AppException("");
+            });
+
+    stock.get().getQuantity() >= customerOrder.getQuantity()
   }
 
 
-  private CustomerOrder specifyShopDetailForCustomerOrder(CustomerOrder customerOrder) {
+  private Map<Shop, Integer> specifyShopDetailForCustomerOrder(CustomerOrder customerOrder) {
 
-    Map<Shop, Integer> shopListWithProductInStock = stockService.getShopListWithProductInStock(customerOrder);
+    Map<Shop, Integer> shopMap = stockService.getShopListWithProductInStock(customerOrder.getProduct());
 
-    if (!shopListWithProductInStock.isEmpty()) {
-      var shop = chooseAvailableShop(new ArrayList<>(shopListWithProductInStock.keySet()));
+    if (!shopMap.isEmpty()) {
+      var shop = chooseAvailableShop(new ArrayList<>(shopMap.keySet()));
+      
+      return Collections.singletonMap(shop, shopMap.get(shop));
     }
 
-    return customerOrder;
+    throw new AppException("Product of interest isn't for sale in any of shop registered in a DB");
   }
 
 
   private CustomerOrder specifyOrderedProductDetail(CustomerOrder customerOrderFromUserInput) {
 
-    var productsByNameAndCategory = customerOrderService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
+    var productsByNameAndCategory = productService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
             customerOrderFromUserInput.getProduct().getCategory());
 
     if (!productsByNameAndCategory.isEmpty()) {
@@ -190,46 +220,8 @@ class Menu {
     }
 
     throw new AppException(String.format("There wasn't any product in a db for product name: %s and product category: %s",
-            customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory()));
+            customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory().getName()));
   }
-
-  private Country getCountryFromDbIfExists(Country country) {
-    return countryService.getCountryByName(country.getName()).orElse(country);
-  }
-
-  private Category getCategoryFromDbIfExists(Category category) {
-
-    return categoryService.getCategoryByName(category.getName()).orElse(category);
-  }
-
-  private Payment getPaymentFromDbIfExists(Payment payment) {
-    return paymentService.getPaymentByEpayment(payment.getEpayment()).orElse(payment);
-  }
-
-  private Customer getCustomerFromDbIfExists(Customer customer) {
-    return customerService.getCustomerByNameAndSurnameAndCountry(customer.getName(), customer.getSurname(), customer.getCountry()).orElse(customer);
-  }
-
-  private Shop getShopFromDbIfExists(Shop shop) {
-    return shopService.getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);
-  }
-
-  private Trade getTradeFromDbIfExists(Trade trade) {
-    return tradeService.getTradeByName(trade.getName()).orElse(trade);
-  }
-
-  private Producer getProducerFromDbIfExists(Producer producer) {
-    return producerService.getProducerByNameAndTradeAndCountry(
-            producer.getName(), producer.getTrade(),
-            producer.getCountry()).orElse(producer);
-  }
-
-  private Product getProductFromDbIfExists(Product product) {
-    return productService
-            .getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
-                    product.getProducer()).orElse(product);
-  }
-
 
   private void executeOption5() {
 
@@ -350,4 +342,43 @@ class Menu {
       throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_INSERTION, e.getMessage()));
     }
   }
+
+
+  private Country getCountryFromDbIfExists(Country country) {
+    return countryService.getCountryByName(country.getName()).orElse(country);
+  }
+
+  private Category getCategoryFromDbIfExists(Category category) {
+
+    return categoryService.getCategoryByName(category.getName()).orElse(category);
+  }
+
+  private Payment getPaymentFromDbIfExists(Payment payment) {
+    return paymentService.getPaymentByEpayment(payment.getEpayment()).orElse(payment);
+  }
+
+  private Customer getCustomerFromDbIfExists(Customer customer) {
+    return customerService.getCustomerByNameAndSurnameAndCountry(customer.getName(), customer.getSurname(), customer.getCountry()).orElse(customer);
+  }
+
+  private Shop getShopFromDbIfExists(Shop shop) {
+    return shopService.getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);
+  }
+
+  private Trade getTradeFromDbIfExists(Trade trade) {
+    return tradeService.getTradeByName(trade.getName()).orElse(trade);
+  }
+
+  private Producer getProducerFromDbIfExists(Producer producer) {
+    return producerService.getProducerByNameAndTradeAndCountry(
+            producer.getName(), producer.getTrade(),
+            producer.getCountry()).orElse(producer);
+  }
+
+  private Product getProductFromDbIfExists(Product product) {
+    return productService
+            .getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
+                    product.getProducer()).orElse(product);
+  }
+
 }

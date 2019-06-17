@@ -17,7 +17,7 @@ public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> imp
 
 
   @Override
-  public Map<Shop, Integer> findShopsWithProductInStock(CustomerOrder customerOrder) {
+  public Map<Shop, Integer> findShopsWithProductInStock(Product product) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
@@ -29,12 +29,11 @@ public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> imp
       resultantMap = entityManager
               .createQuery("from " + entityType.getSimpleName(), entityType)
               .getResultStream()
-              .filter(stock ->stock.getProduct().equals(customerOrder.getProduct()))
+              .filter(stock ->stock.getProduct().equals(product))
               .map(Stock::getShop)
               .collect(Collectors.toMap(
                       shop -> shop,
                       shop -> shop.getStocks().stream().mapToInt(Stock::getQuantity).sum()));
-//
 
       tx.commit();
     } catch (Exception e) {

@@ -42,11 +42,11 @@ public class StockService {
             .orElseThrow(() -> new AppException("No such stock exists")).getQuantity();
   }
 
-  private Optional<Stock> getStockByShopAndProduct(Shop shop, Product product) {
+  public Optional<Stock> getStockByShopAndProduct(Shop shop, Product product) {
     return stockRepository.findStockByShopAndProduct(shop, product);
   }
 
-  public Map<Shop,Integer> getShopListWithProductInStock(CustomerOrder customerOrder) {
-    return stockRepository.findShopsWithProductInStock(customerOrder);
+  public Map<Shop,Integer> getShopListWithProductInStock(Product product) {
+    return stockRepository.findShopsWithProductInStock(product);
   }
 }

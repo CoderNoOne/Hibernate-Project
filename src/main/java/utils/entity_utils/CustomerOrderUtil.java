@@ -3,14 +3,13 @@ package utils.entity_utils;
 import domain.*;
 import domain.enums.Epayment;
 import exception.AppException;
-import utils.UserDataUtils;
 import validator.impl.CustomerOrderValidator;
 
 import java.util.stream.Collectors;
 
-import static utils.UserDataUtils.*;
-import static utils.UserDataUtils.getLocalDate;
-import static utils.UserDataUtils.printMessage;
+import static utils.others.UserDataUtils.*;
+import static utils.others.UserDataUtils.getLocalDate;
+import static utils.others.UserDataUtils.printMessage;
 
 public class CustomerOrderUtil {
 
@@ -27,17 +26,17 @@ public class CustomerOrderUtil {
                             .name(getString("Input country name"))
                             .build())/*customer moze istniec w db - lub nie*/
                     .build())
-            .date(getLocalDate("Input order date"))
+            .date(getLocalDate("Input order date in format yyyy-MM-dd"))
             .quantity(getInt("Input order quantity"))
             .product(Product.builder()/*moze byc kilka ze względu na innego producenta*/
-                    .name("Input product name")
+                    .name(getString("Input product name"))
                     .category(Category.builder()
-                            .name("Input category name")
+                            .name(getString("Input category name"))
                             .build())
                     .build())
             .discount(getBigDecimal("Input order discount <0.0,1.0>"))
             .payment(Payment.builder()
-                    .epayment(Epayment.valueOf(getString("Input payment type")))
+                    .epayment(Epayment.valueOf(getString("Input payment type: CASH, CARD, MONEY_TRANSFER")))
                     .build())
             .build();
   }

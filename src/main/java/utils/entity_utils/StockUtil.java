@@ -6,9 +6,9 @@ import validator.impl.StockValidator;
 
 import java.util.stream.Collectors;
 
-import static utils.UserDataUtils.*;
-import static utils.UserDataUtils.getString;
-import static utils.UserDataUtils.printMessage;
+import static utils.others.UserDataUtils.*;
+import static utils.others.UserDataUtils.getString;
+import static utils.others.UserDataUtils.printMessage;
 
 public class StockUtil {
 

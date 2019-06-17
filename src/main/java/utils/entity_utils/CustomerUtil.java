@@ -7,7 +7,7 @@ import validator.impl.CustomerValidator;
 
 import java.util.stream.Collectors;
 
-import static utils.UserDataUtils.*;
+import static utils.others.UserDataUtils.*;
 
 
 public final class CustomerUtil {

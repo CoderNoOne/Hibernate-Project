@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<CustomerOrder, Long> implements CustomerOrderRepository {
 
-  @Override
-  public List<Product> getProductsByNameAndCategory(String name, Category category) {
+/*  @Override
+  public List<Product> getProductsByNameAndCategory(String name, String categoryName) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
@@ -33,7 +33,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
               .createQuery("from " + entityType.getSimpleName(), entityType)
               .getResultStream()
               .map(CustomerOrder::getProduct)
-              .filter(product -> product.getName().equals(name) && product.getCategory().equals(category))
+              .filter(product -> product.getName().equals(name) && product.getCategory().getName().equals(categoryName))
               .collect(Collectors.toList());
       tx.commit();
 
@@ -52,5 +52,5 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
       }
     }
     return resultList;
-  }
+  }*/
 }

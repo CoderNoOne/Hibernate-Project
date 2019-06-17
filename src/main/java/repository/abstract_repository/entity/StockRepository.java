@@ -14,5 +14,5 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
 
   Integer readStockQuantityById(Long id);
 
-  Map<Shop, Integer> findShopsWithProductInStock(CustomerOrder cutomerOrder);
+  Map<Shop, Integer> findShopsWithProductInStock(Product product);
 }

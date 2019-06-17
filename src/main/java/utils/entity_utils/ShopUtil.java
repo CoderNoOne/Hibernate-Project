@@ -4,15 +4,13 @@ import domain.Country;
 import domain.Shop;
 import domain.Stock;
 import exception.AppException;
-import utils.UserDataUtils;
 import validator.impl.ShopValidator;
 
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import static utils.UserDataUtils.*;
+import static utils.others.UserDataUtils.*;
 
 
 public final class ShopUtil {

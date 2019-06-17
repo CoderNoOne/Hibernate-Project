@@ -8,7 +8,7 @@ import validator.impl.ProducerValidator;
 
 import java.util.stream.Collectors;
 
-import static utils.UserDataUtils.*;
+import static utils.others.UserDataUtils.*;
 
 public class ProducerUtil {
 

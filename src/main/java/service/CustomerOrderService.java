@@ -24,8 +24,4 @@ public class CustomerOrderService {
   public void addCustomerOrderToDbFromUserInput(CustomerOrder customerOrder){
 
   }
-
-  public List<Product> getProductsByNameAndCategory(String name, Category category) {
-    return customerOrderRepository.getProductsByNameAndCategory(name, category);
-  }
 }
