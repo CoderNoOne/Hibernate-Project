@@ -40,8 +40,6 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
       if (tx != null) {
         tx.rollback();
       }
-      System.out.println(e.getMessage());
-      System.out.println(Arrays.toString(e.getStackTrace()));
       throw new AppException(entityType.getSimpleName() + ";add or update - exception");
     } finally {
       if (entityManager != null) {

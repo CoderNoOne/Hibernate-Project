@@ -21,10 +21,10 @@ public class Payment {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  @Column(unique = true)
+  @Column(/*unique = true*/)
   @Enumerated(EnumType.ORDINAL)
   private Epayment epayment;
 
-  @OneToMany(mappedBy = "payment"/*, cascade = CascadeType.MERGE*/)
+  @OneToMany(mappedBy = "payment")
   private List<CustomerOrder> customerOrders;
 }

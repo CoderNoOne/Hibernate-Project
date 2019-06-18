@@ -53,6 +53,9 @@ class Menu {
           case 4 -> executeOption4();
           case 5 -> executeOption5();
           case 6 -> executeOption6();
+          case 7 -> executeOption7();
+          case 8 -> executeOption8();
+          case 9 -> executeOption9();
           case 10 -> DbConnection.close();
         }
       } catch (AppException e) {
@@ -89,6 +92,21 @@ class Menu {
     ));
   }
 
+
+  private void executeOption9() {
+
+  }
+
+  private void executeOption8() {
+
+  }
+
+  private void executeOption7() {
+
+
+  }
+
+
   private void executeOption6() {
 
     try {
@@ -96,11 +114,6 @@ class Menu {
       var customerOrder = getCustomerOrderIfValid(specifyCustomerDetail(specifyOrderedProductDetail(createCustomerOrderFromUserInput())));
 
       customerOrder.setPayment(getPaymentFromDbIfExists(customerOrder.getPayment()));
-      customerOrder.getProduct().setCategory(getCategoryFromDbIfExists(customerOrder.getProduct().getCategory()));
-      customerOrder.setProduct(getProductFromDbIfExists(customerOrder.getProduct()));
-      customerOrder.getCustomer().setCountry(getCountryFromDbIfExists(customerOrder.getCustomer().getCountry()));
-      customerOrder.setCustomer(getCustomerFromDbIfExists(customerOrder.getCustomer()));
-
       decreaseStockQuantityIfValid(specifyShopDetailForCustomerOrder(customerOrder), customerOrder);
 
       customerOrderService.addCustomerOrderToDbFromUserInput(customerOrder);
@@ -130,7 +143,6 @@ class Menu {
   }
 
   private void decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrder customerOrder) {
-
 
     stockService.getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct())
             .ifPresentOrElse(stock -> {
@@ -331,5 +343,4 @@ class Menu {
             .getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
                     product.getProducer()).orElse(product);
   }
-
 }

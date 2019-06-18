@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name ="customer_order")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -29,7 +28,7 @@ public class CustomerOrder {
   private Integer quantity;
 
   @ManyToOne(cascade = CascadeType.MERGE)
-  @JoinColumn(name = "customer_id", unique = true)
+  @JoinColumn(name = "customer_id")
   private Customer customer;
 
   @ManyToOne(cascade = CascadeType.MERGE)

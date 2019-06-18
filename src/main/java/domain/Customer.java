@@ -28,7 +28,6 @@ public class Customer {
   @JoinColumn(name = "country_id")
   private Country country;
 
-  @OneToMany(mappedBy = "customer"/*, cascade = CascadeType.MERGE*/)
+  @OneToMany(mappedBy = "customer")
   private List<CustomerOrder> customerOrders;
-
 }

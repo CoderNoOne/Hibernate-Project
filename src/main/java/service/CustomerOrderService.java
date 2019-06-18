@@ -1,12 +1,9 @@
 package service;
 
-import domain.Category;
 import domain.CustomerOrder;
-import domain.Product;
 import repository.abstract_repository.entity.CustomerOrderRepository;
 import repository.impl.CustomerOrderRepositoryImpl;
 
-import java.util.List;
 import java.util.Optional;
 
 public class CustomerOrderService {

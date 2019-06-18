@@ -20,7 +20,7 @@ public class Category {
   @Column(unique = true)
   private String name;
 
-  @OneToMany(mappedBy = "category"/*, cascade = CascadeType.MERGE*/)
+  @OneToMany(mappedBy = "category")
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private List<Product> products;

@@ -18,39 +18,4 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<CustomerOrder, Long> implements CustomerOrderRepository {
 
-/*  @Override
-  public List<Product> getProductsByNameAndCategory(String name, String categoryName) {
-
-    EntityManager entityManager = entityManagerFactory.createEntityManager();
-    EntityTransaction tx = entityManager.getTransaction();
-
-    List<Product> resultList = new ArrayList<>();
-
-    try {
-      tx.begin();
-
-      resultList = entityManager
-              .createQuery("from " + entityType.getSimpleName(), entityType)
-              .getResultStream()
-              .map(CustomerOrder::getProduct)
-              .filter(product -> product.getName().equals(name) && product.getCategory().getName().equals(categoryName))
-              .collect(Collectors.toList());
-      tx.commit();
-
-    } catch (Exception e) {
-      log.info(e.getMessage());
-      log.error(Arrays.toString(e.getStackTrace()));
-
-      if (tx != null) {
-        tx.rollback();
-      }
-
-      throw new AppException("find products by name and category - exception");
-    } finally {
-      if (entityManager != null) {
-        entityManager.close();
-      }
-    }
-    return resultList;
-  }*/
 }
