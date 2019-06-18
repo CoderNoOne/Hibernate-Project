@@ -8,6 +8,7 @@ import repository.abstract_repository.entity.ProductRepository;
 import repository.impl.ProductRepositoryImpl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ProductService {
@@ -40,5 +41,9 @@ public class ProductService {
 
   public List<Product> getProductsByNameAndCategory(String name, Category category) {
     return productRepository.findProductsByNameAndCategory(name, category);
+  }
+
+  public Map<Category, List<Product>> getTheMostExpensiveProductInEachCategory(){
+    return productRepository.findTheMostExpensiveProductInEveryCategory();
   }
 }

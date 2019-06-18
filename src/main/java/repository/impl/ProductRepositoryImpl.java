@@ -10,6 +10,7 @@ import repository.abstract_repository.entity.ProductRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -90,22 +91,26 @@ public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long>
   }
 
   @Override
-  public Map<Category, Product> findProductsWithMostPriceInEveryCategory() {
+  public Map<Category, List<Product>> findTheMostExpensiveProductInEveryCategory() {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
 
-    Map<Category, Product> resultantMap = new HashMap<>();
+    Map<Category, List<Product>> resultantMap = new HashMap<>();
 
     try {
       tx.begin();
 
-      resultantMap = entityManager
+      List<Product> resultList = entityManager
               .createQuery("from " + entityType.getSimpleName(), entityType)
-              .getResultStream()
-              .collect(Collectors.collectingAndThen(Collectors.groupingBy(Product::getCategory,
-                      Collectors.maxBy(Comparator.comparing(Product::getPrice))),
-                      map -> map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()))));
+              .getResultList();
+
+      resultantMap = resultList.isEmpty() ? Collections.emptyMap() : resultList.stream()
+              .collect(Collectors.groupingBy(Product::getCategory,
+                      Collectors.filtering(product ->
+                                      product.getPrice().compareTo(resultList.stream().map(Product::getPrice).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO)) >= 0,
+                              Collectors.toList())));
+
       tx.commit();
     } catch (Exception e) {
       System.out.println(e.getMessage());

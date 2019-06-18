@@ -87,7 +87,8 @@ class Menu {
             "Add new producer",
             "Add new product",
             "Add new stock",
-            "Add new Customer order"
+            "Add new Customer order",
+            "Show the most expensive product in each category"
 
     ));
   }
@@ -103,7 +104,11 @@ class Menu {
 
   private void executeOption7() {
 
+    productService.getTheMostExpensiveProductInEachCategory().forEach((category, productList) -> {
+      printMessage("Category: " + category + " productList: " + productList);
 
+      System.out.println(customerOrderService.getNumberOfOrdersForSpecifiedProducts(productList));
+    });
   }
 
 
@@ -135,7 +140,7 @@ class Menu {
             .ifPresentOrElse(
                     customerOrder::setCustomer,
                     () -> {
-                      throw new AppException(String.format("There is no customer in a db with: %s surname: %s country: %s",
+                      throw new AppException(String.format("There is no customer in a db with: name: %s surname: %s country: %s",
                               customerName, customerSurname, customerCountry.getName()));
                     });
 
@@ -149,11 +154,11 @@ class Menu {
               if (stock.getQuantity() >= customerOrder.getQuantity()) {
                 stockService.decreaseStockQuantityBySpecifiedAmount(stock, customerOrder.getQuantity());
               } else {
-                throw new AppException(String.format("Not enough products in stock. Customer wants %d but there is only %d products in the stock",
+                throw new AppException(String.format("Not enough products in stock. Customer wants %d but there are only %d products in the stock",
                         customerOrder.getQuantity(), stock.getQuantity()));
               }
             }, () -> {
-              throw new AppException(String.format("No stock were found for product: %s and for shop: %s",
+              throw new AppException(String.format("No stock was found for product: %s and for shop: %s",
                       customerOrder.getProduct().getName(), map.keySet().iterator().next().getName()));
             });
   }
@@ -169,7 +174,7 @@ class Menu {
       return Collections.singletonMap(shop, shopMap.get(shop));
     }
 
-    throw new AppException("Product of interest isn't for sale in any of shop registered in a DB");
+    throw new AppException("Product of interest isn't for sale in any of the registered shops in a DB");
   }
 
 
@@ -183,7 +188,7 @@ class Menu {
       return customerOrderFromUserInput;
     }
 
-    throw new AppException(String.format("There wasn't any product in a db for product name: %s and product category: %s",
+    throw new AppException(String.format("There wasn't any product in a DB for product name: %s and product category: %s",
             customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory().getName()));
   }
 
@@ -192,16 +197,6 @@ class Menu {
     try {
 
       var stock = getStockIfValid(specifyShop(specifyProduct(createStockDetailFromUserInput())));
-
-      stock.getProduct().setCategory(getCategoryFromDbIfExists(stock.getProduct().getCategory()));
-      stock.getProduct().getProducer().setTrade(getTradeFromDbIfExists(stock.getProduct().getProducer().getTrade()));
-      stock.getProduct().getProducer().setCountry(getCountryFromDbIfExists(stock.getProduct().getProducer().getCountry()));
-
-      stock.getProduct().setProducer(getProducerFromDbIfExists(stock.getProduct().getProducer()));
-      stock.setProduct(getProductFromDbIfExists(stock.getProduct()));
-
-      stock.getShop().setCountry(getCountryFromDbIfExists(stock.getShop().getCountry()));
-      stock.setShop(getShopFromDbIfExists(stock.getShop()));
 
       stockService.addStockToDbFromUserInput(stock);
 
@@ -213,28 +208,52 @@ class Menu {
 
   }
 
-  private Stock specifyProduct(Stock stockDetailFromUserInput) {
+  private Stock specifyProduct(Stock stock) {
 
-    var productList = productService.getProductsByNameAndCategory(stockDetailFromUserInput.getProduct().getName(),
-            stockDetailFromUserInput.getProduct().getCategory());
+    var productList = productService.getProductsByNameAndCategory(stock.getProduct().getName(),
+            stock.getProduct().getCategory());
 
-    var product = !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductIfValid(preciseProductDetails(stockDetailFromUserInput));
+    var product = !productList.isEmpty() ? chooseAvailableProduct(productList) : setProductComponentsFromDbIfTheyExist(
+            getProductIfValid(preciseProductDetails(stock)));
 
-    stockDetailFromUserInput.setProduct(product);
-    return stockDetailFromUserInput;
+    stock.setProduct(product);
+
+    return stock;
   }
 
+  private Product setProductComponentsFromDbIfTheyExist(Product product) {
 
-  private Stock specifyShop(Stock stockFromUserInput) {
+   return Product.builder()
+            .name(product.getName())
+            .category(getCategoryFromDbIfExists(product.getCategory()))
+           .guaranteeComponent(product.getGuaranteeComponent())
+            .producer(getProducerFromDbIfExists(Producer.builder()
+                    .name(product.getProducer().getName())
+                    .country(getCountryFromDbIfExists(product.getProducer().getCountry()))
+                    .trade(getTradeFromDbIfExists(product.getProducer().getTrade()))
+                    .build()))
+            .build();
 
-    var shopsByName = shopService.getShopsByName(stockFromUserInput.getShop().getName());
+  }
+
+  private Stock specifyShop(Stock stock) {
+
+    var shopsByName = shopService.getShopsByName(stock.getShop().getName());
 
     var shop = !shopsByName.isEmpty() ?
-            chooseAvailableShop(shopsByName) : getShopIfValid(preciseShopDetails(stockFromUserInput));
+            chooseAvailableShop(shopsByName) : setShopComponentsFromDbIfTheyExist(getShopIfValid(preciseShopDetails(stock)));
 
-    stockFromUserInput.setShop(shop);
-    return stockFromUserInput;
+    stock.setShop(shop);
+    return stock;
 
+  }
+
+  private Shop setShopComponentsFromDbIfTheyExist(Shop shop) {
+
+    return Shop.builder()
+            .name(shop.getName())
+            .country(getCountryFromDbIfExists(shop.getCountry()))
+            .build();
   }
 
   private void executeOption4() {

@@ -15,6 +15,6 @@ public interface ProductRepository extends CrudRepository <Product, Long> {
 
   List<Product> findProductsByNameAndCategory(String name, Category category);
 
-  Map<Category, Product> findProductsWithMostPriceInEveryCategory();
+  Map<Category, List<Product>> findTheMostExpensiveProductInEveryCategory();
   List<Product> findProductsOrderedByClientsFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge);
 }
