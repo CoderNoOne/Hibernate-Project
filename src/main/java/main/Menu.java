@@ -223,10 +223,10 @@ class Menu {
 
   private Product setProductComponentsFromDbIfTheyExist(Product product) {
 
-   return Product.builder()
+    return Product.builder()
             .name(product.getName())
             .category(getCategoryFromDbIfExists(product.getCategory()))
-           .guaranteeComponent(product.getGuaranteeComponent())
+            .guaranteeComponent(product.getGuaranteeComponent())
             .producer(getProducerFromDbIfExists(Producer.builder()
                     .name(product.getProducer().getName())
                     .country(getCountryFromDbIfExists(product.getProducer().getCountry()))
@@ -259,14 +259,7 @@ class Menu {
   private void executeOption4() {
 
     try {
-      var product = ProductUtil.createProductFromUserInput();
-
-      product.setCategory(getCategoryFromDbIfExists(product.getCategory()));
-      product.setProducer(getProducerFromDbIfExists(product.getProducer()));
-
-      product.getProducer().setCountry(getCountryFromDbIfExists(product.getProducer().getCountry()));
-      product.getProducer().setTrade(getTradeFromDbIfExists(product.getProducer().getTrade()));
-
+      var product = setProductComponentsFromDbIfTheyExist(createProductFromUserInput());
       productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
