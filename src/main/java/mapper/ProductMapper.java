@@ -1,13 +1,9 @@
 package mapper;
 
-import domain.Category;
 import domain.Product;
-import dto.CategoryDTO;
 import dto.ProductDTO;
 import org.mapstruct.*;
 
-import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface ProductMapper {
@@ -29,8 +25,4 @@ public interface ProductMapper {
           @Mapping(source = "countryName", target = "producer.country.name")
   })
   Product productDTOtoProduct(ProductDTO productDTO);
-
-
-  @MapMapping(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
-  Map<CategoryDTO, List<ProductDTO>> productMapToProductDTOMap(Map<Category, List<Product>> map);
 }

@@ -6,11 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
-public class CountryDTO {
+@Builder
+public class CustomerDto {
 
   private String name;
+  private String surname;
+  private Integer age;
+  private CountryDto country;
+
 }

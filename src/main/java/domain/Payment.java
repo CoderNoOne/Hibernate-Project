@@ -21,7 +21,6 @@ public class Payment {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  @Column(/*unique = true*/)
   @Enumerated(EnumType.ORDINAL)
   private Epayment epayment;
 

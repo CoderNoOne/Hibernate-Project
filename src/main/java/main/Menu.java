@@ -5,25 +5,18 @@ import domain.*;
 import domain.Error;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
-import mapper.ProductMapper;
-import org.mapstruct.factory.Mappers;
 import service.*;
 import utils.others.UserDataUtils;
-import utils.entity_utils.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
 import static utils.entity_utils.CustomerUtil.getCustomerIfValid;
 import static utils.entity_utils.ProducerUtil.createProducerFromUserInput;
 import static utils.entity_utils.ProducerUtil.getProducerIfValid;
-import static utils.others.UserDataUtils.printCollectionWithNumeration;
-import static utils.others.UserDataUtils.printMessage;
 import static utils.entity_utils.CustomerOrderUtil.*;
 import static utils.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
 import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
@@ -31,6 +24,7 @@ import static utils.entity_utils.ProductUtil.*;
 import static utils.entity_utils.ShopUtil.*;
 import static utils.entity_utils.StockUtil.createStockDetailFromUserInput;
 import static utils.entity_utils.StockUtil.getStockIfValid;
+import static utils.others.UserDataUtils.*;
 
 @Slf4j
 class Menu {
@@ -95,7 +89,8 @@ class Menu {
             "Add new product",
             "Add new stock",
             "Add new Customer order",
-            "Show the most expensive product in each category"
+            "Show the most expensive product in each category",
+            "Show distinct products ordered by customer with age within specified range and from specified country - sorted by price in descending order"
 
     ));
   }
@@ -107,18 +102,24 @@ class Menu {
 
   private void executeOption8() {
 
+    var countryName = getString("Input country name").toUpperCase();
+    int minAge;
+    int maxAge;
+    do {
+      minAge = getInt("Input customer min age");
+      maxAge = getInt("Input customer max age");
+    } while (minAge > maxAge);
+
+    printCollectionWithNumeration(customerOrderService.getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(countryName, minAge, maxAge));
   }
 
   private void executeOption7() {
 
-    var productMapper = Mappers.getMapper(ProductMapper.class);
-    productService.getTheMostExpensiveProductInEachCategory().forEach((category, productList) -> {
-      printMessage("Category: " + category + " productList: \n");
-      customerOrderService.getNumberOfOrdersForSpecifiedProducts(productList).entrySet().stream()
-
-      ;
-
-    });
+    customerOrderService.getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales().forEach(
+            (category, innerMap) -> {
+              printMessage(String.format("Category: %sMax quantity: %d The products are: \n", category, innerMap.values().iterator().next()));
+              printCollectionWithNumeration(innerMap.keySet());
+            });
   }
 
 

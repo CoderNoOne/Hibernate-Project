@@ -1,9 +1,6 @@
 package domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -20,14 +17,16 @@ public class Customer {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  private Integer age;
   private String name;
   private String surname;
+  private Integer age;
 
   @ManyToOne(cascade = CascadeType.MERGE)
   @JoinColumn(name = "country_id")
   private Country country;
 
   @OneToMany(mappedBy = "customer")
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private List<CustomerOrder> customerOrders;
 }

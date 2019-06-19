@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class ProducerDTO {
+public class CountryDto {
 
   private String name;
-  private CountryDto countryDTO;
-
 }

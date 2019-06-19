@@ -1,18 +1,16 @@
 package dto;
 
+import domain.enums.Epayment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+public class PaymentDto {
 
-public class ProducerDTO {
-
-  private String name;
-  private CountryDto countryDTO;
-
+  private Epayment epayment;
 }
