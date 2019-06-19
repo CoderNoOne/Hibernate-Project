@@ -1,16 +1,23 @@
 package dto;
 
-import domain.Category;
-import domain.Producer;
-import domain.enums.EGuarantee;
-import java.math.BigDecimal;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
 public class ProductDTO {
 
-  private String name;
+  private String productName;
   private BigDecimal price;
-  private Category category;
-  private Producer producer;
-  private List<EGuarantee> guaranteeComponent;
+  private String categoryName;
+  private String producerName;
+  private String countryName;
+
 }

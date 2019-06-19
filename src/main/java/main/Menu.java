@@ -5,6 +5,8 @@ import domain.*;
 import domain.Error;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
+import mapper.ProductMapper;
+import org.mapstruct.factory.Mappers;
 import service.*;
 import utils.others.UserDataUtils;
 import utils.entity_utils.*;
@@ -13,12 +15,14 @@ import javax.persistence.criteria.CriteriaBuilder;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
 import static utils.entity_utils.CustomerUtil.getCustomerIfValid;
 import static utils.entity_utils.ProducerUtil.createProducerFromUserInput;
 import static utils.entity_utils.ProducerUtil.getProducerIfValid;
+import static utils.others.UserDataUtils.printCollectionWithNumeration;
 import static utils.others.UserDataUtils.printMessage;
 import static utils.entity_utils.CustomerOrderUtil.*;
 import static utils.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
@@ -107,10 +111,13 @@ class Menu {
 
   private void executeOption7() {
 
+    var productMapper = Mappers.getMapper(ProductMapper.class);
     productService.getTheMostExpensiveProductInEachCategory().forEach((category, productList) -> {
-      printMessage("Category: " + category + " productList: " + productList);
+      printMessage("Category: " + category + " productList: \n");
+      customerOrderService.getNumberOfOrdersForSpecifiedProducts(productList).entrySet().stream()
 
-      System.out.println(customerOrderService.getNumberOfOrdersForSpecifiedProducts(productList));
+      ;
+
     });
   }
 
@@ -228,6 +235,7 @@ class Menu {
 
     return Product.builder()
             .name(product.getName())
+            .price(product.getPrice())
             .category(getCategoryFromDbIfExists(product.getCategory()))
             .guaranteeComponent(product.getGuaranteeComponent())
             .producer(setProducerComponentsFromDbIfTheyExist(product.getProducer()))
