@@ -12,22 +12,25 @@ import static utils.others.UserDataUtils.*;
 
 public class ProducerUtil {
 
-  private static final ProducerValidator producerValidator = new ProducerValidator();
-
   private ProducerUtil() {
   }
 
   public static Producer createProducerFromUserInput() {
 
-    var name = getString("Input producer name");
-    var trade = Trade.builder().name(getString("Input trade name")).build();
-    var country = Country.builder().name(getString("Input country name")).build();
-
-    var producer = Producer.builder()
-            .trade(trade)
-            .name(name)
-            .country(country)
+    return Producer.builder()
+            .name(getString("Input producer name"))
+            .trade(Trade.builder()
+                    .name(getString("Input trade name"))
+                    .build())
+            .country(Country.builder()
+                    .name(getString("Input country name"))
+                    .build())
             .build();
+  }
+
+  public static Producer getProducerIfValid(Producer producer) {
+
+    var producerValidator = new ProducerValidator();
 
     var errorsMap = producerValidator.validate(producer);
 

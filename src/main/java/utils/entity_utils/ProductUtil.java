@@ -15,8 +15,6 @@ import static utils.others.UserDataUtils.*;
 
 public final class ProductUtil {
 
-  private static final ProductValidator productValidator = new ProductValidator();
-
   private ProductUtil() {
   }
 

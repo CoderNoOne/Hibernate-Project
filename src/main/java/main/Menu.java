@@ -16,6 +16,9 @@ import java.util.*;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
+import static utils.entity_utils.CustomerUtil.getCustomerIfValid;
+import static utils.entity_utils.ProducerUtil.createProducerFromUserInput;
+import static utils.entity_utils.ProducerUtil.getProducerIfValid;
 import static utils.others.UserDataUtils.printMessage;
 import static utils.entity_utils.CustomerOrderUtil.*;
 import static utils.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
@@ -227,13 +230,8 @@ class Menu {
             .name(product.getName())
             .category(getCategoryFromDbIfExists(product.getCategory()))
             .guaranteeComponent(product.getGuaranteeComponent())
-            .producer(getProducerFromDbIfExists(Producer.builder()
-                    .name(product.getProducer().getName())
-                    .country(getCountryFromDbIfExists(product.getProducer().getCountry()))
-                    .trade(getTradeFromDbIfExists(product.getProducer().getTrade()))
-                    .build()))
+            .producer(setProducerComponentsFromDbIfTheyExist(product.getProducer()))
             .build();
-
   }
 
   private Stock specifyShop(Stock stock) {
@@ -259,7 +257,7 @@ class Menu {
   private void executeOption4() {
 
     try {
-      var product = setProductComponentsFromDbIfTheyExist(createProductFromUserInput());
+      var product = getProductIfValid(setProductComponentsFromDbIfTheyExist(createProductFromUserInput()));
       productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
@@ -273,11 +271,7 @@ class Menu {
 
     try {
 
-      var producer = ProducerUtil.createProducerFromUserInput();
-
-      producer.setCountry(getCountryFromDbIfExists(producer.getCountry()));
-      producer.setTrade(getTradeFromDbIfExists(producer.getTrade()));
-
+      var producer = getProducerIfValid(setProducerComponentsFromDbIfTheyExist(createProducerFromUserInput()));
       producerService.addProducerToDb(producer);
 
     } catch (Exception e) {
@@ -287,12 +281,20 @@ class Menu {
     }
   }
 
+  private Producer setProducerComponentsFromDbIfTheyExist(Producer producer) {
+
+    return Producer.builder()
+            .name(producer.getName())
+            .trade(getTradeFromDbIfExists(producer.getTrade()))
+            .country(getCountryFromDbIfExists(producer.getCountry()))
+            .build();
+  }
+
   private void executeOption2() {
 
     try {
 
-      var shop = createShopFromUserInput();
-      shop.setCountry(getCountryFromDbIfExists(shop.getCountry()));
+      var shop = getShopIfValid(setShopComponentsFromDbIfTheyExist(createShopFromUserInput()));
       shopService.addShopToDbFromUserInput(shop);
 
     } catch (Exception e) {
@@ -307,8 +309,7 @@ class Menu {
 
     try {
 
-      var customer = createCustomerFromUserInput();
-      customer.setCountry(getCountryFromDbIfExists(customer.getCountry()));
+      var customer = getCustomerIfValid(setCustomerComponentsFromDbIfTheyExist(createCustomerFromUserInput()));
       customerService.addCustomerToDbFromUserInput(customer);
 
     } catch (Exception e) {
@@ -316,6 +317,16 @@ class Menu {
       log.error(Arrays.toString(e.getStackTrace()));
       throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_INSERTION, e.getMessage()));
     }
+  }
+
+  private Customer setCustomerComponentsFromDbIfTheyExist(Customer customer) {
+
+    return Customer.builder()
+            .name(customer.getName())
+            .surname(customer.getSurname())
+            .age(customer.getAge())
+            .country(getCountryFromDbIfExists(customer.getCountry()))
+            .build();
   }
 
 
