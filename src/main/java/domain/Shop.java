@@ -1,9 +1,6 @@
 package domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -26,5 +23,7 @@ public class Shop {
   private Country country;
 
   @OneToMany(mappedBy = "shop")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<Stock> stocks;
 }

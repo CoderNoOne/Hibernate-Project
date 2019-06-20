@@ -10,5 +10,5 @@ public interface CountryMapper {
   Country countryDtoToCountry(CountryDto countryDTO);
 
   CountryDto countryToCountryDto(Country country);
-  
+
 }

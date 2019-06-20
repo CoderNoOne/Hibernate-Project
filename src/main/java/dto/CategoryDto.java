@@ -6,13 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
-public class ProducerDTO {
-
+@Builder
+public class CategoryDto {
   private String name;
-  private CountryDto countryDTO;
-
 }

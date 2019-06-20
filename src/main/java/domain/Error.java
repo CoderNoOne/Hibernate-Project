@@ -15,7 +15,9 @@ public class Error {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
+
   private LocalDateTime date;
+
   @Column(length = 1000)
   private String message;
 }

@@ -2,10 +2,11 @@ package service;
 
 import domain.CustomerOrder;
 import domain.Product;
-import dto.CategoryDTO;
+import dto.CategoryDto;
 import dto.CustomerOrderDto;
-import dto.ProductDTO;
+import dto.ProductDto;
 import mapper.CategoryMapper;
+import mapper.CustomerOrderMapper;
 import mapper.ProductMapper;
 import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.CustomerOrderRepository;
@@ -17,7 +18,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class CustomerOrderService {
@@ -25,11 +25,13 @@ public class CustomerOrderService {
   private final CustomerOrderRepository customerOrderRepository;
   private final CategoryMapper categoryMapper;
   private final ProductMapper productMapper;
+  private final CustomerOrderMapper customerOrderMapper;
 
   public CustomerOrderService() {
     this.customerOrderRepository = new CustomerOrderRepositoryImpl();
     this.categoryMapper = Mappers.getMapper(CategoryMapper.class);
     this.productMapper = Mappers.getMapper(ProductMapper.class);
+    this.customerOrderMapper = Mappers.getMapper(CustomerOrderMapper.class);
   }
 
   private Optional<CustomerOrder> addCustomerOrderToDb(CustomerOrder customerOrder) {
@@ -44,7 +46,7 @@ public class CustomerOrderService {
     return customerOrderRepository.findNumberOfOrdersForSpecifiedProducts(productList);
   }
 
-  public Map<CategoryDTO, Map<ProductDTO, Integer>> getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales() {
+  public Map<CategoryDto, Map<ProductDto, Integer>> getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales() {
 
     return customerOrderRepository.findTheMostExpensiveOrderedProductInEachCategoryWithNumberOfPurchases()
             .entrySet().stream().collect(Collectors.toMap(
@@ -52,17 +54,20 @@ public class CustomerOrderService {
                     e -> e.getValue().entrySet().stream().collect(Collectors.toMap(
                             ee -> productMapper.productToProductDTO(ee.getKey()),
                             Map.Entry::getValue
-                    ))
-            ));
+                    ))));
   }
 
-  public List<ProductDTO> getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(String countryName, Integer minAge, Integer maxAge){
+  public List<ProductDto> getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(String countryName, Integer minAge, Integer maxAge) {
 
     return customerOrderRepository.findProductsOrderedByCustomersFromSpecifiedCountryAndWithAgeWithinSpecifiedRange(countryName, minAge, maxAge)
-            .stream().distinct().map(productMapper::productToProductDTO).sorted(Comparator.comparing(ProductDTO::getPrice).reversed()).collect(Collectors.toList());
+            .stream().distinct().map(productMapper::productToProductDTO).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList());
   }
 
-//  public List <CustomerOrderDto> get(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount){
-//    return customerOrderRepository.findOrdersOrderedWithingSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(minDate,maxDate,minPriceAfterDiscount);
-//  }
+  public List<CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
+    return customerOrderRepository.
+            findOrdersOrderedWithingSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(minDate, maxDate, minPriceAfterDiscount)
+            .stream()
+            .map(customerOrderMapper::customerOrderToCustomerOrderDto)
+            .collect(Collectors.toList());
+  }
 }

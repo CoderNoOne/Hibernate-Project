@@ -5,11 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-public class TradeDTO {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class ProducerDto {
 
   private String name;
+  private CountryDto country;
+  private TradeDto trade;
+
 }

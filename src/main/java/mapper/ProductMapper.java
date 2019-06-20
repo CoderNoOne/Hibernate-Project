@@ -1,7 +1,7 @@
 package mapper;
 
 import domain.Product;
-import dto.ProductDTO;
+import dto.ProductDto;
 import org.mapstruct.*;
 
 
@@ -15,7 +15,7 @@ public interface ProductMapper {
           @Mapping(source = "producer.country.name", target = "countryName"),
 
   })
-  ProductDTO productToProductDTO(Product product);
+  ProductDto productToProductDTO(Product product);
 
 
   @Mappings({
@@ -24,5 +24,5 @@ public interface ProductMapper {
           @Mapping(source = "producerName", target = "producer.name"),
           @Mapping(source = "countryName", target = "producer.country.name")
   })
-  Product productDTOtoProduct(ProductDTO productDTO);
+  Product productDTOtoProduct(ProductDto productDTO);
 }

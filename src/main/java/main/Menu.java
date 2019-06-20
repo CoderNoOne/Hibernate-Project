@@ -9,6 +9,7 @@ import service.*;
 import utils.others.UserDataUtils;
 
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -90,14 +91,25 @@ class Menu {
             "Add new stock",
             "Add new Customer order",
             "Show the most expensive product in each category",
-            "Show distinct products ordered by customer with age within specified range and from specified country - sorted by price in descending order"
-
+            "Show distinct products ordered by customer with age within specified range and from specified country - sorted by price in descending order",
+            "Show orders with order date within and with price after discount higher than specified "
     ));
   }
 
 
   private void executeOption9() {
 
+
+    LocalDate minLocalDate;
+    LocalDate maxLocalDate;
+    do {
+      minLocalDate = getLocalDate("Input min local date");
+      maxLocalDate = getLocalDate("Input max local date");
+    } while (minLocalDate.compareTo(maxLocalDate) > 0);
+
+    var minPriceAfterDiscount = getBigDecimal("Input product price");
+
+    System.out.println(customerOrderService.getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(minLocalDate, maxLocalDate, minPriceAfterDiscount));
   }
 
   private void executeOption8() {

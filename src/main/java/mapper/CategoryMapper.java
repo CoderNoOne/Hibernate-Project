@@ -1,13 +1,13 @@
 package mapper;
 
 import domain.Category;
-import dto.CategoryDTO;
+import dto.CategoryDto;
 import org.mapstruct.Mapper;
 
 @Mapper
 public interface CategoryMapper {
 
-  CategoryDTO categoryToCategoryDTO(Category category);
+  CategoryDto categoryToCategoryDTO(Category category);
 
-  Category categoryDTOToCategory(CategoryDTO categoryDTO);
+  Category categoryDTOToCategory(CategoryDto categoryDTO);
 }

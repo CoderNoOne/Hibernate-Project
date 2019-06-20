@@ -2,13 +2,11 @@ package service;
 
 import domain.Country;
 import domain.Customer;
-import dto.ProductDTO;
 import exception.AppException;
 import repository.abstract_repository.entity.CustomerRepository;
 import repository.impl.CustomerRepositoryImpl;
 
 
-import java.util.List;
 import java.util.Optional;
 
 

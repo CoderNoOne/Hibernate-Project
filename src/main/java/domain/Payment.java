@@ -1,10 +1,7 @@
 package domain;
 
 import domain.enums.Epayment;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -25,5 +22,7 @@ public class Payment {
   private Epayment epayment;
 
   @OneToMany(mappedBy = "payment")
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private List<CustomerOrder> customerOrders;
 }

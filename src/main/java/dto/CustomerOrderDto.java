@@ -19,6 +19,6 @@ public class CustomerOrderDto {
   private BigDecimal discount;
   private Integer quantity;
   private CustomerDto customer;
-  private ProductDTO product;
+  private ProductDto product;
   private PaymentDto payment;
 }

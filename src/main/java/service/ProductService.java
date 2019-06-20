@@ -3,8 +3,8 @@ package service;
 import domain.Category;
 import domain.Producer;
 import domain.Product;
-import dto.CategoryDTO;
-import dto.ProductDTO;
+import dto.CategoryDto;
+import dto.ProductDto;
 import exception.AppException;
 import mapper.CategoryMapper;
 import mapper.ProductMapper;
@@ -53,7 +53,7 @@ public class ProductService {
     return productRepository.findProductsByNameAndCategory(name, category);
   }
 
-  public Map<CategoryDTO, List<ProductDTO>> getTheMostExpensiveProductInEachCategory() {
+  public Map<CategoryDto, List<ProductDto>> getTheMostExpensiveProductInEachCategory() {
 
     return productRepository.findTheMostExpensiveProductInEveryCategory().entrySet().stream()
             .collect(Collectors.toMap(

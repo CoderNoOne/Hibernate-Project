@@ -30,14 +30,13 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
       tx.begin();
 
       productList = entityManager
-              .createQuery("select e from " + entityType.getSimpleName() + " as e where e.date between = :minDate and = :maxDate", entityType)
+              .createQuery("select e from " + entityType.getSimpleName() + " as e where e.date between :minDate and :maxDate " +
+                      "and e.product.price * (1-e.discount) > :minPrice", entityType)
               .setParameter("minDate", minDate)
               .setParameter("maxDate", maxDate)
-              .getResultStream()
-              .filter(customerOrder -> customerOrder.getProduct().getPrice().multiply(new BigDecimal(String.valueOf(1- customerOrder.getQuantity())))
-                      .compareTo(minPriceAfterDiscount) > 0)
-              .collect(Collectors.toList());
-
+              .setParameter("minPrice", minPriceAfterDiscount)
+              .getResultList();
+      
       tx.commit();
     } catch (Exception e) {
       System.out.println(e.getMessage());
