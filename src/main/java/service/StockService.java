@@ -1,22 +1,29 @@
 package service;
 
-import domain.CustomerOrder;
 import domain.Product;
 import domain.Shop;
 import domain.Stock;
+import dto.ProducerDto;
 import exception.AppException;
+import mapper.ProducerMapper;
+import mapper.ProductMapper;
+import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.StockRepository;
 import repository.impl.StockRepositoryImpl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StockService {
 
   private final StockRepository stockRepository;
+  private final ProducerMapper producerMapper;
 
   public StockService() {
     this.stockRepository = new StockRepositoryImpl();
+    this.producerMapper = Mappers.getMapper(ProducerMapper.class);
   }
 
   public Optional<Stock> addStockToDb(Stock stock) {
@@ -52,5 +59,11 @@ public class StockService {
   public void decreaseStockQuantityBySpecifiedAmount(Stock stock, Integer quantity) {
     stock.setQuantity(getStockQuantity(stock) - quantity);
     addStockToDb(stock);
+  }
+
+  public List<ProducerDto> getProcucersWithTradeAndNumberOfProductsProducedGreaterThan(String tradeName, Integer minAmountOfProducts){
+    return stockRepository
+            .findProducersWithTradeAndNumberOfProducedProductsGreaterThan(tradeName, minAmountOfProducts).stream()
+            .map(producerMapper::producerToProducerDto).collect(Collectors.toList());
   }
 }

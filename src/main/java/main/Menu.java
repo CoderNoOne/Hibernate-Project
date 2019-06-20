@@ -61,7 +61,8 @@ class Menu {
           case 8 -> executeOption8();
           case 9 -> executeOption9();
           case 10 -> executeOption10();
-          case 11 -> DbConnection.close();
+          case 11 -> executeOption11();
+          case 12 -> DbConnection.close();
         }
       } catch (AppException e) {
         log.info(e.getMessage());
@@ -96,8 +97,17 @@ class Menu {
             "Show the most expensive product in each category",
             "Show distinct products ordered by customer with age within specified range and from specified country - sorted by price in descending order",
             "Show orders with order date within and with price after discount higher than specified ",
-            "Shows products with active warranty (" + guaranteePeriodInYears + " years) from order date and with specified list of guarantee components"
+            "Show products with active warranty (" + guaranteePeriodInYears + " years) from order date and with specified list of guarantee components grouped by product category",
+            "Show producers with specified trade name and with at least a specified number of products produced"
     ));
+  }
+
+  private void executeOption11(){
+
+    var tradeName = getString("Input trade name");
+    var minAmountOfProducts = getInt("Input min number of products produced");
+
+    printCollectionWithNumeration(stockService.getProcucersWithTradeAndNumberOfProductsProducedGreaterThan(tradeName, minAmountOfProducts));
   }
 
   private void executeOption10() {
