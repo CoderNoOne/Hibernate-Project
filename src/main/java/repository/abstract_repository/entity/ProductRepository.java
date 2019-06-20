@@ -3,6 +3,7 @@ package repository.abstract_repository.entity;
 import domain.Category;
 import domain.Producer;
 import domain.Product;
+import domain.enums.EGuarantee;
 import repository.abstract_repository.base.CrudRepository;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface ProductRepository extends CrudRepository <Product, Long> {
 
   Map<Category, List<Product>> findTheMostExpensiveProductInEveryCategory();
   List<Product> findProductsOrderedByClientsFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge);
+
+
 }

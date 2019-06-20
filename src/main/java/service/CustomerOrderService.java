@@ -2,6 +2,7 @@ package service;
 
 import domain.CustomerOrder;
 import domain.Product;
+import domain.enums.EGuarantee;
 import dto.CategoryDto;
 import dto.CustomerOrderDto;
 import dto.ProductDto;
@@ -14,10 +15,7 @@ import repository.impl.CustomerOrderRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CustomerOrderService {
@@ -69,5 +67,11 @@ public class CustomerOrderService {
             .stream()
             .map(customerOrderMapper::customerOrderToCustomerOrderDto)
             .collect(Collectors.toList());
+  }
+
+  public Map<String, List<ProductDto>> getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(Set<EGuarantee> guaranteeComponents) {
+
+    return customerOrderRepository.findProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponents(guaranteeComponents)
+            .stream().map(productMapper::productToProductDTO).collect(Collectors.groupingBy(ProductDto::getCategoryName));
   }
 }

@@ -31,7 +31,7 @@ public final class ProductUtil {
                     .country(Country.builder().name(getString("Input country name")).build())
                     .trade(Trade.builder().name(getString("Input trade name")).build())
                     .build())
-            .guaranteeComponent(createGuaranteeComponentsFromUserInput())
+            .guaranteeComponents(createGuaranteeComponentsFromUserInput())
             .build();
   }
 
@@ -56,7 +56,7 @@ public final class ProductUtil {
             .name(stock.getProduct().getName())
             .category(stock.getProduct().getCategory())
             .price(getBigDecimal("Input product price"))
-            .guaranteeComponent(createGuaranteeComponentsFromUserInput())
+            .guaranteeComponents(createGuaranteeComponentsFromUserInput())
             .producer(Producer.builder()
                     .name(getString("Input producer name"))
                     .country(Country.builder()

@@ -3,12 +3,14 @@ package repository.abstract_repository.entity;
 import domain.Category;
 import domain.CustomerOrder;
 import domain.Product;
+import domain.enums.EGuarantee;
 import repository.abstract_repository.base.CrudRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, Long> {
 
@@ -26,4 +28,6 @@ public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, L
   // pobranym od użytkownika o kwocie zamówienia (po uwzględnieniu zniżki) większej niż wartość podana przez użytkownika.
 
   List<CustomerOrder> findOrdersOrderedWithingSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount);
+
+  List<Product> findProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponents(Set<EGuarantee> guaranteeSet);
 }

@@ -3,6 +3,7 @@ package repository.impl;
 import domain.Category;
 import domain.CustomerOrder;
 import domain.Product;
+import domain.enums.EGuarantee;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import repository.abstract_repository.base.AbstractCrudRepository;
@@ -18,6 +19,43 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<CustomerOrder, Long> implements CustomerOrderRepository {
+
+  public static final int guaranteePeriodInYears = 2;
+
+  @Override
+  public List<Product> findProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponents(Set<EGuarantee> guaranteeComponents) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    List<Product> productList = new ArrayList<>();
+
+    try {
+      tx.begin();
+
+      productList = entityManager
+              .createQuery("select e from " + entityType.getSimpleName() + " as e where (e.date >= :guaranteeLimit OR CURRENT_DATE < e.date)", entityType)
+              .setParameter("guaranteeLimit", LocalDate.now().minusYears(guaranteePeriodInYears)) /*now - X <= 2 -> now - 2 <= X*/
+              .getResultStream().filter(customerOrder -> guaranteeComponents.isEmpty() || customerOrder.getProduct().getGuaranteeComponents().stream().anyMatch(guaranteeComponents::contains))
+              .map(CustomerOrder::getProduct)
+              .collect(Collectors.toList());
+
+      tx.commit();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find customer by name surname and country- exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+    return productList;
+  }
 
   @Override
   public List<CustomerOrder> findOrdersOrderedWithingSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
@@ -36,7 +74,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
               .setParameter("maxDate", maxDate)
               .setParameter("minPrice", minPriceAfterDiscount)
               .getResultList();
-      
+
       tx.commit();
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -65,13 +103,20 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
       tx.begin();
 
       productList = entityManager
-              .createQuery("from " + entityType.getSimpleName(), entityType)
-              .getResultStream()
+              .createQuery("select e.product from " + entityType.getSimpleName() + " as e where e.customer.age between :minAge and" +
+                      " :maxAge and e.customer.country.name = :countryName", Product.class)
+              .setParameter("minAge", minAge)
+              .setParameter("maxAge", maxAge)
+              .setParameter("countryName", countryName.toUpperCase())
+              .getResultList();
+
+        /*   .createQuery("from " + entityType.getSimpleName(), entityType)
+             .getResultStream()
               .filter(customerOrder -> customerOrder.getCustomer().getAge() >= minAge &&
                       customerOrder.getCustomer().getAge() <= maxAge)
               .filter(customerOrder -> customerOrder.getCustomer().getCountry().getName().equalsIgnoreCase(countryName))
               .map(CustomerOrder::getProduct)
-              .collect(Collectors.toList());
+              .collect(Collectors.toList());*/
 
       tx.commit();
     } catch (Exception e) {

@@ -71,7 +71,7 @@ public class ProductValidator implements Validator<Product> {
   }
 
   private boolean areGuaranteeComponentsValid(Product product) {
-    return product.getGuaranteeComponent().stream().allMatch(new HashSet<>()::add);
+    return product.getGuaranteeComponents().stream().allMatch(new HashSet<>()::add);
   }
 
   private CategoryValidator getCategoryValidator(Product product) {

@@ -3,6 +3,7 @@ package main;
 import configuration.DbConnection;
 import domain.*;
 import domain.Error;
+import domain.enums.EGuarantee;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.*;
@@ -15,6 +16,7 @@ import java.util.*;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
+import static repository.impl.CustomerOrderRepositoryImpl.guaranteePeriodInYears;
 import static utils.entity_utils.CustomerUtil.getCustomerIfValid;
 import static utils.entity_utils.ProducerUtil.createProducerFromUserInput;
 import static utils.entity_utils.ProducerUtil.getProducerIfValid;
@@ -58,7 +60,8 @@ class Menu {
           case 7 -> executeOption7();
           case 8 -> executeOption8();
           case 9 -> executeOption9();
-          case 10 -> DbConnection.close();
+          case 10 -> executeOption10();
+          case 11 -> DbConnection.close();
         }
       } catch (AppException e) {
         log.info(e.getMessage());
@@ -92,8 +95,32 @@ class Menu {
             "Add new Customer order",
             "Show the most expensive product in each category",
             "Show distinct products ordered by customer with age within specified range and from specified country - sorted by price in descending order",
-            "Show orders with order date within and with price after discount higher than specified "
+            "Show orders with order date within and with price after discount higher than specified ",
+            "Shows products with active warranty (" + guaranteePeriodInYears + " years) from order date and with specified list of guarantee components"
     ));
+  }
+
+  private void executeOption10() {
+
+    Set<EGuarantee> guaranteeSet = new HashSet<>();
+    List<EGuarantee> values = new ArrayList<>(List.of(EGuarantee.values()));
+
+    while (getString("Do you want to add searching by components?(Y/N)").equalsIgnoreCase("Y")) {
+      int warrantyElementId;
+      do {
+        printCollectionWithNumeration(values);
+        warrantyElementId = getInt("Choose guarantee by number");
+      } while (!values.isEmpty() && !(warrantyElementId >= 1 && warrantyElementId <= values.size()));
+
+      guaranteeSet.add(values.get(warrantyElementId - 1));
+      values.remove(warrantyElementId - 1);
+    }
+
+    customerOrderService.getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(guaranteeSet)
+            .forEach((category, productList) -> {
+              printMessage(String.format("\nCategory: %s | Filtered products:\n", category));
+              printCollectionWithNumeration(productList);
+            });
   }
 
 
@@ -250,7 +277,7 @@ class Menu {
             .name(product.getName())
             .price(product.getPrice())
             .category(getCategoryFromDbIfExists(product.getCategory()))
-            .guaranteeComponent(product.getGuaranteeComponent())
+            .guaranteeComponents(product.getGuaranteeComponents())
             .producer(setProducerComponentsFromDbIfTheyExist(product.getProducer()))
             .build();
   }

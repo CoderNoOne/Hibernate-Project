@@ -4,6 +4,7 @@ import domain.Category;
 import domain.CustomerOrder;
 import domain.Producer;
 import domain.Product;
+import domain.enums.EGuarantee;
 import exception.AppException;
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.ProductRepository;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long> implements ProductRepository {
+
 
 
   @Override
