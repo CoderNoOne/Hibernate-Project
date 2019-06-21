@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Error {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   private LocalDateTime date;

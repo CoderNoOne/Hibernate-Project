@@ -6,7 +6,6 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -14,7 +13,7 @@ import java.util.List;
 public class Customer {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   private String name;

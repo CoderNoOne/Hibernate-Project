@@ -1,8 +1,6 @@
 package repository.abstract_repository.entity;
 
-import domain.Category;
-import domain.CustomerOrder;
-import domain.Product;
+import domain.*;
 import domain.enums.EGuarantee;
 import repository.abstract_repository.base.CrudRepository;
 
@@ -14,7 +12,7 @@ import java.util.Set;
 
 public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, Long> {
 
-  Map<Product, Integer> findNumberOfOrdersForSpecifiedProducts(List<Product> productList);
+  Map<Product, Integer> findNumberOfProductsOrders(List<Product> productList);
 
   //Pobranie z bazy danych pełnej informacji na temat produktów o największej cenie w każdej kategorii.
   Map<Category, Map<Product, Integer>> findTheMostExpensiveOrderedProductInEachCategoryWithNumberOfPurchases();
@@ -22,12 +20,16 @@ public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, L
   //Pobranie z bazy danych listy wszystkich produktów, które zamawiane były przez klientów pochodzących
   // z kraju o nazwie podanej przez użytkownika i wieku z przedziału określanego przez użytkownika.
 
-  List<Product> findProductsOrderedByCustomersFromSpecifiedCountryAndWithAgeWithinSpecifiedRange(String countryName, Integer minAge, Integer maxAge);
+  List<Product> findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge);
 
   //Pobranie z bazy danych zamówień, które złożono w przedziale dat
   // pobranym od użytkownika o kwocie zamówienia (po uwzględnieniu zniżki) większej niż wartość podana przez użytkownika.
 
-  List<CustomerOrder> findOrdersOrderedWithingSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount);
+  List<CustomerOrder> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount);
 
-  List<Product> findProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponents(Set<EGuarantee> guaranteeSet);
+  List<Product> findProductsWithActiveWarrantyAndWithGuaranteeComponents(Set<EGuarantee> guaranteeSet);
+
+  Map<Producer, List<Product>> findProductsOrderedByCustomerGroupedByProducer(String customerName, String customerSurname, String countryName);
+
+  Map<Customer, Long> findCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim();
 }

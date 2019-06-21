@@ -6,7 +6,6 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "category")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,7 +13,7 @@ import java.util.List;
 public class Category {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column(unique = true)

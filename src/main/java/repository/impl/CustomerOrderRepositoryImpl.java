@@ -1,8 +1,6 @@
 package repository.impl;
 
-import domain.Category;
-import domain.CustomerOrder;
-import domain.Product;
+import domain.*;
 import domain.enums.EGuarantee;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +18,90 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<CustomerOrder, Long> implements CustomerOrderRepository {
 
-  public static final int guaranteePeriodInYears = 2;
+  public static final int GUARANTEE_PERIOD_IN_YEARS = 2;
+
 
   @Override
-  public List<Product> findProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponents(Set<EGuarantee> guaranteeComponents) {
+  public Map<Customer, Long> findCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim() {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    Map<Customer, Long> resultMap = new HashMap<>();
+
+    try {
+      tx.begin();
+
+      var resultList = entityManager
+              .createQuery("from " + entityType.getSimpleName(), entityType)
+              .getResultList();
+
+      resultMap = resultList.stream().map(CustomerOrder::getCustomer).distinct()
+              .collect(Collectors.collectingAndThen(Collectors.toMap(
+                      Function.identity(),
+                      customer -> (Long) resultList.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
+                              .filter(customerOrder -> customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrder::getQuantity).count()),
+                      map -> map.entrySet().stream().filter(e ->  e.getValue() >= 1).map(Map.Entry::getKey).collect(Collectors.toMap(
+                              Function.identity(),
+                              customer -> (Long) resultList.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
+                                      .filter(customerOrder -> !customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrder::getQuantity).count()))));
+      tx.commit();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find products ordered by customer grouped by producer - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+    return resultMap;
+  }
+
+  @Override
+  public Map<Producer, List<Product>> findProductsOrderedByCustomerGroupedByProducer(String customerName, String customerSurname, String countryName) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    Map<Producer, List<Product>> resultMap = new HashMap<>();
+
+    try {
+      tx.begin();
+
+      resultMap = entityManager
+              .createQuery("select e from " + entityType.getSimpleName() + " as e where e.customer.name = :customerName " +
+                      "and e.customer.country.name = :countryName and e.customer.surname = :customerSurname", entityType)
+              .setParameter("customerName", customerName)
+              .setParameter("customerSurname", customerSurname)
+              .setParameter("countryName", countryName)
+              .getResultStream().collect(Collectors.groupingBy(customerOrder -> customerOrder.getProduct().getProducer(),
+                      Collectors.mapping(CustomerOrder::getProduct, Collectors.toList())));
+      tx.commit();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find products ordered by customer grouped by producer - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+    return resultMap;
+
+
+  }
+
+  @Override
+  public List<Product> findProductsWithActiveWarrantyAndWithGuaranteeComponents(Set<EGuarantee> guaranteeComponents) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
@@ -35,7 +113,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
 
       productList = entityManager
               .createQuery("select e from " + entityType.getSimpleName() + " as e where (e.date >= :guaranteeLimit OR CURRENT_DATE < e.date)", entityType)
-              .setParameter("guaranteeLimit", LocalDate.now().minusYears(guaranteePeriodInYears)) /*now - X <= 2 -> now - 2 <= X*/
+              .setParameter("guaranteeLimit", LocalDate.now().minusYears(GUARANTEE_PERIOD_IN_YEARS)) /*now - X <= 2 -> now - 2 <= X*/
               .getResultStream().filter(customerOrder -> guaranteeComponents.isEmpty() || customerOrder.getProduct().getGuaranteeComponents().stream().anyMatch(guaranteeComponents::contains))
               .map(CustomerOrder::getProduct)
               .collect(Collectors.toList());
@@ -58,7 +136,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
   }
 
   @Override
-  public List<CustomerOrder> findOrdersOrderedWithingSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
+  public List<CustomerOrder> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
 
@@ -93,7 +171,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
   }
 
   @Override
-  public List<Product> findProductsOrderedByCustomersFromSpecifiedCountryAndWithAgeWithinSpecifiedRange(String countryName, Integer minAge, Integer maxAge) {
+  public List<Product> findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge) {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
 
@@ -183,7 +261,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
 
 
   @Override
-  public Map<Product, Integer> findNumberOfOrdersForSpecifiedProducts(List<Product> productList) {
+  public Map<Product, Integer> findNumberOfProductsOrders(List<Product> productList) {
 
     if (productList == null) {
       throw new AppException("Product list is null");

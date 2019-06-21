@@ -7,7 +7,6 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "payment")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +14,7 @@ import java.util.List;
 public class Payment {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Enumerated(EnumType.ORDINAL)

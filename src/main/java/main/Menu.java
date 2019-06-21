@@ -7,7 +7,7 @@ import domain.enums.EGuarantee;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.*;
-import utils.others.UserDataUtils;
+import util.others.UserDataUtils;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -16,18 +16,18 @@ import java.util.*;
 
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
-import static repository.impl.CustomerOrderRepositoryImpl.guaranteePeriodInYears;
-import static utils.entity_utils.CustomerUtil.getCustomerIfValid;
-import static utils.entity_utils.ProducerUtil.createProducerFromUserInput;
-import static utils.entity_utils.ProducerUtil.getProducerIfValid;
-import static utils.entity_utils.CustomerOrderUtil.*;
-import static utils.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
-import static utils.entity_utils.CustomerUtil.createCustomerFromUserInput;
-import static utils.entity_utils.ProductUtil.*;
-import static utils.entity_utils.ShopUtil.*;
-import static utils.entity_utils.StockUtil.createStockDetailFromUserInput;
-import static utils.entity_utils.StockUtil.getStockIfValid;
-import static utils.others.UserDataUtils.*;
+import static repository.impl.CustomerOrderRepositoryImpl.GUARANTEE_PERIOD_IN_YEARS;
+import static util.entity_utils.CustomerUtil.getCustomerIfValid;
+import static util.entity_utils.ProducerUtil.createProducerFromUserInput;
+import static util.entity_utils.ProducerUtil.getProducerIfValid;
+import static util.entity_utils.CustomerOrderUtil.*;
+import static util.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
+import static util.entity_utils.CustomerUtil.createCustomerFromUserInput;
+import static util.entity_utils.ProductUtil.*;
+import static util.entity_utils.ShopUtil.*;
+import static util.entity_utils.StockUtil.createStockDetailFromUserInput;
+import static util.entity_utils.StockUtil.getStockIfValid;
+import static util.others.UserDataUtils.*;
 
 @Slf4j
 class Menu {
@@ -62,7 +62,9 @@ class Menu {
           case 9 -> executeOption9();
           case 10 -> executeOption10();
           case 11 -> executeOption11();
-          case 12 -> DbConnection.close();
+          case 12 -> executeOption12();
+          case 13 -> executeOption13();
+          case 14 -> DbConnection.close();
         }
       } catch (AppException e) {
         log.info(e.getMessage());
@@ -86,7 +88,10 @@ class Menu {
                     "Option no. 8 - {7}\n" +
                     "Option no. 9 - {8}\n" +
                     "Option no. 10 - {9}\n" +
-                    "Option no. 11 - {10}",
+                    "Option no. 11 - {10}\n" +
+                    "Option no. 12 - {11}\n" +
+                    "Option no. 13 - {12}\n" +
+                    "Option no. 14 - {13}\n",
 
             "Add new Customer",
             "Add new shop",
@@ -97,12 +102,38 @@ class Menu {
             "Show the most expensive product in each category",
             "Show distinct products ordered by customer with age within specified range and from specified country - sorted by price in descending order",
             "Show orders with order date within and with price after discount higher than specified ",
-            "Show products with active warranty (" + guaranteePeriodInYears + " years) from order date and with specified list of guarantee components grouped by product category",
-            "Show producers with specified trade name and with at least a specified number of products produced"
+            "Show products with active warranty (" + GUARANTEE_PERIOD_IN_YEARS + " years) from order date and with specified list of guarantee components grouped by product category",
+            "Show producers with specified trade name and with at least a specified number of products produced",
+            "Show products ordered by customer grouped by producer",
+            "Show customers who ordered products produced in their national country",
+            "Exit the program"
     ));
   }
 
-  private void executeOption11(){
+
+  private void executeOption13() {
+
+    customerOrderService
+            .getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim()
+            .forEach((customer, quantity) -> printMessage(String.format("Customer: %s Number of products: %d", customer, quantity)));
+  }
+
+  private void executeOption12() {
+
+    var customerName = getString("Input customer name");
+    var customerSurname = getString("Input customer surname");
+    var countryName = getString("Input country name");
+
+    customerOrderService.getProductsOrderedByCustomerGroupedByProducer(customerName, customerSurname, countryName).forEach(
+            (producer, productsList) -> {
+              printMessage(String.format("\nProducer: %s |  Products list:\n", producer.getName()));
+              printCollectionWithNumeration(productsList);
+            }
+    );
+
+  }
+
+  private void executeOption11() {
 
     var tradeName = getString("Input trade name");
     var minAmountOfProducts = getInt("Input min number of products produced");

@@ -37,6 +37,8 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
       item = Optional.ofNullable(entityManager.merge(t));
       tx.commit();
     } catch (Exception e) {
+      System.err.println(e.getMessage());
+      System.err.println(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }

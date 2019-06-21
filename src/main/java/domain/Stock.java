@@ -16,7 +16,7 @@ public class Stock {
 
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   private Integer quantity;
