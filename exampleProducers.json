@@ -1,38 +1,38 @@
 [
   {
-    "name": "",
+    "name": "COLT",
     "country": {
-      "name":
+      "name": "USA"
     },
     "trade": {
-      "name":
+      "name": "ENTERTAINMENT"
     }
   },
   {
-    "name": "",
+    "name": "SAULE_TECHNOLOGIES",
     "country": {
-      "name":
+      "name": "POLAND"
     },
     "trade": {
-      "name":
+      "name": "PV"
     }
   },
   {
-    "name": "",
+    "name": "LENOVO",
     "country": {
-      "name":
+      "name": "CHINA"
     },
     "trade": {
-      "name":
+      "name": "ELECTRONICS"
     }
   },
   {
-    "name": "",
+    "name": "ORACLE",
     "country": {
-      "name":
+      "name": "USA"
     },
     "trade": {
-      "name":
+      "name": "SOFTWARE"
     }
   }
 ]

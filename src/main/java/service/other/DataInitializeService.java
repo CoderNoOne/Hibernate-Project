@@ -20,7 +20,6 @@ public class DataInitializeService {
   private final CustomerService customerService = new CustomerService();
   private final ErrorService errorService = new ErrorService();
   private final CountryService countryService = new CountryService();
-  private final CustomerValidator customerValidator = new CustomerValidator();
   private final CategoryService categoryService = new CategoryService();
   private final TradeService tradeService = new TradeService();
   private final ShopService shopService = new ShopService();
@@ -28,24 +27,20 @@ public class DataInitializeService {
   private final ProductService productService = new ProductService();
 
   public void init() {
-    //delete all
 
+    productService.deleteAllProducts();
+    producerService.deleteAllProducers();
+    shopService.deleteAllShops();
     customerService.deleteAllCustomers();
     categoryService.deleteAllCategories();
     countryService.deleteAllCountries();
     tradeService.deleteAllTrades();
-    shopService.deleteAllShops();
-    producerService.deleteAllProducers();
-    productService.deleteAllProducts();
-
-    // init
 
     initCountries("exampleCountries.json");
     initCustomers("exampleCustomers.json");
     initCategories("exampleCategories.json");
     initTrades("exampleTrades.json");
     initShops("exampleShops.json");
-
     initProducts("exampleProducts.json");
     initProducers("exampleProducers.json");
 
@@ -187,8 +182,9 @@ public class DataInitializeService {
 
   }
 
-
   private void initCustomers(final String customersJsonFilename) {
+
+    var customerValidator = new CustomerValidator();
 
     new CustomerListJsonConverter(customersJsonFilename)
             .fromJson()
@@ -215,6 +211,29 @@ public class DataInitializeService {
 
   private void initProducts(final String productsJsonFilename) {
 
+    var productValidator = new ProductValidator();
+
+    new ProductListJsonConverter(productsJsonFilename)
+            .fromJson()
+            .orElseThrow(() -> new AppException("FILE " + productsJsonFilename + " is empty"))
+            .stream()
+            .filter(product -> {
+              productValidator.validate(product);
+              if (productValidator.hasErrors()) {
+                printCollectionWithNumeration(productValidator.getErrors().entrySet());
+              }
+              return !productValidator.hasErrors();
+            })
+            .forEach(product -> {
+              try {
+                productService.addProductToDbFromUserInput(product);
+              } catch (Exception e) {
+                log.info(e.getMessage());
+                log.error(Arrays.toString(e.getStackTrace()));
+                errorService.addErrorToDb(Error.builder()
+                        .date(LocalDateTime.now()).message(e.getMessage()).build());
+              }
+            });
 
   }
 }

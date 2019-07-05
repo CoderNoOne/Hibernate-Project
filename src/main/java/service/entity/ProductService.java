@@ -33,6 +33,18 @@ public class ProductService {
     return productRepository.addOrUpdate(product);
   }
 
+
+  private Product setProductComponentsFromDbIfTheyExist(Product product) {
+
+    return Product.builder()
+            .name(product.getName())
+            .price(product.getPrice())
+            .category(getCategoryFromDbIfExists(product.getCategory()))
+            .guaranteeComponents(product.getGuaranteeComponents())
+            .producer(setProducerComponentsFromDbIfTheyExist(product.getProducer()))
+            .build();
+  }
+
   public void addProductToDbFromUserInput(Product product) {
     if (isProductUniqueByNameAndCategoryAndProducer(product.getName(), product.getCategory(), product.getProducer())) {
       addProductToDb(product);

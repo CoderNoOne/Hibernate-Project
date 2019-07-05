@@ -1,5 +1,146 @@
 [
-
-  
-
+  {
+    "name": "MELON",
+    "price": "20.30",
+    "category": {
+      "name": "FRUIT"
+    },
+    "producer": {
+      "name": "SPANIARDS",
+      "country": {
+        "name": "SPAIN"
+      },
+      "trade": {
+        "name": "FOOD"
+      }
+    }
+  },
+  {
+    "name": "PC",
+    "price": "4500",
+    "category": {
+      "name": "COMPUTERS"
+    },
+    "producer": {
+      "name": "OPTIMUS",
+      "country": {
+        "name": "POLAND"
+      },
+      "trade": {
+        "name": "ELECTRONICS"
+      }
+    }
+  },
+  {
+    "name": "PHONE",
+    "price": "1200",
+    "category": {
+      "name": "PORTABLE_DEVICES"
+    },
+    "producer": {
+      "name": "HTC",
+      "country": {
+        "name": "TAIWAN"
+      },
+      "trade": {
+        "name": "ELECTRONICS"
+      }
+    }
+  },
+  {
+    "name": "KEYBOARD",
+    "price": "200",
+    "category": {
+      "name": "PORTABLE_DEVICES"
+    },
+    "producer": {
+      "name": "QWERTY",
+      "country": {
+        "name": "VIETNAM"
+      },
+      "trade": {
+        "name": "ELECTRONICS"
+      }
+    }
+  },
+  {
+    "name": "DESK",
+    "price": "300",
+    "category": {
+      "name": "OFFICE"
+    },
+    "producer": {
+      "name": "CABINETO",
+      "country": {
+        "name": "PORTUGAL"
+      },
+      "trade": {
+        "name": "HOUSEHOLD"
+      }
+    }
+  },
+  {
+    "name": "BEER",
+    "price": "10",
+    "category": {
+      "name": "DRINKS"
+    },
+    "producer": {
+      "name": "HEINEKEN",
+      "country": {
+        "name": "NETHERLANDS"
+      },
+      "trade": {
+        "name": "FOOD"
+      }
+    }
+  },
+  {
+    "name": "MONITOR",
+    "price": "1000",
+    "category": {
+      "name": "DISPLAY"
+    },
+    "producer": {
+      "name": "SAMSUNG",
+      "country": {
+        "name": "SOUTH_KOREA"
+      },
+      "trade": {
+        "name": "ELECTRONICS"
+      }
+    }
+  },
+  {
+    "name": "CAR",
+    "price": "150000",
+    "category": {
+      "name": "AUTOMOBILE"
+    },
+    "producer": {
+      "name": "PORSCHE",
+      "country": {
+        "name": "GERMANY"
+      },
+      "trade": {
+        "name": "AUTOMOTIVE"
+      }
+    }
+  },
+  {
+    "name": "GUN",
+    "price": "5000",
+    "category": {
+      "name": "MACHINE_PISTOL"
+    },
+    "producer": {
+      "name": "COLT",
+      "country": {
+        "name": "USA"
+      },
+      "trade": {
+        "name": "ENTERTAINMENT"
+      }
+    }
+  }
 ]
