@@ -1,20 +1,16 @@
 package validator.impl;
 
-import validator.Validator;
+import validator.AbstractValidator;
 import domain.Error;
 
 import java.util.Map;
 
-/*czy tu będzie validator?*/
-public class ErrorValidator implements Validator<Error> {
-  @Override
-  public Map<String, String> validate(Error error) {
-    return null;
-  }
+
+public class ErrorValidator extends AbstractValidator <Error> {
 
   @Override
-  public boolean hasErrors() {
-    return false;
+  public Map<String, String> validate(Error error) {
+    return errors;
   }
 
 }

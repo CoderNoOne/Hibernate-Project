@@ -1,20 +1,13 @@
 package validator.impl;
 
 import domain.CustomerOrder;
-import validator.Validator;
+import validator.AbstractValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
 
-public class CustomerOrderValidator implements Validator<CustomerOrder> {
-
-  private Map<String, String> errors;
-
-  public CustomerOrderValidator() {
-    this.errors = new HashMap<>();
-  }
+public class CustomerOrderValidator extends AbstractValidator<CustomerOrder> {
 
   @Override
   public Map<String, String> validate(CustomerOrder customerOrder) {
@@ -43,15 +36,6 @@ public class CustomerOrderValidator implements Validator<CustomerOrder> {
     }
 
     return errors;
-  }
-
-  public Map<String, String> getErrors() {
-    return errors;
-  }
-
-  @Override
-  public boolean hasErrors() {
-    return !errors.isEmpty();
   }
 
   private boolean isDiscountValid(CustomerOrder customerOrder) {

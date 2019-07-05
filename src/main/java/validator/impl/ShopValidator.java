@@ -1,19 +1,13 @@
 package validator.impl;
 
 import domain.Shop;
+import validator.AbstractValidator;
 import validator.Validator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShopValidator implements Validator<Shop> {
-
-
-  private Map<String, String> errors;
-
-  public ShopValidator() {
-    errors = new HashMap<>();
-  }
+public class ShopValidator extends AbstractValidator<Shop> {
 
   @Override
   public Map<String, String> validate(Shop shop) {
@@ -24,21 +18,12 @@ public class ShopValidator implements Validator<Shop> {
     }
 
     if (!isNameValid(shop)) {
-      errors.put("Shop name"," Shop name should contain only capital letters and optionally white space between letters");
+      errors.put("Shop name", " Shop name should contain only capital letters and optionally white space between letters");
     }
     return errors;
   }
 
   private boolean isNameValid(Shop shop) {
     return shop.getName().matches("[A-Z]+(\\s[A-Z]+)*");
-  }
-
-  @Override
-  public boolean hasErrors() {
-    return !errors.isEmpty();
-  }
-
-  public Map<String, String> getErrors() {
-    return errors;
   }
 }

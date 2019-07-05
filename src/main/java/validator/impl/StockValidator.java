@@ -1,18 +1,13 @@
 package validator.impl;
 
 import domain.Stock;
+import validator.AbstractValidator;
 import validator.Validator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class StockValidator implements Validator<Stock> {
-
-  private Map<String, String> errors;
-
-  public StockValidator() {
-    this.errors = new HashMap<>();
-  }
+public class StockValidator extends AbstractValidator <Stock> {
 
   @Override
   public Map<String, String> validate(Stock stock) {
@@ -42,11 +37,6 @@ public class StockValidator implements Validator<Stock> {
 
   private boolean isProductValid(Stock stock) {
     return !getProductValidator(stock).hasErrors();
-  }
-
-  @Override
-  public boolean hasErrors() {
-    return !errors.isEmpty();
   }
 
   private boolean isQuantityValid(Stock stock){

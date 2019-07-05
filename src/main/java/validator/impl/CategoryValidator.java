@@ -1,18 +1,11 @@
 package validator.impl;
 
 import domain.Category;
-import validator.Validator;
+import validator.AbstractValidator;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class CategoryValidator implements Validator<Category> {
-
-  private Map<String, String> errors;
-
-  public CategoryValidator() {
-    this.errors = new HashMap<>();
-  }
+public class CategoryValidator extends AbstractValidator<Category> {
 
   @Override
   public Map<String, String> validate(Category category) {
@@ -25,15 +18,6 @@ public class CategoryValidator implements Validator<Category> {
     if (!isCategoryNameValid(category)) {
       errors.put("Category name", "Category name is not valid");
     }
-    return errors;
-  }
-
-  @Override
-  public boolean hasErrors() {
-    return !errors.isEmpty();
-  }
-
-  public Map<String, String> getErrors() {
     return errors;
   }
 

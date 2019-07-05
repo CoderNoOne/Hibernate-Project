@@ -1,18 +1,13 @@
 package validator.impl;
 
 import domain.Producer;
+import validator.AbstractValidator;
 import validator.Validator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProducerValidator implements Validator<Producer> {
-
-  private Map<String, String> errors;
-
-  public ProducerValidator() {
-    this.errors = new HashMap<>();
-  }
+public class ProducerValidator extends AbstractValidator<Producer>  {
 
   @Override
   public Map<String, String> validate(Producer producer) {
@@ -34,15 +29,6 @@ public class ProducerValidator implements Validator<Producer> {
       errors.putAll(getCountryValidator(producer).getErrors());
     }
     return errors;
-  }
-
-  public Map<String, String> getErrors() {
-    return errors;
-  }
-
-  @Override
-  public boolean hasErrors() {
-    return !errors.isEmpty();
   }
 
   private boolean isProducerNameValid(Producer producer) {

@@ -2,20 +2,14 @@ package validator.impl;
 
 import domain.Customer;
 import service.CustomerService;
+import validator.AbstractValidator;
 import validator.Validator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class CustomerValidator implements Validator<Customer> {
+public class CustomerValidator extends AbstractValidator<Customer>{
 
-  private Map<String, String> errors;
-//  private final CustomerService customerService;
-
-  public CustomerValidator() {
-    errors = new HashMap<>();
-//    customerService = new CustomerService();
-  }
 
   @Override
   public Map<String, String> validate(Customer customer) {
@@ -44,11 +38,6 @@ public class CustomerValidator implements Validator<Customer> {
     return errors;
   }
 
-  @Override
-  public boolean hasErrors() {
-    return !errors.isEmpty();
-  }
-
   private boolean isCustomerNameValid(Customer customer) {
     return customer.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
@@ -61,10 +50,6 @@ public class CustomerValidator implements Validator<Customer> {
     return customer.getAge() >= 18;
   }
 
-//  private boolean isCustomerUnique(Customer customer) {
-//    return customerService.isCustomerUniqueByNameAndSurnameAndCountry(customer.getName(), customer.getSurname(), customer.getCountry());
-//  }
-
   private boolean isCountryValid(Customer customer){
     return !getCountryValidator(customer).hasErrors();
 
@@ -76,7 +61,4 @@ public class CustomerValidator implements Validator<Customer> {
     return countryValidator;
   }
 
-  public Map<String, String> getErrors() {
-    return errors;
-  }
 }

@@ -1,6 +1,7 @@
 package validator.impl;
 
 import domain.Product;
+import validator.AbstractValidator;
 import validator.Validator;
 
 import java.math.BigDecimal;
@@ -8,13 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class ProductValidator implements Validator<Product> {
-
-  private Map<String, String> errors;
-
-  public ProductValidator() {
-    this.errors = new HashMap<>();
-  }
+public class ProductValidator extends AbstractValidator<Product> {
 
   @Override
   public Map<String, String> validate(Product product) {
@@ -43,15 +38,6 @@ public class ProductValidator implements Validator<Product> {
       errors.putAll(getCategoryValidator(product).getErrors());
     }
     return errors;
-  }
-
-  public Map<String, String> getErrors() {
-    return errors;
-  }
-
-  @Override
-  public boolean hasErrors() {
-    return !errors.isEmpty();
   }
 
   private boolean isProductNameValid(Product product) {
