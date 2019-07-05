@@ -1,0 +1,50 @@
+[
+  {
+    "name": "JAN",
+    "surname": "KOWALSKI",
+    "age": 30,
+    "country": {
+      "name": "POLAND"
+    }
+  },
+  {
+    "name": "JOHN",
+    "surname": "SMITH",
+    "age": 22,
+    "country": {
+      "name": "ENGLAND"
+    }
+  },
+  {
+    "name": "JOHN",
+    "surname": "SMITH",
+    "age": 22,
+    "country": {
+      "name": "ENGLAND"
+    }
+  },
+  {
+    "name": "KATARZYNA",
+    "surname": "NOWAK",
+    "age": 35,
+    "country": {
+      "name": "POLAND"
+    }
+  },
+  {
+    "name": "STEFAN",
+    "surname": "KUHLE",
+    "age": 45,
+    "country": {
+      "name": "GERMANY"
+    }
+  },
+  {
+    "name": "MAURO",
+    "surname": "KESSIE",
+    "age": 67,
+    "country": {
+      "name": "SPAIN"
+    }
+  }
+]

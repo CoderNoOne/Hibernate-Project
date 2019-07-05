@@ -1,4 +1,4 @@
-package service;
+package service.entity;
 
 import domain.Trade;
 import exception.AppException;
@@ -33,5 +33,9 @@ public class TradeService {
 
   public Optional<Trade> getTradeByName(String name) {
     return tradeRepository.findByName(name);
+  }
+
+  public void deleteAllTrades() {
+    tradeRepository.deleteAll();
   }
 }

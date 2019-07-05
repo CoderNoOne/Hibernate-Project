@@ -1,0 +1,38 @@
+[
+  {
+    "name": "KAUFLAND",
+    "country": {
+      "name": "POLAND"
+    }
+  },
+  {
+    "name": "KOMPUTRONIK",
+    "country": {
+      "name": "POLAND"
+    }
+  },
+  {
+    "name": "WALMART",
+    "country": {
+      "name": "USA"
+    }
+  },
+  {
+    "name": "WESTFIELD",
+    "country": {
+      "name": "ENGLAND"
+    }
+  },
+  {
+    "name": "ALTMARKT",
+    "country": {
+      "name": "GERMANY"
+    }
+  },
+  {
+    "name": "HAUSMAN",
+    "country": {
+      "name": "FRANCE"
+    }
+  }
+]

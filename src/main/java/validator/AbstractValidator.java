@@ -14,4 +14,9 @@ public abstract class AbstractValidator<T> implements Validator<T> {
   public boolean hasErrors() {
     return !errors.isEmpty();
   }
+
+  @Override
+  public Map<String, String> getErrors() {
+    return errors;
+  }
 }

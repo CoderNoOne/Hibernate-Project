@@ -1,4 +1,4 @@
-package service;
+package service.entity;
 
 import domain.Category;
 import domain.Producer;
@@ -59,5 +59,9 @@ public class ProductService {
             .collect(Collectors.toMap(
                     e -> categoryMapper.categoryToCategoryDTO(e.getKey()),
                     e -> e.getValue().stream().map(productMapper::productToProductDTO).collect(Collectors.toList())));
+  }
+
+  public void deleteAllProducts() {
+    productRepository.deleteAll();
   }
 }

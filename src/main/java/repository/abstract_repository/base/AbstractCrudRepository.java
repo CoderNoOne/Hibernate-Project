@@ -162,13 +162,14 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
     try {
       tx.begin();
       entityManager
-              .createQuery("delete from " + entityType.getSimpleName() + " e where e.id >= 1 ")
+              .createQuery("delete from " + entityType.getSimpleName() + " as e where e.id >= 1 ")
               .executeUpdate();
+      tx.commit();
     } catch (Exception e) {
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException(entityType.getSimpleName() + ";find by id - exception in deleteAll method");
+      throw new AppException(entityType.getSimpleName() + ";delete all - exception in deleteAll method");
     } finally {
       if (entityManager != null) {
         entityManager.close();

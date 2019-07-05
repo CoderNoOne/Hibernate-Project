@@ -1,4 +1,4 @@
-package service;
+package service.entity;
 
 import repository.abstract_repository.entity.ErrorRepository;
 import repository.impl.ErrorRepositoryImpl;

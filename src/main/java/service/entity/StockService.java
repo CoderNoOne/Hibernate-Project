@@ -1,4 +1,4 @@
-package service;
+package service.entity;
 
 import domain.Product;
 import domain.Shop;

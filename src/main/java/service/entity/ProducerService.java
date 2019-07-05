@@ -1,4 +1,4 @@
-package service;
+package service.entity;
 
 import domain.Country;
 import domain.Producer;
@@ -47,6 +47,12 @@ public class ProducerService {
   public Optional<Producer> getProducerByNameAndTradeAndCountry(String name, Trade trade, Country country) {
     return producerRepository.findByNameAndTradeAndCountry(name, trade, country);
   }
+
+  public void deleteAllProducers() {
+    producerRepository.deleteAll();
+  }
+
+
 
 //  public List<Product> getMostExpensiveProductsInEachCategory(){
 //

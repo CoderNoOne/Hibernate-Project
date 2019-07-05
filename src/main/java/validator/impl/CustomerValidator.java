@@ -1,15 +1,11 @@
 package validator.impl;
 
 import domain.Customer;
-import service.CustomerService;
 import validator.AbstractValidator;
-import validator.Validator;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class CustomerValidator extends AbstractValidator<Customer>{
-
 
   @Override
   public Map<String, String> validate(Customer customer) {

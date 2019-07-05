@@ -1,4 +1,4 @@
-package service;
+package service.entity;
 
 import domain.CustomerOrder;
 import domain.Product;

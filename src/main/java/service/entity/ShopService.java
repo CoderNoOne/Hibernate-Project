@@ -1,4 +1,4 @@
-package service;
+package service.entity;
 
 import domain.Country;
 import domain.Product;
@@ -15,22 +15,33 @@ import java.util.Optional;
 public class ShopService {
 
   private final ShopRepository shopRepository;
-
+  private final CountryService countryService;
 
   public ShopService() {
     shopRepository = new ShopRepositoryImpl();
+    countryService = new CountryService();
   }
 
+  private Country getCountryFromDbIfExists(Country country) {
+    return countryService.getCountryByName(country.getName()).orElse(country);
+  }
+
+  private Shop setShopComponentsFromDbIfTheyExist(Shop shop) {
+
+    return Shop.builder()
+            .name(shop.getName())
+            .country(getCountryFromDbIfExists(shop.getCountry()))
+            .build();
+  }
 
   public Optional<Shop> addShopToDb(Shop shop) {
 
     return shopRepository.addOrUpdate(shop);
   }
 
-
   public void addShopToDbFromUserInput(Shop shop) {
     if (isShopUniqueByNameAndCountry(shop.getName(), shop.getCountry())) {
-      addShopToDb(shop);
+      addShopToDb(setShopComponentsFromDbIfTheyExist(shop));
     } else {
       throw new AppException("You couldn't add shop to db. Shop is not unique by name and country");
     }
@@ -43,9 +54,6 @@ public class ShopService {
 
     return shopRepository
             .findShopByNameAndCountry(name, country.getName()).isEmpty();
-           /* || !shopRepository.findShopByNameAndCountry(name, country.getName()).get()
-            .getCountry().getName().equals(country.getName());*/
-
   }
 
   public Optional<Shop> getShopByNameAndCountry(String name, String countryName) {
@@ -57,6 +65,9 @@ public class ShopService {
     return shopRepository.findShopListByName(name);
   }
 
+  public void deleteAllShops() {
+    shopRepository.deleteAll();
+  }
 }
 
 
