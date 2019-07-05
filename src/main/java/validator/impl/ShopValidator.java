@@ -11,7 +11,7 @@ public class ShopValidator extends AbstractValidator<Shop> {
 
   @Override
   public Map<String, String> validate(Shop shop) {
-
+    errors.clear();
     if (shop == null) {
       errors.put("Shop object", "Shop object is null");
       return errors;

@@ -11,7 +11,7 @@ public class StockValidator extends AbstractValidator <Stock> {
 
   @Override
   public Map<String, String> validate(Stock stock) {
-
+    errors.clear();
     if(stock == null){
       errors.put("Stock object", "Stock object is null");
       return errors;

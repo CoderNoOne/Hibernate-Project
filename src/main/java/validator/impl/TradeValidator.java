@@ -9,7 +9,7 @@ public class TradeValidator extends AbstractValidator<Trade> {
 
   @Override
   public Map<String, String> validate(Trade trade) {
-
+    errors.clear();
     if (trade == null) {
       errors.put("Trade object", "Trade object is null");
       return errors;

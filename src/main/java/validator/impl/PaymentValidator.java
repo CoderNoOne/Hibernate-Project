@@ -10,6 +10,7 @@ public class PaymentValidator extends AbstractValidator<Payment> {
 
   @Override
   public Map<String, String> validate(Payment payment) {
+    errors.clear();
     if (payment == null) {
       errors.put("Payment object", "Payment object is null");
       return errors;

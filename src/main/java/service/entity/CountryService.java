@@ -45,4 +45,8 @@ public class CountryService {
     countryRepository.deleteAll();
   }
 
+  public Country getCountryFromDbIfExists(Country country) {
+    return getCountryByName(country.getName()).orElse(country);
+  }
+
 }

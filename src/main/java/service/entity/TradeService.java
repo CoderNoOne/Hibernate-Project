@@ -38,4 +38,8 @@ public class TradeService {
   public void deleteAllTrades() {
     tradeRepository.deleteAll();
   }
+
+  public Trade getTradeFromDbIfExists(Trade trade) {
+    return getTradeByName(trade.getName()).orElse(trade);
+  }
 }

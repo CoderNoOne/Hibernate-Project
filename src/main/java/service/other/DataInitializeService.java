@@ -4,8 +4,6 @@ import converters.impl.*;
 import domain.Error;
 import exception.AppException;
 import lombok.extern.log4j.Log4j;
-import repository.abstract_repository.entity.*;
-import repository.impl.*;
 import service.entity.*;
 import validator.impl.*;
 
@@ -41,8 +39,8 @@ public class DataInitializeService {
     initCategories("exampleCategories.json");
     initTrades("exampleTrades.json");
     initShops("exampleShops.json");
-    initProducts("exampleProducts.json");
     initProducers("exampleProducers.json");
+    initProducts("exampleProducts.json");
 
   }
 
@@ -170,7 +168,7 @@ public class DataInitializeService {
               return !producerValidator.hasErrors();
             }).forEach(producer -> {
       try {
-        producerService.addProducerToDb(producer);
+        producerService.addProducerToDbFromUserInput(producer);
       } catch (Exception e) {
         log.info(e.getMessage());
         log.error(Arrays.toString(e.getStackTrace()));
@@ -234,6 +232,5 @@ public class DataInitializeService {
                         .date(LocalDateTime.now()).message(e.getMessage()).build());
               }
             });
-
   }
 }

@@ -1,9 +1,30 @@
 [
   {
+    "name": "MONITOR",
+    "price": "1000",
+    "category": {
+      "name": "DISPLAY"
+    },
+    "producer": {
+      "name": "SAMSUNG",
+      "country": {
+        "name": "SOUTH_KOREA"
+      },
+      "trade": {
+        "name": "ELECTRONICS"
+      },
+      "guaranteeComponents": [
+        {
+          "enum": "HELP_DESK"
+        }
+      ]
+    }
+  },
+  {
     "name": "MELON",
     "price": "20.30",
     "category": {
-      "name": "FRUIT"
+      "name": "FRUITS"
     },
     "producer": {
       "name": "SPANIARDS",
@@ -96,22 +117,6 @@
     }
   },
   {
-    "name": "MONITOR",
-    "price": "1000",
-    "category": {
-      "name": "DISPLAY"
-    },
-    "producer": {
-      "name": "SAMSUNG",
-      "country": {
-        "name": "SOUTH_KOREA"
-      },
-      "trade": {
-        "name": "ELECTRONICS"
-      }
-    }
-  },
-  {
     "name": "CAR",
     "price": "150000",
     "category": {
@@ -131,7 +136,7 @@
     "name": "GUN",
     "price": "5000",
     "category": {
-      "name": "MACHINE_PISTOL"
+      "name": "MACHINE PISTOL"
     },
     "producer": {
       "name": "COLT",
@@ -144,3 +149,6 @@
     }
   }
 ]
+
+
+

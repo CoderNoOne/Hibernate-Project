@@ -22,11 +22,15 @@ public class ProductService {
   private final ProductMapper productMapper;
   private final CategoryMapper categoryMapper;
   private final ProductRepository productRepository;
+  private final CategoryService categoryService;
+  private final ProducerService producerService;
 
   public ProductService() {
     this.productRepository = new ProductRepositoryImpl();
     this.productMapper = Mappers.getMapper(ProductMapper.class);
     this.categoryMapper = Mappers.getMapper(CategoryMapper.class);
+    this.categoryService = new CategoryService();
+    this.producerService = new ProducerService();
   }
 
   private Optional<Product> addProductToDb(Product product) {
@@ -39,18 +43,18 @@ public class ProductService {
     return Product.builder()
             .name(product.getName())
             .price(product.getPrice())
-            .category(getCategoryFromDbIfExists(product.getCategory()))
+            .category(categoryService.getCategoryFromDbIfExists(product.getCategory()))
             .guaranteeComponents(product.getGuaranteeComponents())
-            .producer(setProducerComponentsFromDbIfTheyExist(product.getProducer()))
+            .producer(producerService.getProducerFromDbIfExists(producerService.setProducerComponentsFromDbIfTheyExist(product.getProducer())))
             .build();
   }
 
   public void addProductToDbFromUserInput(Product product) {
-    if (isProductUniqueByNameAndCategoryAndProducer(product.getName(), product.getCategory(), product.getProducer())) {
-      addProductToDb(product);
-    } else {
+    if (!isProductUniqueByNameAndCategoryAndProducer(product.getName(), product.getCategory(), product.getProducer())) {
       throw new AppException("Couldn't add new product to db - product's not unique by name and category and producer");
     }
+    addProductToDb(setProductComponentsFromDbIfTheyExist(product));
+
   }
 
   private boolean isProductUniqueByNameAndCategoryAndProducer(String name, Category category, Producer producer) {

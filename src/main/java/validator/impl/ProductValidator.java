@@ -13,6 +13,7 @@ public class ProductValidator extends AbstractValidator<Product> {
 
   @Override
   public Map<String, String> validate(Product product) {
+    errors.clear();
 
     if (product == null) {
       errors.put("Product object", "Product object is null");

@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public class Product {
   @CollectionTable(name = "guarantee_component", joinColumns = @JoinColumn(name = "product_id"))
   @Column(name = "guarantee_component")
   @Enumerated(EnumType.ORDINAL)
-  private List<EGuarantee> guaranteeComponents;
+  private List<EGuarantee> guaranteeComponents = new ArrayList<>();
 
   @OneToMany(mappedBy = "product")
   @ToString.Exclude

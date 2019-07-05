@@ -10,6 +10,7 @@ public class CategoryValidator extends AbstractValidator<Category> {
   @Override
   public Map<String, String> validate(Category category) {
 
+    errors.clear();
     if (category == null) {
       errors.put("Category object", "Category object is null");
       return errors;

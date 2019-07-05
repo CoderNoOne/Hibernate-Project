@@ -9,7 +9,7 @@ public class CountryValidator extends AbstractValidator<Country>{
 
   @Override
   public Map<String, String> validate(Country country) {
-
+    errors.clear();
     if (country == null) {
       errors.put("Country object", "Country object is null");
       return errors;

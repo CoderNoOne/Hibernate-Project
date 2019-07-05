@@ -44,4 +44,8 @@ public class CategoryService {
     categoryRepository.deleteAll();
   }
 
+  public Category getCategoryFromDbIfExists(Category category) {
+    return getCategoryByName(category.getName()).orElse(category);
+  }
+
 }

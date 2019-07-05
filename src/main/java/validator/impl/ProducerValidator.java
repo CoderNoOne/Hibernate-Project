@@ -11,7 +11,7 @@ public class ProducerValidator extends AbstractValidator<Producer>  {
 
   @Override
   public Map<String, String> validate(Producer producer) {
-
+    errors.clear();
     if (producer == null) {
       errors.put("Producer object", "Producer object is null");
       return errors;

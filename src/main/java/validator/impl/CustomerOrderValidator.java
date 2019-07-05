@@ -11,7 +11,7 @@ public class CustomerOrderValidator extends AbstractValidator<CustomerOrder> {
 
   @Override
   public Map<String, String> validate(CustomerOrder customerOrder) {
-
+    errors.clear();
     if (customerOrder == null) {
       errors.put("CustomerOrder object", "CutomerOrder object is null");
       return errors;
