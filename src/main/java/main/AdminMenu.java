@@ -17,10 +17,10 @@ import static util.others.UserDataUtils.defineXlsFileName;
 import static util.others.UserDataUtils.printMessage;
 
 @Slf4j
-public class AdminMenu {
+class AdminMenu {
 
   private final ErrorService errorService = new ErrorService();
-  private final DataInitializeService dataInitializeService = new DataInitializeService();
+  private final DataInitializeService dataService = new DataInitializeService();
   private final ExportErrorsToExcelService errorsToExcelService = new ExportErrorsToExcelService();
 
   void showAdminMenu(String userEmail) {
@@ -33,9 +33,10 @@ public class AdminMenu {
         int option = UserDataUtils.getInt("Input your option");
         switch (option) {
           case 1 -> executeOption1();
-          case 2 -> executeOption2(userEmail);
-          case 3 -> {
-            executeOption3();
+          case 2 -> executeOption2();
+          case 3 -> executeOption3(userEmail);
+          case 4 -> {
+            executeOption4();
             break loop;
           }
         }
@@ -48,19 +49,23 @@ public class AdminMenu {
     }
   }
 
-  private void executeOption3() {
+  private void executeOption1() {
+    dataService.deleteAllContent();
+  }
+
+  private void executeOption4() {
     new Menu().mainMenu();
   }
 
-  private void executeOption2(String userEmail) {
+  private void executeOption3(String userEmail) {
 
     String excelFileName = defineXlsFileName("Input .xlsx filename (without suffix)");
     errorsToExcelService.exportToExcel(excelFileName);
     EmailUtils.sendAsHtmlWithAttachment(userEmail, "Errors. Date: " + LocalDateTime.now(), "Errors from app attachement", excelFileName);
   }
 
-  private void executeOption1() {
-    dataInitializeService.init();
+  private void executeOption2() {
+    dataService.init();
   }
 
   private void showAdminMenuOptions() {
@@ -68,10 +73,12 @@ public class AdminMenu {
     printMessage(MessageFormat.format(
             "\nOption no. 1 - {0}\n" +
                     "Option no. 2 - {1}\n" +
-                    "Option no. 3 - {2}\n",
+                    "Option no. 3 - {2}\n" +
+                    "Option no. 4 - {3}\n",
 
+            "Delete all content from DB",
             "Initialize data",
-            "Store errors in .xlsl file and then clear error table",
+            "Store errors in .xlsx file - Send it to your email file and then clear error table",
             "Back to main menu"
 
     ));

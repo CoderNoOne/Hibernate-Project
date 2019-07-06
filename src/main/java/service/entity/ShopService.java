@@ -6,10 +6,16 @@ import domain.Shop;
 import exception.AppException;
 import repository.abstract_repository.entity.ShopRepository;
 import repository.impl.ShopRepositoryImpl;
+import util.others.UserDataUtils;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import static util.entity_utils.ShopUtil.getShopIfValid;
+import static util.others.UserDataUtils.getInt;
+import static util.others.UserDataUtils.printCollectionWithNumeration;
+import static util.update.UpdateShopUtil.getUpdatedShop;
 
 
 public class ShopService {
@@ -22,15 +28,16 @@ public class ShopService {
     countryService = new CountryService();
   }
 
-  private Country getCountryFromDbIfExists(Country country) {
-    return countryService.getCountryByName(country.getName()).orElse(country);
-  }
+//  private Country getCountryFromDbIfExists(Country country) {
+//    return countryService.getCountryByName(country.getName()).orElse(country);
+//  }
 
   private Shop setShopComponentsFromDbIfTheyExist(Shop shop) {
 
     return Shop.builder()
+            .id(shop.getId())
             .name(shop.getName())
-            .country(getCountryFromDbIfExists(shop.getCountry()))
+            .country(countryService.getCountryFromDbIfExists(shop.getCountry()))
             .build();
   }
 
@@ -67,6 +74,28 @@ public class ShopService {
 
   public void deleteAllShops() {
     shopRepository.deleteAll();
+  }
+
+  public List<Shop> getAllShops() {
+    return shopRepository.findAll();
+  }
+
+  public Optional<Shop> getShopById(Long shopId) {
+    return shopRepository.findById(shopId);
+  }
+
+  public void updateShop() {
+    printCollectionWithNumeration(getAllShops());
+
+    long shopId = getInt("Choose shop id you want to update");
+
+    getShopById(shopId)
+            .ifPresentOrElse(shop ->
+                    shopRepository.addOrUpdate(setShopComponentsFromDbIfTheyExist(getShopIfValid(getUpdatedShop(shop)))),
+    () -> {
+      throw new AppException("There is no shop with that id: " + shopId + " in DB");
+    });
+
   }
 }
 

@@ -10,11 +10,17 @@ import mapper.ProductMapper;
 import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.StockRepository;
 import repository.impl.StockRepositoryImpl;
+import util.entity_utils.StockUtil;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static util.entity_utils.StockUtil.getStockIfValid;
+import static util.others.UserDataUtils.getInt;
+import static util.others.UserDataUtils.printCollectionWithNumeration;
 
 public class StockService {
 
@@ -65,5 +71,27 @@ public class StockService {
     return stockRepository
             .findProducersWithTradeAndNumberOfProducedProductsGreaterThan(tradeName, minAmountOfProducts).stream()
             .map(producerMapper::producerToProducerDto).collect(Collectors.toList());
+  }
+
+  public void updateStock() {
+    printCollectionWithNumeration(getAllStocks());
+
+    long stockId = getInt("Choose stock id you want to update");
+
+    getStockById(stockId)
+            .ifPresentOrElse(stock->
+                            stockRepository.addOrUpdate(setStockComponentsFromDbIfTheyExist(getStockIfValid(getUpdatedStock(stock)))),
+                    () -> {
+                      throw new AppException("There is no stock with that id: " + stockId + " in DB");
+                    });
+
+  }
+
+  private Optional<Stock> getStockById(long stockId) {
+    return stockRepository.findById(stockId);
+  }
+
+  public List<Stock> getAllStocks() {
+    return stockRepository.findAll();
   }
 }

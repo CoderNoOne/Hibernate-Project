@@ -14,6 +14,22 @@ import java.util.Optional;
 
 public class CustomerRepositoryImpl extends AbstractCrudRepository<Customer, Long> implements CustomerRepository {
 
+
+  @Override
+  public void deleteCustomer(Customer customerToDelete) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    findByNameAndSurnameAndCountry(customerToDelete.getName(), customerToDelete.getSurname(), customerToDelete.getCountry()).ifPresentOrElse(customer -> {
+      tx.begin();
+      entityManager.remove(entityManager.merge(customer));
+      tx.commit();
+    }, () -> {
+      throw new AppException("Customer you wanted to delete: " + customerToDelete + " doesnt exist in DB");
+    });
+  }
+
   @Override
   public Optional<Customer> findByNameAndSurnameAndCountry(String name, String surname, Country country) {
 
@@ -43,7 +59,7 @@ public class CustomerRepositoryImpl extends AbstractCrudRepository<Customer, Lon
       if (tx != null) {
         tx.rollback();
       }
-     throw new AppException("find customer by name surname and country- exception");
+      throw new AppException("find customer by name surname and country- exception");
     } finally {
       if (entityManager != null) {
         entityManager.close();

@@ -8,6 +8,7 @@ import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.entity.*;
 import util.others.UserDataUtils;
+import util.update.UpdateCustomerUtil;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -17,17 +18,17 @@ import java.util.*;
 import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
 import static helper.enums.TableNames.*;
 import static repository.impl.CustomerOrderRepositoryImpl.GUARANTEE_PERIOD_IN_YEARS;
-import static util.entity_utils.CustomerUtil.getCustomerIfValid;
+import static util.entity_utils.CustomerUtil.*;
 import static util.entity_utils.ProducerUtil.createProducerFromUserInput;
 import static util.entity_utils.ProducerUtil.getProducerIfValid;
 import static util.entity_utils.CustomerOrderUtil.*;
 import static util.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
-import static util.entity_utils.CustomerUtil.createCustomerFromUserInput;
 import static util.entity_utils.ProductUtil.*;
 import static util.entity_utils.ShopUtil.*;
 import static util.entity_utils.StockUtil.createStockDetailFromUserInput;
 import static util.entity_utils.StockUtil.getStockIfValid;
 import static util.others.UserDataUtils.*;
+import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
 
 @Slf4j
 class Menu {
@@ -65,7 +66,15 @@ class Menu {
           case 12 -> executeOption12();
           case 13 -> executeOption13();
           case 14 -> executeOption14();
-          case 15 -> DbConnection.close();
+          case 15 -> executeOption15();
+          case 16 -> executeOption16();
+          case 17 -> executeOption17();
+          case 18 -> executeOption18();
+          case 19 -> executeOption19();
+          case 20 -> {
+            DbConnection.close();
+            return;
+          }
         }
       } catch (AppException e) {
         log.info(e.getMessage());
@@ -93,7 +102,12 @@ class Menu {
                     "Option no. 12 - {11}\n" +
                     "Option no. 13 - {12}\n" +
                     "Option no. 14 - {13}\n" +
-                    "Option no. 15 - {14}\n",
+                    "Option no. 15 - {14}\n" +
+                    "Option no. 16 - {15}\n" +
+                    "Option no. 17 - {16}\n" +
+                    "Option no. 18 - {17}\n" +
+                    "Option no. 19 - {18}\n" +
+                    "Option no. 20 - {19}\n",
 
             "Add new Customer",
             "Add new shop",
@@ -109,6 +123,11 @@ class Menu {
             "Show products ordered by customer grouped by producer",
             "Show customers who ordered products produced in their national country",
             "Go to admin panel",
+            "Delete customer",
+            "Update customer",
+            "Update shop",
+            "Update product",
+            "Update producer",
             "Exit the program"
     ));
   }
@@ -353,7 +372,7 @@ class Menu {
   private void executeOption4() {
 
     try {
-      var product = getProductIfValid(setProductComponentsFromDbIfTheyExist(createProductFromUserInput()));
+      var product = getProductIfValid(createProductFromUserInput());
       productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
@@ -367,8 +386,8 @@ class Menu {
 
     try {
 
-      var producer = getProducerIfValid(setProducerComponentsFromDbIfTheyExist(createProducerFromUserInput()));
-      producerService.addProducerToDb(producer);
+      var producer = getProducerIfValid(createProducerFromUserInput());
+      producerService.addProducerToDbFromUserInput(producer);
 
     } catch (Exception e) {
       log.info(e.getMessage());
@@ -390,7 +409,7 @@ class Menu {
 
     try {
 
-      var shop = getShopIfValid(setShopComponentsFromDbIfTheyExist(createShopFromUserInput()));
+      var shop = getShopIfValid(createShopFromUserInput());
       shopService.addShopToDbFromUserInput(shop);
 
     } catch (Exception e) {
@@ -405,7 +424,7 @@ class Menu {
 
     try {
 
-      var customer = getCustomerIfValid(setCustomerComponentsFromDbIfTheyExist(createCustomerFromUserInput()));
+      var customer = getCustomerIfValid(createCustomerFromUserInput());
       customerService.addCustomerToDbFromUserInput(customer);
 
     } catch (Exception e) {
@@ -414,17 +433,6 @@ class Menu {
       throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_INSERTION, e.getMessage()));
     }
   }
-
-  private Customer setCustomerComponentsFromDbIfTheyExist(Customer customer) {
-
-    return Customer.builder()
-            .name(customer.getName())
-            .surname(customer.getSurname())
-            .age(customer.getAge())
-            .country(getCountryFromDbIfExists(customer.getCountry()))
-            .build();
-  }
-
 
   private Country getCountryFromDbIfExists(Country country) {
     return countryService.getCountryByName(country.getName()).orElse(country);
@@ -462,4 +470,41 @@ class Menu {
             .getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
                     product.getProducer()).orElse(product);
   }
+
+
+  /*---------------------------------------------------------------------------------------------------------------*/
+
+  /*delete*/
+
+  /*deleting customer*/
+  private void executeOption15() {
+
+    printMessage("\nInput customer's information you want to delete\n");
+
+    Customer customerToDelete = specifyCustomerDetailToDelete();
+
+    customerService.deleteCustomer(customerToDelete);
+
+  }
+
+  private void executeOption16() {
+    customerService.updateCustomer();
+  }
+
+  private void executeOption17() {
+    shopService.updateShop();
+  }
+
+  private void executeOption18() {
+    productService.updateProduct();
+  }
+
+  private void executeOption19() {
+    producerService.updateProducer();
+  }
+
+  private void executeOption20(){
+    stockService.updateStock();
+  }
+
 }

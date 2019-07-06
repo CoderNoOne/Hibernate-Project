@@ -20,11 +20,11 @@ public class Customer {
   private String surname;
   private Integer age;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = {CascadeType.MERGE})
   @JoinColumn(name = "country_id")
   private Country country;
 
-  @OneToMany(mappedBy = "customer")
+  @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private List<CustomerOrder> customerOrders;

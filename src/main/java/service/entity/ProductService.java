@@ -17,6 +17,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static util.entity_utils.CustomerUtil.getCustomerIfValid;
+import static util.entity_utils.ProductUtil.getProductIfValid;
+import static util.others.UserDataUtils.getInt;
+import static util.others.UserDataUtils.printCollectionWithNumeration;
+import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
+import static util.update.UpdateProductUtil.getUpdatedProduct;
+
 public class ProductService {
 
   private final ProductMapper productMapper;
@@ -41,6 +48,7 @@ public class ProductService {
   private Product setProductComponentsFromDbIfTheyExist(Product product) {
 
     return Product.builder()
+            .id(product.getId())
             .name(product.getName())
             .price(product.getPrice())
             .category(categoryService.getCategoryFromDbIfExists(product.getCategory()))
@@ -79,5 +87,25 @@ public class ProductService {
 
   public void deleteAllProducts() {
     productRepository.deleteAll();
+  }
+
+  public List<Product> getAllProducts(){
+    return productRepository.findAll();
+  }
+
+  public Optional <Product> getProductById(Long id){
+    return productRepository.findById(id);
+  }
+  public void updateProduct(){
+
+    printCollectionWithNumeration(getAllProducts());
+    long productId = getInt("Choose product id you want to update");
+
+    getProductById(productId)
+            .ifPresentOrElse(product ->
+                            productRepository.addOrUpdate(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(product)))),
+                    () -> {
+                      throw new AppException("There is no product with that id: " + productId + " in DB");
+                    });
   }
 }

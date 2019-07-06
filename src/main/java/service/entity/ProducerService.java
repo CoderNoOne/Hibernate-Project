@@ -8,7 +8,16 @@ import repository.abstract_repository.entity.ProducerRepository;
 import repository.impl.ProducerRepositoryImpl;
 
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+
+import static util.entity_utils.CustomerUtil.getCustomerIfValid;
+import static util.entity_utils.ProducerUtil.getProducerIfValid;
+import static util.others.UserDataUtils.getInt;
+import static util.others.UserDataUtils.printCollectionWithNumeration;
+import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
+import static util.update.UpdateProducerUtil.getUpdatedProducer;
 
 public class ProducerService {
 
@@ -30,6 +39,7 @@ public class ProducerService {
   public Producer setProducerComponentsFromDbIfTheyExist(Producer producer) {
 
     return Producer.builder()
+            .id(producer.getId())
             .name(producer.getName())
             .trade(tradeService.getTradeFromDbIfExists(producer.getTrade()))
             .country(countryService.getCountryFromDbIfExists(producer.getCountry()))
@@ -69,4 +79,24 @@ public class ProducerService {
     producerRepository.deleteAll();
   }
 
+  public void updateProducer() {
+
+    printCollectionWithNumeration(getAllProducers());
+    long producerId = getInt("Choose producer id you want to update");
+
+    getProducerById(producerId)
+            .ifPresentOrElse(producer ->
+                            producerRepository.addOrUpdate(setProducerComponentsFromDbIfTheyExist(getProducerIfValid(getUpdatedProducer(producer)))),
+                    () -> {
+                      throw new AppException("There is no producer with that id: " + producerId + " in DB");
+                    });
+  }
+
+  private Optional<Producer> getProducerById(long producerId) {
+    return producerRepository.findById(producerId);
+  }
+
+  private List<Producer> getAllProducers() {
+    return producerRepository.findAll();
+  }
 }

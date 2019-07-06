@@ -24,8 +24,7 @@ public class DataInitializeService {
   private final ProducerService producerService = new ProducerService();
   private final ProductService productService = new ProductService();
 
-  public void init() {
-
+  public void deleteAllContent(){
     productService.deleteAllProducts();
     producerService.deleteAllProducers();
     shopService.deleteAllShops();
@@ -33,6 +32,9 @@ public class DataInitializeService {
     categoryService.deleteAllCategories();
     countryService.deleteAllCountries();
     tradeService.deleteAllTrades();
+  }
+
+  public void init() {
 
     initCountries("exampleCountries.json");
     initCustomers("exampleCustomers.json");

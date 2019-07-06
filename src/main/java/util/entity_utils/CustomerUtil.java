@@ -15,6 +15,21 @@ public final class CustomerUtil {
   private CustomerUtil() {
   }
 
+  public static Customer specifyCustomerDetailToUpdate(){
+    return createCustomerFromUserInput();
+  }
+
+  public static Customer specifyCustomerDetailToDelete(){
+
+    return Customer.builder()
+            .name(getString("Input customer name"))
+            .surname(getString("Input customer surname"))
+            .country(Country.builder()
+                    .name(getString("Input country name"))
+                    .build())
+            .build();
+  }
+
   public static Customer createCustomerFromUserInput() {
 
     return Customer.builder()

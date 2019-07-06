@@ -9,7 +9,14 @@ import repository.impl.CountryRepositoryImpl;
 import repository.impl.CustomerRepositoryImpl;
 
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+
+import static util.entity_utils.CustomerUtil.getCustomerIfValid;
+import static util.others.UserDataUtils.getInt;
+import static util.others.UserDataUtils.printCollectionWithNumeration;
+import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
 
 
 public class CustomerService {
@@ -26,17 +33,14 @@ public class CustomerService {
     return customerRepository.addOrUpdate(customer);
   }
 
-  private Country getCountryFromDbIfExists(Country country) {
-    return countryService.getCountryByName(country.getName()).orElse(country);
-  }
-
   private Customer setCustomerComponentsFromDbIfTheyExist(Customer customer) {
 
     return Customer.builder()
+            .id(customer.getId())
             .name(customer.getName())
             .surname(customer.getSurname())
             .age(customer.getAge())
-            .country(getCountryFromDbIfExists(customer.getCountry()))
+            .country(countryService.getCountryFromDbIfExists(customer.getCountry()))
             .build();
   }
 
@@ -62,8 +66,37 @@ public class CustomerService {
     return customerRepository.findByNameAndSurnameAndCountry(name, surname, country);
   }
 
-  public void deleteAllCustomers(){
+  public void deleteAllCustomers() {
     customerRepository.deleteAll();
   }
 
+  public void deleteCustomer(Customer customerToDelete) {
+
+    if (customerToDelete == null) {
+      throw new AppException("Customer object you wanted to delete is null");
+    }
+
+    customerRepository.deleteCustomer(customerToDelete);
+  }
+
+  public List<Customer> getAllCustomers() {
+    return customerRepository.findAll();
+  }
+
+  public Optional<Customer> getCustomerById(Long customerId) {
+    return customerRepository.findById(customerId);
+  }
+
+  public void updateCustomer() {
+    printCollectionWithNumeration(getAllCustomers());
+    long customerId = getInt("Choose customer id you want to update");
+
+    getCustomerById(customerId)
+            .ifPresentOrElse(customer ->
+                            customerRepository.addOrUpdate(setCustomerComponentsFromDbIfTheyExist(getCustomerIfValid(getUpdatedCustomer(customer)))),
+                    () -> {
+                      throw new AppException("There is no customer with that id: " + customerId + " in DB");
+                    });
+
+  }
 }
