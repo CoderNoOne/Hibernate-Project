@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Scanner;
@@ -68,11 +69,11 @@ public final class UserDataUtils {
     printMessage(inputMessage);
     String input = sc.nextLine();
 
-    if(input.length() == 0){
+    if (input.length() == 0) {
       throw new AppException("You didn't input any value");
     }
 
-    if(!input.matches("\\d+(\\.\\d+)*")){
+    if (!input.matches("\\d+(\\.\\d+)*")) {
       throw new AppException("Big Decimal Value is not correct: " + input);
     }
 
@@ -116,4 +117,38 @@ public final class UserDataUtils {
     }
   }
 
+
+  public static String login() {
+
+    String gmailAddress;
+
+    do {
+      gmailAddress = getString("Input gmail account addres");
+    } while (!gmailAddress.matches(".+@gmail.com"));
+
+    var password = GenerateSecurePasswordUtil.generatePassword();
+    EmailUtils.sendPassword(gmailAddress, "Your password", "Your password: " + password);
+
+    if (getString("Check your mail box for password.\nInput generated password from gmail").equals(password)) {
+      return gmailAddress;
+    } else {
+      throw new AppException("Incorrect login to admin panel with email: " + gmailAddress + " Login date: " + LocalDateTime.now());
+    }
+  }
+
+  public static String defineXlsFileName(String message) {
+
+    if (message == null || message.equals("")) {
+      throw new AppException("Message is null or blank");
+    }
+    printMessage(message);
+
+    String fileName = sc.nextLine();
+
+    if (fileName.length() == 0) {
+      throw new AppException("YOU DIDN'T INPUT ANY VALUE");
+    }
+
+    return String.format("%s.xlsx", fileName);
+  }
 }

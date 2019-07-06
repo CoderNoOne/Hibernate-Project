@@ -64,7 +64,8 @@ class Menu {
           case 11 -> executeOption11();
           case 12 -> executeOption12();
           case 13 -> executeOption13();
-          case 14 -> DbConnection.close();
+          case 14 -> executeOption14();
+          case 15 -> DbConnection.close();
         }
       } catch (AppException e) {
         log.info(e.getMessage());
@@ -91,7 +92,8 @@ class Menu {
                     "Option no. 11 - {10}\n" +
                     "Option no. 12 - {11}\n" +
                     "Option no. 13 - {12}\n" +
-                    "Option no. 14 - {13}\n",
+                    "Option no. 14 - {13}\n" +
+                    "Option no. 15 - {14}\n",
 
             "Add new Customer",
             "Add new shop",
@@ -106,10 +108,15 @@ class Menu {
             "Show producers with specified trade name and with at least a specified number of products produced",
             "Show products ordered by customer grouped by producer",
             "Show customers who ordered products produced in their national country",
+            "Go to admin panel",
             "Exit the program"
     ));
   }
 
+
+  private void executeOption14() {
+    new AdminMenu().showAdminMenu(login());
+  }
 
   private void executeOption13() {
 

@@ -35,7 +35,7 @@ public class ExportErrorsToExcelService {
     }
 
     XSSFWorkbook workbook = new XSSFWorkbook();
-    XSSFSheet sheet = workbook.createSheet("Exported errors. Date: " + LocalDateTime.now());
+    XSSFSheet sheet = workbook.createSheet("Exported errors. Date_" + LocalDateTime.now());
 
     Row row1 = sheet.createRow(0);
     row1.createCell(0).setCellValue("Time of occurence");
