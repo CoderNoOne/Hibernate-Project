@@ -5,6 +5,7 @@ import repository.impl.ErrorRepositoryImpl;
 import domain.Error;
 import validator.impl.ErrorValidator;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ErrorService {
@@ -20,5 +21,13 @@ public class ErrorService {
   public Optional<Error> addErrorToDb(Error error) {
 
     return errorRepository.addOrUpdate(error);
+  }
+
+  public void deleteAllErrors() {
+    errorRepository.deleteAll();
+  }
+
+  public List<Error> getAllErrors(){
+    return errorRepository.findAll();
   }
 }

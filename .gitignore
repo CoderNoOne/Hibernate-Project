@@ -2,3 +2,4 @@
 .idea
 src/test/
 target/
+/src/main/java/main/Test.java
