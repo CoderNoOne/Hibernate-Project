@@ -4,7 +4,7 @@ import domain.Error;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.entity.ErrorService;
-import service.other.DataInitializeService;
+import service.other.DataService;
 import service.other.ExportErrorsToExcelService;
 import util.others.EmailUtils;
 import util.others.UserDataUtils;
@@ -20,7 +20,7 @@ import static util.others.UserDataUtils.printMessage;
 class AdminMenu {
 
   private final ErrorService errorService = new ErrorService();
-  private final DataInitializeService dataService = new DataInitializeService();
+  private final DataService dataService = new DataService();
   private final ExportErrorsToExcelService errorsToExcelService = new ExportErrorsToExcelService();
 
   void showAdminMenu(String userEmail) {
