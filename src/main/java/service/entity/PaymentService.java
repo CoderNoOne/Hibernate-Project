@@ -20,16 +20,21 @@ public class PaymentService {
     return paymentRepository.addOrUpdate(payment);
   }
 
-  public void addPaymentToDbFromUserInput(Payment payment){
-    if(!isPaymentUnique(payment)){
+  public void addPaymentToDbFromUserInput(Payment payment) {
+    if (!isPaymentUnique(payment)) {
       addPaymentToDb(payment);
-    }else {
+    } else {
       throw new AppException("Couldn't add new payment - payment's not unique");
     }
   }
 
-  public Optional<Payment> getPaymentByEpayment(Epayment epayment){
+  public Optional<Payment> getPaymentByEpayment(Epayment epayment) {
     return paymentRepository.findPaymentByEPayment(epayment);
+  }
+
+
+  public Payment getPaymentFromDbIfExists(Payment payment) {
+    return getPaymentByEpayment(payment.getEpayment()).orElse(payment);
   }
 
   private boolean isPaymentUnique(Payment payment) {

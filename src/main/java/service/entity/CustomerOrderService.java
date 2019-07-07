@@ -2,8 +2,10 @@ package service.entity;
 
 import domain.CustomerOrder;
 import domain.Product;
+import domain.Shop;
 import domain.enums.EGuarantee;
 import dto.*;
+import exception.AppException;
 import mapper.*;
 import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.CustomerOrderRepository;
@@ -14,6 +16,9 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static util.entity_utils.ProductUtil.chooseAvailableProduct;
+import static util.entity_utils.ShopUtil.chooseAvailableShop;
+
 public class CustomerOrderService {
 
   private final CustomerOrderRepository customerOrderRepository;
@@ -22,6 +27,10 @@ public class CustomerOrderService {
   private final CustomerOrderMapper customerOrderMapper;
   private final ProducerMapper producerMapper;
   private final CustomerMapper customerMapper;
+  private final StockService stockService;
+  private final CustomerService customerService;
+  private final ProductService productService;
+  private final PaymentService paymentService;
 
   public CustomerOrderService() {
     this.customerOrderRepository = new CustomerOrderRepositoryImpl();
@@ -30,14 +39,31 @@ public class CustomerOrderService {
     this.customerOrderMapper = Mappers.getMapper(CustomerOrderMapper.class);
     this.producerMapper = Mappers.getMapper(ProducerMapper.class);
     this.customerMapper = Mappers.getMapper(CustomerMapper.class);
+    this.stockService = new StockService();
+    this.customerService = new CustomerService();
+    this.productService = new ProductService();
+    this.paymentService = new PaymentService();
   }
 
   private Optional<CustomerOrder> addCustomerOrderToDb(CustomerOrder customerOrder) {
     return customerOrderRepository.addOrUpdate(customerOrder);
   }
 
+  private CustomerOrder setCustomerOrderComponentsFromDbIfTheyExist(CustomerOrder customerOrder) {
+
+    return CustomerOrder.builder()
+            .id(customerOrder.getId())
+            .payment(paymentService.getPaymentFromDbIfExists(customerOrder.getPayment()))
+            .discount(customerOrder.getDiscount())
+            .date(customerOrder.getDate())
+            .quantity(customerOrder.getQuantity())
+            .product(productService.getProductFromDbIfExists(customerOrder.getProduct()))
+            .customer(customerService.getCustomerFromDbIfExists(customerOrder.getCustomer()))
+            .build();
+  }
+
   public void addCustomerOrderToDbFromUserInput(CustomerOrder customerOrder) {
-    addCustomerOrderToDb(customerOrder);
+    addCustomerOrderToDb(setCustomerOrderComponentsFromDbIfTheyExist(customerOrder));
   }
 
   public Map<Product, Integer> getNumberOfOrdersForSpecifiedProducts(List<Product> productList) {
@@ -53,6 +79,52 @@ public class CustomerOrderService {
                             ee -> productMapper.productToProductDTO(ee.getKey()),
                             Map.Entry::getValue
                     ))));
+  }
+
+
+  public CustomerOrder specifyOrderedProductDetail(CustomerOrder customerOrderFromUserInput) {
+
+    var productsByNameAndCategory = productService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
+            customerOrderFromUserInput.getProduct().getCategory());
+
+    if (!productsByNameAndCategory.isEmpty()) {
+      customerOrderFromUserInput.setProduct(chooseAvailableProduct(productsByNameAndCategory));
+      return customerOrderFromUserInput;
+    }
+
+    throw new AppException(String.format("There wasn't any product in a DB for product name: %s and product category: %s",
+            customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory().getName()));
+  }
+
+  public CustomerOrder specifyCustomerDetail(CustomerOrder customerOrder) {
+
+    var customerName = customerOrder.getCustomer().getName();
+    var customerSurname = customerOrder.getCustomer().getSurname();
+    var customerCountry = customerOrder.getCustomer().getCountry();
+
+    customerService.getCustomerByNameAndSurnameAndCountry(customerName,
+            customerSurname, customerCountry)
+            .ifPresentOrElse(
+                    customerOrder::setCustomer,
+                    () -> {
+                      throw new AppException(String.format("There is no customer in a db with: name: %s surname: %s country: %s",
+                              customerName, customerSurname, customerCountry.getName()));
+                    });
+
+    return customerOrder;
+  }
+
+  public Map<Shop, Integer> specifyShopDetailForCustomerOrder(CustomerOrder customerOrder) {
+
+    Map<Shop, Integer> shopMap = stockService.getShopListWithProductInStock(customerOrder.getProduct());
+
+    if (!shopMap.isEmpty()) {
+      var shop = chooseAvailableShop(new ArrayList<>(shopMap.keySet()));
+
+      return Collections.singletonMap(shop, shopMap.get(shop));
+    }
+
+    throw new AppException("Product of interest isn't for sale in any of the registered shops in a DB");
   }
 
   public List<ProductDto> getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(String countryName, Integer minAge, Integer maxAge) {

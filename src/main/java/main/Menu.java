@@ -8,7 +8,6 @@ import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.entity.*;
 import util.others.UserDataUtils;
-import util.update.UpdateCustomerUtil;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -28,21 +27,16 @@ import static util.entity_utils.ShopUtil.*;
 import static util.entity_utils.StockUtil.createStockDetailFromUserInput;
 import static util.entity_utils.StockUtil.getStockIfValid;
 import static util.others.UserDataUtils.*;
-import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
 
 @Slf4j
 class Menu {
 
   private final CustomerService customerService = new CustomerService();
-  private final CountryService countryService = new CountryService();
   private final ErrorService errorService = new ErrorService();
   private final ShopService shopService = new ShopService();
   private final ProducerService producerService = new ProducerService();
-  private final TradeService tradeService = new TradeService();
-  private final CategoryService categoryService = new CategoryService();
   private final ProductService productService = new ProductService();
   private final StockService stockService = new StockService();
-  private final PaymentService paymentService = new PaymentService();
   private final CustomerOrderService customerOrderService = new CustomerOrderService();
 
   void mainMenu() {
@@ -71,7 +65,8 @@ class Menu {
           case 17 -> executeOption17();
           case 18 -> executeOption18();
           case 19 -> executeOption19();
-          case 20 -> {
+          case 20 -> executeOption20();
+          case 21 -> {
             DbConnection.close();
             return;
           }
@@ -107,8 +102,11 @@ class Menu {
                     "Option no. 17 - {16}\n" +
                     "Option no. 18 - {17}\n" +
                     "Option no. 19 - {18}\n" +
-                    "Option no. 20 - {19}\n",
+                    "Option no. 20 - {19}\n" +
+                    "Option no. 21 - {20}\n",
 
+
+            "Go to admin panel",
             "Add new Customer",
             "Add new shop",
             "Add new producer",
@@ -122,14 +120,47 @@ class Menu {
             "Show producers with specified trade name and with at least a specified number of products produced",
             "Show products ordered by customer grouped by producer",
             "Show customers who ordered products produced in their national country",
-            "Go to admin panel",
             "Delete customer",
             "Update customer",
             "Update shop",
             "Update product",
             "Update producer",
+            "Update stock",
             "Exit the program"
     ));
+  }
+
+
+  private void executeOption20() {
+    stockService.updateStock();
+  }
+
+  private void executeOption19() {
+    producerService.updateProducer();
+  }
+
+
+  private void executeOption18() {
+    productService.updateProduct();
+  }
+
+
+  private void executeOption17() {
+    shopService.updateShop();
+  }
+
+  private void executeOption16() {
+    customerService.updateCustomer();
+  }
+
+  private void executeOption15() {
+
+    printMessage("\nInput customer's information you want to delete\n");
+
+    Customer customerToDelete = specifyCustomerDetailToDelete();
+
+    customerService.deleteCustomer(customerToDelete);
+
   }
 
 
@@ -164,7 +195,7 @@ class Menu {
     var tradeName = getString("Input trade name");
     var minAmountOfProducts = getInt("Input min number of products produced");
 
-    printCollectionWithNumeration(stockService.getProcucersWithTradeAndNumberOfProductsProducedGreaterThan(tradeName, minAmountOfProducts));
+    printCollectionWithNumeration(stockService.getProducersWithTradeAndNumberOfProductsProducedGreaterThan(tradeName, minAmountOfProducts));
   }
 
   private void executeOption10() {
@@ -192,7 +223,6 @@ class Menu {
 
 
   private void executeOption9() {
-
 
     LocalDate minLocalDate;
     LocalDate maxLocalDate;
@@ -233,10 +263,9 @@ class Menu {
 
     try {
 
-      var customerOrder = getCustomerOrderIfValid(specifyCustomerDetail(specifyOrderedProductDetail(createCustomerOrderFromUserInput())));
+      var customerOrder = getCustomerOrderIfValid(customerOrderService.specifyCustomerDetail(customerOrderService.specifyOrderedProductDetail(createCustomerOrderFromUserInput())));
 
-      customerOrder.setPayment(getPaymentFromDbIfExists(customerOrder.getPayment()));
-      decreaseStockQuantityIfValid(specifyShopDetailForCustomerOrder(customerOrder), customerOrder);
+      stockService.decreaseStockQuantityIfValid(customerOrderService.specifyShopDetailForCustomerOrder(customerOrder), customerOrder);
 
       customerOrderService.addCustomerOrderToDbFromUserInput(customerOrder);
     } catch (Exception e) {
@@ -246,76 +275,12 @@ class Menu {
     }
   }
 
-  private CustomerOrder specifyCustomerDetail(CustomerOrder customerOrder) {
-
-    var customerName = customerOrder.getCustomer().getName();
-    var customerSurname = customerOrder.getCustomer().getSurname();
-    var customerCountry = customerOrder.getCustomer().getCountry();
-
-    customerService.getCustomerByNameAndSurnameAndCountry(customerName,
-            customerSurname, customerCountry)
-            .ifPresentOrElse(
-                    customerOrder::setCustomer,
-                    () -> {
-                      throw new AppException(String.format("There is no customer in a db with: name: %s surname: %s country: %s",
-                              customerName, customerSurname, customerCountry.getName()));
-                    });
-
-    return customerOrder;
-  }
-
-  private void decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrder customerOrder) {
-
-    stockService.getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct())
-            .ifPresentOrElse(stock -> {
-              if (stock.getQuantity() >= customerOrder.getQuantity()) {
-                stockService.decreaseStockQuantityBySpecifiedAmount(stock, customerOrder.getQuantity());
-              } else {
-                throw new AppException(String.format("Not enough products in stock. Customer wants %d but there are only %d products in the stock",
-                        customerOrder.getQuantity(), stock.getQuantity()));
-              }
-            }, () -> {
-              throw new AppException(String.format("No stock was found for product: %s and for shop: %s",
-                      customerOrder.getProduct().getName(), map.keySet().iterator().next().getName()));
-            });
-  }
-
-
-  private Map<Shop, Integer> specifyShopDetailForCustomerOrder(CustomerOrder customerOrder) {
-
-    Map<Shop, Integer> shopMap = stockService.getShopListWithProductInStock(customerOrder.getProduct());
-
-    if (!shopMap.isEmpty()) {
-      var shop = chooseAvailableShop(new ArrayList<>(shopMap.keySet()));
-
-      return Collections.singletonMap(shop, shopMap.get(shop));
-    }
-
-    throw new AppException("Product of interest isn't for sale in any of the registered shops in a DB");
-  }
-
-
-  private CustomerOrder specifyOrderedProductDetail(CustomerOrder customerOrderFromUserInput) {
-
-    var productsByNameAndCategory = productService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
-            customerOrderFromUserInput.getProduct().getCategory());
-
-    if (!productsByNameAndCategory.isEmpty()) {
-      customerOrderFromUserInput.setProduct(chooseAvailableProduct(productsByNameAndCategory));
-      return customerOrderFromUserInput;
-    }
-
-    throw new AppException(String.format("There wasn't any product in a DB for product name: %s and product category: %s",
-            customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory().getName()));
-  }
-
   private void executeOption5() {
 
     try {
 
-      var stock = getStockIfValid(specifyShop(specifyProduct(createStockDetailFromUserInput())));
-
-      stockService.addStockToDbFromUserInput(stock);
+      stockService
+              .addStockToDbFromUserInput(getStockIfValid(stockService.specifyShop(stockService.specifyProduct(createStockDetailFromUserInput()))));
 
     } catch (Exception e) {
       log.info(e.getMessage());
@@ -323,50 +288,6 @@ class Menu {
       throw new AppException(String.format("%s;%s: %s", STOCK, ERROR_DURING_INSERTION, e.getMessage()));
     }
 
-  }
-
-  private Stock specifyProduct(Stock stock) {
-
-    var productList = productService.getProductsByNameAndCategory(stock.getProduct().getName(),
-            stock.getProduct().getCategory());
-
-    var product = !productList.isEmpty() ? chooseAvailableProduct(productList) : setProductComponentsFromDbIfTheyExist(
-            getProductIfValid(preciseProductDetails(stock)));
-
-    stock.setProduct(product);
-
-    return stock;
-  }
-
-  private Product setProductComponentsFromDbIfTheyExist(Product product) {
-
-    return Product.builder()
-            .name(product.getName())
-            .price(product.getPrice())
-            .category(getCategoryFromDbIfExists(product.getCategory()))
-            .guaranteeComponents(product.getGuaranteeComponents())
-            .producer(setProducerComponentsFromDbIfTheyExist(product.getProducer()))
-            .build();
-  }
-
-  private Stock specifyShop(Stock stock) {
-
-    var shopsByName = shopService.getShopsByName(stock.getShop().getName());
-
-    var shop = !shopsByName.isEmpty() ?
-            chooseAvailableShop(shopsByName) : setShopComponentsFromDbIfTheyExist(getShopIfValid(preciseShopDetails(stock)));
-
-    stock.setShop(shop);
-    return stock;
-
-  }
-
-  private Shop setShopComponentsFromDbIfTheyExist(Shop shop) {
-
-    return Shop.builder()
-            .name(shop.getName())
-            .country(getCountryFromDbIfExists(shop.getCountry()))
-            .build();
   }
 
   private void executeOption4() {
@@ -396,14 +317,6 @@ class Menu {
     }
   }
 
-  private Producer setProducerComponentsFromDbIfTheyExist(Producer producer) {
-
-    return Producer.builder()
-            .name(producer.getName())
-            .trade(getTradeFromDbIfExists(producer.getTrade()))
-            .country(getCountryFromDbIfExists(producer.getCountry()))
-            .build();
-  }
 
   private void executeOption2() {
 
@@ -432,79 +345,6 @@ class Menu {
       log.error(Arrays.toString(e.getStackTrace()));
       throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_INSERTION, e.getMessage()));
     }
-  }
-
-  private Country getCountryFromDbIfExists(Country country) {
-    return countryService.getCountryByName(country.getName()).orElse(country);
-  }
-
-  private Category getCategoryFromDbIfExists(Category category) {
-
-    return categoryService.getCategoryByName(category.getName()).orElse(category);
-  }
-
-  private Payment getPaymentFromDbIfExists(Payment payment) {
-    return paymentService.getPaymentByEpayment(payment.getEpayment()).orElse(payment);
-  }
-
-  private Customer getCustomerFromDbIfExists(Customer customer) {
-    return customerService.getCustomerByNameAndSurnameAndCountry(customer.getName(), customer.getSurname(), customer.getCountry()).orElse(customer);
-  }
-
-  private Shop getShopFromDbIfExists(Shop shop) {
-    return shopService.getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);
-  }
-
-  private Trade getTradeFromDbIfExists(Trade trade) {
-    return tradeService.getTradeByName(trade.getName()).orElse(trade);
-  }
-
-  private Producer getProducerFromDbIfExists(Producer producer) {
-    return producerService.getProducerByNameAndTradeAndCountry(
-            producer.getName(), producer.getTrade(),
-            producer.getCountry()).orElse(producer);
-  }
-
-  private Product getProductFromDbIfExists(Product product) {
-    return productService
-            .getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
-                    product.getProducer()).orElse(product);
-  }
-
-
-  /*---------------------------------------------------------------------------------------------------------------*/
-
-  /*delete*/
-
-  /*deleting customer*/
-  private void executeOption15() {
-
-    printMessage("\nInput customer's information you want to delete\n");
-
-    Customer customerToDelete = specifyCustomerDetailToDelete();
-
-    customerService.deleteCustomer(customerToDelete);
-
-  }
-
-  private void executeOption16() {
-    customerService.updateCustomer();
-  }
-
-  private void executeOption17() {
-    shopService.updateShop();
-  }
-
-  private void executeOption18() {
-    productService.updateProduct();
-  }
-
-  private void executeOption19() {
-    producerService.updateProducer();
-  }
-
-  private void executeOption20(){
-    stockService.updateStock();
   }
 
 }

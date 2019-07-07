@@ -45,7 +45,7 @@ public class ProductService {
   }
 
 
-  private Product setProductComponentsFromDbIfTheyExist(Product product) {
+  public Product setProductComponentsFromDbIfTheyExist(Product product) {
 
     return Product.builder()
             .id(product.getId())
@@ -55,6 +55,11 @@ public class ProductService {
             .guaranteeComponents(product.getGuaranteeComponents())
             .producer(producerService.getProducerFromDbIfExists(producerService.setProducerComponentsFromDbIfTheyExist(product.getProducer())))
             .build();
+  }
+
+  public Product getProductFromDbIfExists(Product product) {
+    return getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
+            product.getProducer()).orElse(product);
   }
 
   public void addProductToDbFromUserInput(Product product) {
@@ -89,14 +94,15 @@ public class ProductService {
     productRepository.deleteAll();
   }
 
-  public List<Product> getAllProducts(){
+  public List<Product> getAllProducts() {
     return productRepository.findAll();
   }
 
-  public Optional <Product> getProductById(Long id){
+  public Optional<Product> getProductById(Long id) {
     return productRepository.findById(id);
   }
-  public void updateProduct(){
+
+  public void updateProduct() {
 
     printCollectionWithNumeration(getAllProducts());
     long productId = getInt("Choose product id you want to update");

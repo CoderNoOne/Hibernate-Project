@@ -2,6 +2,7 @@ package service.entity;
 
 import domain.Country;
 import domain.Customer;
+import domain.CustomerOrder;
 import exception.AppException;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.CustomerRepository;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static util.entity_utils.CustomerUtil.getCustomerIfValid;
+import static util.entity_utils.ProductUtil.chooseAvailableProduct;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
 import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
@@ -23,10 +25,12 @@ public class CustomerService {
 
   private final CustomerRepository customerRepository;
   private final CountryService countryService;
+  private final ProductService productService;
 
   public CustomerService() {
-    customerRepository = new CustomerRepositoryImpl();
-    countryService = new CountryService();
+    this.customerRepository = new CustomerRepositoryImpl();
+    this.countryService = new CountryService();
+    this.productService = new ProductService();
   }
 
   public Optional<Customer> addCustomerToDb(Customer customer) {
@@ -79,6 +83,7 @@ public class CustomerService {
     customerRepository.deleteCustomer(customerToDelete);
   }
 
+
   public List<Customer> getAllCustomers() {
     return customerRepository.findAll();
   }
@@ -98,5 +103,9 @@ public class CustomerService {
                       throw new AppException("There is no customer with that id: " + customerId + " in DB");
                     });
 
+  }
+
+  public Customer getCustomerFromDbIfExists(Customer customer) {
+    return getCustomerByNameAndSurnameAndCountry(customer.getName(), customer.getSurname(), customer.getCountry()).orElse(customer);
   }
 }

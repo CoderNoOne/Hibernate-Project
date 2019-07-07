@@ -72,6 +72,10 @@ public class ShopService {
     return shopRepository.findShopListByName(name);
   }
 
+  public Shop getShopFromDbIfExists(Shop shop) {
+    return getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);
+  }
+
   public void deleteAllShops() {
     shopRepository.deleteAll();
   }
@@ -91,10 +95,10 @@ public class ShopService {
 
     getShopById(shopId)
             .ifPresentOrElse(shop ->
-                    shopRepository.addOrUpdate(setShopComponentsFromDbIfTheyExist(getShopIfValid(getUpdatedShop(shop)))),
-    () -> {
-      throw new AppException("There is no shop with that id: " + shopId + " in DB");
-    });
+                            shopRepository.addOrUpdate(setShopComponentsFromDbIfTheyExist(getShopIfValid(getUpdatedShop(shop)))),
+                    () -> {
+                      throw new AppException("There is no shop with that id: " + shopId + " in DB");
+                    });
 
   }
 }
