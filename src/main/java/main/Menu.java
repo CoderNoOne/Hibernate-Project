@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static helper.enums.ErrorMessage.ERROR_DURING_INSERTION;
+import static helper.enums.ErrorMessage.*;
 import static helper.enums.TableNames.*;
 import static repository.impl.CustomerOrderRepositoryImpl.GUARANTEE_PERIOD_IN_YEARS;
 import static util.entity_utils.CustomerUtil.*;
@@ -132,50 +132,79 @@ class Menu {
 
 
   private void executeOption20() {
-    stockService.updateStock();
+    try {
+      stockService.updateStock();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", STOCK, ERROR_DURING_UPDATE, e.getMessage()));
+    }
   }
 
   private void executeOption19() {
-    producerService.updateProducer();
+
+    try {
+      producerService.updateProducer();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", PRODUCER, ERROR_DURING_UPDATE, e.getMessage()));
+    }
   }
 
 
   private void executeOption18() {
-    productService.updateProduct();
+    try {
+      productService.updateProduct();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", PRODUCT, ERROR_DURING_UPDATE, e.getMessage()));
+    }
   }
 
 
   private void executeOption17() {
-    shopService.updateShop();
+    try {
+      shopService.updateShop();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", SHOP, ERROR_DURING_UPDATE, e.getMessage()));
+    }
   }
 
   private void executeOption16() {
-    customerService.updateCustomer();
+    try {
+      customerService.updateCustomer();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_UPDATE, e.getMessage()));
+    }
   }
 
   private void executeOption15() {
 
-    printMessage("\nInput customer's information you want to delete\n");
-
-    Customer customerToDelete = specifyCustomerDetailToDelete();
-
-    customerService.deleteCustomer(customerToDelete);
-
+    try {
+      printMessage("\nInput customer's information you want to delete\n");
+      Customer customerToDelete = specifyCustomerDetailToDelete();
+      customerService.deleteCustomer(customerToDelete);
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_DELETION, e.getMessage()));
+    }
   }
-
 
   private void executeOption14() {
-    new AdminMenu().showAdminMenu(login());
-  }
-
-  private void executeOption13() {
 
     customerOrderService
             .getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim()
             .forEach((customer, quantity) -> printMessage(String.format("Customer: %s Number of products: %d", customer, quantity)));
   }
 
-  private void executeOption12() {
+  private void executeOption13() {
 
     var customerName = getString("Input customer name");
     var customerSurname = getString("Input customer surname");
@@ -190,7 +219,7 @@ class Menu {
 
   }
 
-  private void executeOption11() {
+  private void executeOption12() {
 
     var tradeName = getString("Input trade name");
     var minAmountOfProducts = getInt("Input min number of products produced");
@@ -198,7 +227,7 @@ class Menu {
     printCollectionWithNumeration(stockService.getProducersWithTradeAndNumberOfProductsProducedGreaterThan(tradeName, minAmountOfProducts));
   }
 
-  private void executeOption10() {
+  private void executeOption11() {
 
     Set<EGuarantee> guaranteeSet = new HashSet<>();
     List<EGuarantee> values = new ArrayList<>(List.of(EGuarantee.values()));
@@ -222,7 +251,7 @@ class Menu {
   }
 
 
-  private void executeOption9() {
+  private void executeOption10() {
 
     LocalDate minLocalDate;
     LocalDate maxLocalDate;
@@ -236,7 +265,7 @@ class Menu {
     System.out.println(customerOrderService.getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(minLocalDate, maxLocalDate, minPriceAfterDiscount));
   }
 
-  private void executeOption8() {
+  private void executeOption9() {
 
     var countryName = getString("Input country name").toUpperCase();
     int minAge;
@@ -249,7 +278,7 @@ class Menu {
     printCollectionWithNumeration(customerOrderService.getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(countryName, minAge, maxAge));
   }
 
-  private void executeOption7() {
+  private void executeOption8() {
 
     customerOrderService.getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales().forEach(
             (category, innerMap) -> {
@@ -259,7 +288,7 @@ class Menu {
   }
 
 
-  private void executeOption6() {
+  private void executeOption7() {
 
     try {
 
@@ -275,7 +304,7 @@ class Menu {
     }
   }
 
-  private void executeOption5() {
+  private void executeOption6() {
 
     try {
 
@@ -290,7 +319,7 @@ class Menu {
 
   }
 
-  private void executeOption4() {
+  private void executeOption5() {
 
     try {
       var product = getProductIfValid(createProductFromUserInput());
@@ -303,7 +332,7 @@ class Menu {
     }
   }
 
-  private void executeOption3() {
+  private void executeOption4() {
 
     try {
 
@@ -318,7 +347,7 @@ class Menu {
   }
 
 
-  private void executeOption2() {
+  private void executeOption3() {
 
     try {
 
@@ -333,7 +362,7 @@ class Menu {
 
   }
 
-  private void executeOption1() {
+  private void executeOption2() {
 
     try {
 
@@ -345,6 +374,10 @@ class Menu {
       log.error(Arrays.toString(e.getStackTrace()));
       throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_INSERTION, e.getMessage()));
     }
+  }
+
+  private void executeOption1() {
+    new AdminMenu().showAdminMenu(login());
   }
 
 }

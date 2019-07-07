@@ -66,10 +66,6 @@ public class CustomerOrderService {
     addCustomerOrderToDb(setCustomerOrderComponentsFromDbIfTheyExist(customerOrder));
   }
 
-  public Map<Product, Integer> getNumberOfOrdersForSpecifiedProducts(List<Product> productList) {
-    return customerOrderRepository.findNumberOfProductsOrders(productList);
-  }
-
   public Map<CategoryDto, Map<ProductDto, Integer>> getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales() {
 
     return customerOrderRepository.findTheMostExpensiveOrderedProductInEachCategoryWithNumberOfPurchases()
