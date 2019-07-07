@@ -24,7 +24,11 @@ In addition to standard database operations, it is possible to calculate various
 * [hibernate](https://hibernate.org/) - the most popular JPA implementation
 * [mapstruct](http://mapstruct.org/) - a Java Bean Mapper - used for class conversion between persistence-backed entities and DTOs that go out to the client side.
 * [lombok](https://projectlombok.org/) - minimized boilerplate code
-
+* [gson](https://github.com/google/gson/blob/master/UserGuide.md) - 
+Java-based library to serialize Java objects to JSON and vice versa
+* [apache poi](https://poi.apache.org/) - provides pure Java libraries for reading and writing files in Microsoft Office formats like .xlsx
+* [javaMail API](https://mvnrepository.com/artifact/javax.mail/mail/1.4.7) - Java API used to send and receive email via SMTP
+***
 ### How to run it
 
 * configure your database connection (database url etc.) - change appropriate properties in **persistence.xml** file
