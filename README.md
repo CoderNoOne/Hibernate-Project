@@ -28,7 +28,7 @@ In addition to standard database operations, it is possible to calculate various
 Java-based library to serialize Java objects to JSON and vice versa
 * [apache poi](https://poi.apache.org/) - provides pure Java libraries for reading and writing files in Microsoft Office formats like .xlsx
 * [javaMail API](https://mvnrepository.com/artifact/javax.mail/mail/1.4.7) - Java API used to send and receive email via SMTP
-
+***
 ### How to run it
 
 * configure your database connection (database url etc.) - change appropriate properties in **persistence.xml** file
