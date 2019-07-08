@@ -164,4 +164,8 @@ public class StockService {
   public List<Stock> getAllStocks() {
     return stockRepository.findAll();
   }
+
+  public void deleteAllStocks() {
+    stockRepository.deleteAll();
+  }
 }

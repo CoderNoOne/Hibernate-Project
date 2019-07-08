@@ -161,4 +161,7 @@ public class CustomerOrderService {
                     Map.Entry::getValue));
   }
 
+  public void deleteAllCustomerOrders() {
+    customerOrderRepository.deleteAll();
+  }
 }

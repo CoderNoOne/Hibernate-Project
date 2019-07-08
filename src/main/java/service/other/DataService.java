@@ -1,11 +1,14 @@
 package service.other;
 
+import com.sun.xml.bind.v2.TODO;
 import converters.impl.*;
+import domain.Error;
 import exception.AppException;
 import lombok.extern.log4j.Log4j;
 import service.entity.*;
 import validator.impl.*;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static util.others.UserDataUtils.printCollectionWithNumeration;
@@ -20,11 +23,17 @@ public class DataService {
   private final ShopService shopService = new ShopService();
   private final ProducerService producerService = new ProducerService();
   private final ProductService productService = new ProductService();
+  private final StockService stockService = new StockService();
+  private final CustomerOrderService customerOrderService = new CustomerOrderService();
+  private final ErrorService errorService = new ErrorService();
 
   public void deleteAllContent() {
 
     try {
 
+      customerOrderService.deleteAllCustomerOrders();
+      stockService.deleteAllStocks();
+      // TODO: 2019-07-08  delete collection guarantee_components 
       productService.deleteAllProducts();
       producerService.deleteAllProducers();
       shopService.deleteAllShops();
@@ -42,13 +51,13 @@ public class DataService {
 
   public void init() {
 
-    initCountries("exampleCountries.json");
-    initCustomers("exampleCustomers.json");
-    initCategories("exampleCategories.json");
-    initTrades("exampleTrades.json");
-    initShops("exampleShops.json");
-    initProducers("exampleProducers.json");
-    initProducts("exampleProducts.json");
+    initCountries("./example_data/exampleCountries.json");
+    initCustomers("./example_data/exampleCustomers.json");
+    initCategories("./example_data/exampleCategories.json");
+    initTrades("./example_data/exampleTrades.json");
+    initShops("./example_data/exampleShops.json");
+    initProducers("./example_data/exampleProducers.json");
+    initProducts("./example_data/exampleProducts.json");
 
   }
 
@@ -70,7 +79,8 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("DATA SERVICE ERROR (CATEGORIES INITIALIZING): %s", e.getMessage()));
+      errorService.addErrorToDb(Error.builder()
+              .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
 
@@ -92,7 +102,8 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("DATA SERVICE ERROR (SHOPS INITIALIZING): %s", e.getMessage()));
+      errorService.addErrorToDb(Error.builder()
+              .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
 
@@ -115,7 +126,8 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("DATA SERVICE ERROR (COUNTRIES INITIALIZING): %s", e.getMessage()));
+      errorService.addErrorToDb(Error.builder()
+              .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
 
@@ -138,7 +150,8 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("DATA SERVICE ERROR (TRADES INITIALIZING): %s", e.getMessage()));
+      errorService.addErrorToDb(Error.builder()
+              .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
 
   }
@@ -162,7 +175,8 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("DATA SERVICE ERROR (PRODUCERS INITIALIZING): %s", e.getMessage()));
+      errorService.addErrorToDb(Error.builder()
+              .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
 
@@ -186,7 +200,8 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("DATA SERVICE ERROR (CUSTOMERS INITIALIZING): %s", e.getMessage()));
+      errorService.addErrorToDb(Error.builder()
+              .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
 
@@ -210,7 +225,8 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      throw new AppException(String.format("DATA SERVICE ERROR (PRODUCTS INITIALIZING): %s", e.getMessage()));
+      errorService.addErrorToDb(Error.builder()
+              .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
 }
