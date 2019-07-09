@@ -64,7 +64,7 @@ public class ProductService {
 
   public void addProductToDbFromUserInput(Product product) {
     if (!isProductUniqueByNameAndCategoryAndProducer(product.getName(), product.getCategory(), product.getProducer())) {
-      throw new AppException("Couldn't add new product to db - product's not unique by name and category and producer");
+      throw new AppException(String.format("Couldn't add new product to db - product: %s is not unique by name and category and producer", product));
     }
     addProductToDb(setProductComponentsFromDbIfTheyExist(product));
 
@@ -113,5 +113,9 @@ public class ProductService {
                     () -> {
                       throw new AppException("There is no product with that id: " + productId + " in DB");
                     });
+  }
+
+  public void deleteAllGuaranteeComponents() {
+    productRepository.deleteAllGuaranteeComponents();
   }
 }

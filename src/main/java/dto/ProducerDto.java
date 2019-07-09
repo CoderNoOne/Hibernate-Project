@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 public class ProducerDto {
 
+  private Long id;
   private String name;
   private CountryDto country;
   private TradeDto trade;

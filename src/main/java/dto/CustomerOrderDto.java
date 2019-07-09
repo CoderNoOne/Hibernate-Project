@@ -15,10 +15,11 @@ import java.time.LocalDate;
 @Builder
 public class CustomerOrderDto {
 
+  private Long id;
   private LocalDate date;
   private BigDecimal discount;
   private Integer quantity;
   private CustomerDto customer;
-  private ProductDto product;
   private PaymentDto payment;
+  private ProductDto product;
 }

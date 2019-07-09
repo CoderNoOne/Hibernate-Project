@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CustomerDto {
 
+  private Long id;
   private String name;
   private String surname;
   private Integer age;
-  private CountryDto country;
+  private CountryDto countryDto;
 
 }

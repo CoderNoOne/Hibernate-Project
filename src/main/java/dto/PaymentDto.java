@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PaymentDto {
 
+  private Long id;
   private Epayment epayment;
+
 }

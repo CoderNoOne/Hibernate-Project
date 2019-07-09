@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class TradeDto {
 
+  private Long id;
   private String name;
 }

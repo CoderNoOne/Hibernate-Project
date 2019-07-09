@@ -1,11 +1,10 @@
 package repository.impl;
 
 import domain.Category;
-import domain.CustomerOrder;
 import domain.Producer;
 import domain.Product;
-import domain.enums.EGuarantee;
 import exception.AppException;
+import lombok.extern.slf4j.Slf4j;
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.ProductRepository;
 
@@ -14,11 +13,38 @@ import javax.persistence.EntityTransaction;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@Slf4j
 public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long> implements ProductRepository {
 
 
+  @Override
+  public void deleteAllGuaranteeComponents() {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    try {
+      tx.begin();
+       entityManager
+              .createQuery("select e from " + entityType.getSimpleName() + " as e", entityType)
+              .getResultStream()
+              .forEach(product -> product.getGuaranteeComponents().clear());
+      tx.commit();
+    } catch (Exception e) {
+      if (tx != null) {
+        tx.rollback();
+      }
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException("delete all guaranteecomponents - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+  }
 
   @Override
   public List<Product> findProductsByNameAndCategory(String name, Category category) {
@@ -40,8 +66,6 @@ public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long>
 
       tx.commit();
     } catch (Exception e) {
-      System.out.println(e.getMessage());
-      System.out.println(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }
@@ -77,12 +101,10 @@ public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long>
 
       tx.commit();
     } catch (Exception e) {
-      System.out.println(e.getMessage());
-      System.out.println(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException("find product by name category and producer - exception");
+      throw new AppException("find products ordered by clients from country and with age witihn range - exception");
     } finally {
       if (entityManager != null) {
         entityManager.close();
@@ -115,8 +137,6 @@ public class ProductRepositoryImpl extends AbstractCrudRepository<Product, Long>
 
       tx.commit();
     } catch (Exception e) {
-      System.out.println(e.getMessage());
-      System.out.println(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }

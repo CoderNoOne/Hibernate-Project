@@ -1,6 +1,5 @@
 package service.other;
 
-import com.sun.xml.bind.v2.TODO;
 import converters.impl.*;
 import domain.Error;
 import exception.AppException;
@@ -33,7 +32,7 @@ public class DataService {
 
       customerOrderService.deleteAllCustomerOrders();
       stockService.deleteAllStocks();
-      // TODO: 2019-07-08  delete collection guarantee_components 
+      productService.deleteAllGuaranteeComponents();
       productService.deleteAllProducts();
       producerService.deleteAllProducers();
       shopService.deleteAllShops();

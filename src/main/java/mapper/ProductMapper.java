@@ -4,7 +4,6 @@ import domain.Product;
 import dto.ProductDto;
 import org.mapstruct.*;
 
-
 @Mapper
 public interface ProductMapper {
 
