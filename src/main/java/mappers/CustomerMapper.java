@@ -1,4 +1,4 @@
-package custom_mappers;
+package mappers;
 
 import domain.Country;
 import domain.Customer;

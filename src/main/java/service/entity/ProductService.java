@@ -1,13 +1,13 @@
 package service.entity;
 
+import mappers.CategoryMapper;
+import mappers.ProductMapper;
 import domain.Category;
 import domain.Producer;
 import domain.Product;
 import dto.CategoryDto;
 import dto.ProductDto;
 import exception.AppException;
-import mapper.CategoryMapper;
-import mapper.ProductMapper;
 import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.ProductRepository;
 import repository.impl.ProductRepositoryImpl;
@@ -17,11 +17,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static util.entity_utils.CustomerUtil.getCustomerIfValid;
+
 import static util.entity_utils.ProductUtil.getProductIfValid;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
-import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
 import static util.update.UpdateProductUtil.getUpdatedProduct;
 
 public class ProductService {
@@ -45,21 +44,23 @@ public class ProductService {
   }
 
 
-  public Product setProductComponentsFromDbIfTheyExist(Product product) {
+  public ProductDto setProductComponentsFromDbIfTheyExist(ProductDto productDto) {
 
-    return Product.builder()
-            .id(product.getId())
-            .name(product.getName())
-            .price(product.getPrice())
-            .category(categoryService.getCategoryFromDbIfExists(product.getCategory()))
-            .guaranteeComponents(product.getGuaranteeComponents())
-            .producer(producerService.getProducerFromDbIfExists(producerService.setProducerComponentsFromDbIfTheyExist(product.getProducer())))
+    return ProductDto.builder()
+            .id(productDto.getId())
+            .name(productDto.getName())
+            .price(productDto.getPrice())
+            .categoryDto(categoryService.getCategoryFromDbIfExists(productDto.getCategoryDto()))
+            .guaranteeComponents(productDto.getGuaranteeComponents())
+            .producer(producerService.getProducerFromDbIfExists(producerService.setProducerComponentsFromDbIfTheyExist(productDto.getProducer())))
             .build();
   }
 
-  public Product getProductFromDbIfExists(Product product) {
-    return getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
-            product.getProducer()).orElse(product);
+  public ProductDto getProductFromDbIfExists(Product product) {
+    ProductDto other = productMapper.mapProductToProductDto(product);
+
+    return productMapper.mapProductToProductDto(getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
+            product.getProducer()).orElse(product)));
   }
 
   public void addProductToDbFromUserInput(Product product) {
@@ -74,32 +75,43 @@ public class ProductService {
     return productRepository.findByNameAndCategoryAndProducer(name, category, producer).isEmpty();
   }
 
-  public Optional<Product> getProductByNameAndCategoryAndProducer(String name, Category category, Producer producer) {
-    return productRepository.findByNameAndCategoryAndProducer(name, category, producer);
+  public Optional<ProductDto> getProductByNameAndCategoryAndProducer(String name, Category category, Producer producer) {
+    return Optional.ofNullable(
+            productMapper.mapProductToProductDto(
+                    productRepository.findByNameAndCategoryAndProducer(name, category, producer)
+                            .orElseThrow(() -> new AppException("No product was found for name: " + name + " category " +
+                                    category + " and producer: " + producer))));
   }
 
-  public List<Product> getProductsByNameAndCategory(String name, Category category) {
-    return productRepository.findProductsByNameAndCategory(name, category);
+  public List<ProductDto> getProductsByNameAndCategory(String name, Category category) {
+    return productRepository.findProductsByNameAndCategory(name, category)
+            .stream()
+            .map(productMapper::mapProductToProductDto)
+            .collect(Collectors.toList());
   }
 
   public Map<CategoryDto, List<ProductDto>> getTheMostExpensiveProductInEachCategory() {
 
     return productRepository.findTheMostExpensiveProductInEveryCategory().entrySet().stream()
             .collect(Collectors.toMap(
-                    e -> categoryMapper.categoryToCategoryDTO(e.getKey()),
-                    e -> e.getValue().stream().map(productMapper::productToProductDTO).collect(Collectors.toList())));
+                    e -> categoryMapper.mapCategoryToCategoryDto(e.getKey()),
+                    e -> e.getValue().stream().map(productMapper::mapProductToProductDto).collect(Collectors.toList())));
   }
 
   public void deleteAllProducts() {
     productRepository.deleteAll();
   }
 
-  public List<Product> getAllProducts() {
-    return productRepository.findAll();
+  public List<ProductDto> getAllProducts() {
+    return productRepository.findAll()
+            .stream()
+            .map(productMapper::mapProductToProductDto)
+            .collect(Collectors.toList());
   }
 
-  public Optional<Product> getProductById(Long id) {
-    return productRepository.findById(id);
+  public Optional<ProductDto> getProductDtoById(Long id) {
+    return Optional.ofNullable(productMapper.mapProductToProductDto(
+            productRepository.findById(id).orElseThrow(() -> new AppException("There's not a product with id: " + id))));
   }
 
   public void updateProduct() {
@@ -107,9 +119,9 @@ public class ProductService {
     printCollectionWithNumeration(getAllProducts());
     long productId = getInt("Choose product id you want to update");
 
-    getProductById(productId)
-            .ifPresentOrElse(product ->
-                            productRepository.addOrUpdate(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(product)))),
+    getProductDtoById(productId)
+            .ifPresentOrElse(productDto ->
+                            productRepository.addOrUpdate(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(productDto)))),
                     () -> {
                       throw new AppException("There is no product with that id: " + productId + " in DB");
                     });

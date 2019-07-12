@@ -1,6 +1,8 @@
 package service.entity;
 
+import mappers.CategoryMapper;
 import domain.Category;
+import dto.CategoryDto;
 import exception.AppException;
 import repository.abstract_repository.entity.CategoryRepository;
 import repository.impl.CategoryRepositoryImpl;
@@ -10,9 +12,11 @@ import java.util.Optional;
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
+  private final CategoryMapper categoryMapper;
 
   public CategoryService() {
     this.categoryRepository = new CategoryRepositoryImpl();
+    this.categoryMapper = new CategoryMapper();
   }
 
   public Optional<Category> addCategoryToDb(Category category) {
@@ -27,8 +31,10 @@ public class CategoryService {
     return categoryRepository.addOrUpdate(category);
   }
 
-  public Optional<Category> getCategoryByName(String name) {
-    return categoryRepository.findCategoryByName(name);
+  public Optional<CategoryDto> getCategoryByName(String name) {
+    return categoryRepository.findCategoryByName(name).isPresent() ?
+            Optional.of(categoryMapper.mapCategoryToCategoryDto(categoryRepository.findCategoryByName(name).get()))
+            : Optional.empty();
   }
 
 
@@ -44,8 +50,8 @@ public class CategoryService {
     categoryRepository.deleteAll();
   }
 
-  public Category getCategoryFromDbIfExists(Category category) {
-    return getCategoryByName(category.getName()).orElse(category);
+  public CategoryDto getCategoryFromDbIfExists(CategoryDto categoryDto) {
+    return getCategoryByName(categoryDto.getName()).orElse(categoryDto);
   }
 
 }

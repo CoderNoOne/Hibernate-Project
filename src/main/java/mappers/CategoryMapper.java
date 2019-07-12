@@ -1,4 +1,4 @@
-package custom_mappers;
+package mappers;
 
 import domain.Category;
 import dto.CategoryDto;

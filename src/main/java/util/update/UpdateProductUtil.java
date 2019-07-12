@@ -1,9 +1,7 @@
 package util.update;
 
-import domain.Country;
-import domain.Customer;
 import domain.Product;
-import util.update.enums.CustomerField;
+import dto.ProductDto;
 import util.update.enums.ProductField;
 
 import java.math.BigDecimal;
@@ -16,7 +14,7 @@ import static util.others.UserDataUtils.getString;
 
 public interface UpdateProductUtil {
 
-  static Product getUpdatedProduct(Product product) {
+  static ProductDto getUpdatedProduct(ProductDto productDto) {
 
     List<ProductField> productFields = Arrays.stream(ProductField.values()).collect(Collectors.toList());
 
@@ -29,20 +27,20 @@ public interface UpdateProductUtil {
         case NAME -> {
           String updatedName = getString("Type product new name");
           productFields.remove(ProductField.NAME);
-          product.setName(updatedName);
+          productDto.setName(updatedName);
         }
 
         case PRICE -> {
           BigDecimal updatedProductPrice = getBigDecimal("Type product new price");
           productFields.remove(ProductField.PRICE);
-          product.setPrice(updatedProductPrice);
+          productDto.setPrice(updatedProductPrice);
         }
         default -> System.out.println("Not valid product property");
       }
       hasNext = getString("Do you want to update other customer property? (Y/N)").equalsIgnoreCase("Y");
     } while (hasNext && !productFields.isEmpty());
 
-    return product;
+    return productDto;
   }
 
 }

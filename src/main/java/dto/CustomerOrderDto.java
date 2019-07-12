@@ -22,4 +22,5 @@ public class CustomerOrderDto {
   private CustomerDto customer;
   private PaymentDto payment;
   private ProductDto product;
+
 }

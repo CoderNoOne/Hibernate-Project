@@ -2,6 +2,7 @@ package util.entity_utils;
 
 import domain.*;
 import domain.enums.EGuarantee;
+import dto.ProductDto;
 import exception.AppException;
 import util.others.UserDataUtils;
 import validator.impl.ProductValidator;
@@ -35,7 +36,7 @@ public final class ProductUtil {
             .build();
   }
 
-  public static Product getProductIfValid(Product product) {
+  public static ProductDto getProductIfValid(ProductDto product) {
 
     var productValidator = new ProductValidator();
     var errorsMap = productValidator.validate(product);

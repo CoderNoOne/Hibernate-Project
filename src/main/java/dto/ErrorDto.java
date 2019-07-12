@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopDto {
+public class ErrorDto {
 
   private Long id;
-  private String name;
-  private CountryDto countryDto;
+  private LocalDateTime date;
+  private String message;
 }
