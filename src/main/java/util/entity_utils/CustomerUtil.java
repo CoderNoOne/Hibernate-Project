@@ -1,7 +1,8 @@
 package util.entity_utils;
 
-import domain.Country;
 import domain.Customer;
+import dto.CountryDto;
+import dto.CustomerDto;
 import exception.AppException;
 import validator.impl.CustomerDtoValidator;
 
@@ -15,43 +16,43 @@ public final class CustomerUtil {
   private CustomerUtil() {
   }
 
-  public static Customer specifyCustomerDetailToUpdate(){
-    return createCustomerFromUserInput();
+  public static CustomerDto specifyCustomerDetailToUpdate(){
+    return createCustomerDtoFromUserInput();
   }
 
-  public static Customer specifyCustomerDetailToDelete(){
+  public static CustomerDto specifyCustomerDtoDetailToDelete(){
 
-    return Customer.builder()
+    return CustomerDto.builder()
             .name(getString("Input customer name"))
             .surname(getString("Input customer surname"))
-            .country(Country.builder()
+            .countryDto(CountryDto.builder()
                     .name(getString("Input country name"))
                     .build())
             .build();
   }
 
-  public static Customer createCustomerFromUserInput() {
+  public static CustomerDto createCustomerDtoFromUserInput() {
 
-    return Customer.builder()
+    return CustomerDto.builder()
             .name(getString("Input customer name"))
             .surname(getString("Input customer surname"))
             .age(getInt("Input customer age"))
-            .country(Country.builder()
+            .countryDto(CountryDto.builder()
                     .name(getString("Input country name"))
                     .build())
             .build();
   }
 
-  public static Customer getCustomerIfValid(Customer customer){
+  public static CustomerDto getCustomerDtoIfValid(CustomerDto customerDto){
 
-    var customerValidator = new CustomerDtoValidator();
-    var errorsMap = customerValidator.validate(customer);
+    var customerDtoValidator = new CustomerDtoValidator();
+    var errorsMap = customerDtoValidator.validate(customerDto);
 
-    if (customerValidator.hasErrors()) {
+    if (customerDtoValidator.hasErrors()) {
       printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
-      throw new AppException("Customer is not valid: " + customerValidator.getErrors());
+      throw new AppException("Customer is not valid: " + customerDtoValidator.getErrors());
     }
 
-    return customer;
+    return customerDto;
   }
 }

@@ -1,9 +1,9 @@
 package main;
 
 import configuration.DbConnection;
-import domain.*;
-import domain.Error;
 import domain.enums.EGuarantee;
+import dto.CustomerDto;
+import dto.ErrorDto;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.entity.*;
@@ -18,14 +18,14 @@ import static helper.enums.ErrorMessage.*;
 import static helper.enums.TableNames.*;
 import static repository.impl.CustomerOrderRepositoryImpl.GUARANTEE_PERIOD_IN_YEARS;
 import static util.entity_utils.CustomerUtil.*;
-import static util.entity_utils.ProducerUtil.createProducerFromUserInput;
-import static util.entity_utils.ProducerUtil.getProducerIfValid;
+import static util.entity_utils.ProducerUtil.createProducerDtoFromUserInput;
+import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
 import static util.entity_utils.CustomerOrderUtil.*;
 import static util.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
 import static util.entity_utils.ProductUtil.*;
 import static util.entity_utils.ShopUtil.*;
-import static util.entity_utils.StockUtil.createStockDetailFromUserInput;
-import static util.entity_utils.StockUtil.getStockIfValid;
+import static util.entity_utils.StockUtil.createStockDtoDetailFromUserInput;
+import static util.entity_utils.StockUtil.getStockDtoIfValid;
 import static util.others.UserDataUtils.*;
 
 @Slf4j
@@ -74,7 +74,7 @@ class Menu {
       } catch (AppException e) {
         log.info(e.getMessage());
         log.error(Arrays.toString(e.getStackTrace()));
-        errorService.addErrorToDb(Error.builder()
+        errorService.addErrorToDb(ErrorDto.builder()
                 .date(LocalDateTime.now()).message(e.getMessage()).build());
       }
     }
@@ -188,8 +188,8 @@ class Menu {
 
     try {
       printMessage("\nInput customer's information you want to delete\n");
-      Customer customerToDelete = specifyCustomerDetailToDelete();
-      customerService.deleteCustomer(customerToDelete);
+      CustomerDto customerDto = specifyCustomerDtoDetailToDelete();
+      customerService.deleteCustomer(customerDto);
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -292,7 +292,7 @@ class Menu {
 
     try {
 
-      var customerOrder = getCustomerOrderIfValid(customerOrderService.specifyCustomerDetail(customerOrderService.specifyOrderedProductDetail(createCustomerOrderFromUserInput())));
+      var customerOrder = getCustomerOrderIfValid(customerOrderService.specifyCustomerDetail(customerOrderService.specifyOrderedProductDetail(createCustomerOrderDtoFromUserInput())));
 
       stockService.decreaseStockQuantityIfValid(customerOrderService.specifyShopDetailForCustomerOrder(customerOrder), customerOrder);
 
@@ -309,7 +309,7 @@ class Menu {
     try {
 
       stockService
-              .addStockToDbFromUserInput(getStockIfValid(stockService.specifyShop(stockService.specifyProduct(createStockDetailFromUserInput()))));
+              .addStockToDbFromUserInput(getStockDtoIfValid(stockService.specifyShop(stockService.specifyProduct(createStockDtoDetailFromUserInput()))));
 
     } catch (Exception e) {
       log.info(e.getMessage());
@@ -322,7 +322,7 @@ class Menu {
   private void executeOption5() {
 
     try {
-      var product = getProductIfValid(createProductFromUserInput());
+      var product = getProductIfValid(createProductDtoFromUserInput());
       productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
@@ -336,7 +336,7 @@ class Menu {
 
     try {
 
-      var producer = getProducerIfValid(createProducerFromUserInput());
+      var producer = getProducerDtoIfValid(createProducerDtoFromUserInput());
       producerService.addProducerToDbFromUserInput(producer);
 
     } catch (Exception e) {
@@ -351,7 +351,7 @@ class Menu {
 
     try {
 
-      var shop = getShopIfValid(createShopFromUserInput());
+      var shop = getShopDtoIfValid(createShopDtoFromUserInput());
       shopService.addShopToDbFromUserInput(shop);
 
     } catch (Exception e) {
@@ -366,7 +366,7 @@ class Menu {
 
     try {
 
-      var customer = getCustomerIfValid(createCustomerFromUserInput());
+      var customer = getCustomerDtoIfValid(createCustomerDtoFromUserInput());
       customerService.addCustomerToDbFromUserInput(customer);
 
     } catch (Exception e) {

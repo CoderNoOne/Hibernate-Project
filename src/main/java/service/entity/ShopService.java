@@ -1,18 +1,18 @@
 package service.entity;
 
-import domain.Country;
-import domain.Product;
-import domain.Shop;
+import dto.CountryDto;
+import dto.ShopDto;
 import exception.AppException;
+import mappers.ShopMapper;
 import repository.abstract_repository.entity.ShopRepository;
 import repository.impl.ShopRepositoryImpl;
-import util.others.UserDataUtils;
 
-import java.util.Collection;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static util.entity_utils.ShopUtil.getShopIfValid;
+import static util.entity_utils.ShopUtil.getShopDtoIfValid;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
 import static util.update.UpdateShopUtil.getUpdatedShop;
@@ -22,70 +22,78 @@ public class ShopService {
 
   private final ShopRepository shopRepository;
   private final CountryService countryService;
+  private final ShopMapper shopMapper;
 
   public ShopService() {
     shopRepository = new ShopRepositoryImpl();
     countryService = new CountryService();
+    shopMapper = new ShopMapper();
+
   }
 
-//  private Country getCountryFromDbIfExists(Country country) {
-//    return countryService.getCountryByName(country.getName()).orElse(country);
-//  }
+  private ShopDto setShopComponentsFromDbIfTheyExist(ShopDto shopDto) {
 
-  private Shop setShopComponentsFromDbIfTheyExist(Shop shop) {
-
-    return Shop.builder()
-            .id(shop.getId())
-            .name(shop.getName())
-            .country(countryService.getCountryFromDbIfExists(shop.getCountry()))
+    return ShopDto.builder()
+            .id(shopDto.getId())
+            .name(shopDto.getName())
+            .countryDto(countryService.getCountryFromDbIfExists(shopDto.getCountryDto()))
             .build();
   }
 
-  public Optional<Shop> addShopToDb(Shop shop) {
+  private Optional<ShopDto> addShopToDb(ShopDto shopDto) {
 
-    return shopRepository.addOrUpdate(shop);
+    return shopRepository
+            .addOrUpdate(shopMapper.mapShopDtoToShop(shopDto))
+            .map(shopMapper::mapShopToShopDto);
   }
 
-  public void addShopToDbFromUserInput(Shop shop) {
-    if (isShopUniqueByNameAndCountry(shop.getName(), shop.getCountry())) {
-      addShopToDb(setShopComponentsFromDbIfTheyExist(shop));
+  public void addShopToDbFromUserInput(ShopDto shopDto) {
+    if (isShopUniqueByNameAndCountry(shopDto.getName(), shopDto.getCountryDto())) {
+      addShopToDb(setShopComponentsFromDbIfTheyExist(shopDto));
     } else {
       throw new AppException("You couldn't add shop to db. Shop is not unique by name and country");
     }
   }
 
-  private boolean isShopUniqueByNameAndCountry(String name, Country country) {
+  private boolean isShopUniqueByNameAndCountry(String name, CountryDto countryDto) {
     if (name == null) {
       throw new AppException("Shop name is null");
     }
 
     return shopRepository
-            .findShopByNameAndCountry(name, country.getName()).isEmpty();
+            .findShopByNameAndCountry(name, countryDto.getName()).isEmpty();
   }
 
-  public Optional<Shop> getShopByNameAndCountry(String name, String countryName) {
-    return shopRepository.findShopByNameAndCountry(name, countryName);
-
+  private Optional<ShopDto> getShopDtoByNameAndCountry(String name, String countryName) {
+    return shopRepository.findShopByNameAndCountry(name, countryName)
+            .map(shopMapper::mapShopToShopDto);
   }
 
-  public List<Shop> getShopsByName(String name) {
-    return shopRepository.findShopListByName(name);
+  List<ShopDto> getShopsByName(String name) {
+    return shopRepository.findShopListByName(name)
+            .stream()
+            .map(shopMapper::mapShopToShopDto)
+            .collect(Collectors.toList());
   }
 
-  public Shop getShopFromDbIfExists(Shop shop) {
-    return getShopByNameAndCountry(shop.getName(), shop.getCountry().getName()).orElse(shop);
+  ShopDto getShopFromDbIfExists(ShopDto shopDto) {
+    return getShopDtoByNameAndCountry(shopDto.getName(), shopDto.getCountryDto().getName()).orElse(shopDto);
   }
 
   public void deleteAllShops() {
     shopRepository.deleteAll();
   }
 
-  public List<Shop> getAllShops() {
-    return shopRepository.findAll();
+  private List<ShopDto> getAllShops() {
+    return shopRepository.findAll()
+            .stream()
+            .map(shopMapper::mapShopToShopDto)
+            .collect(Collectors.toList());
   }
 
-  public Optional<Shop> getShopById(Long shopId) {
-    return shopRepository.findById(shopId);
+  private Optional<ShopDto> getShopById(Long shopId) {
+    return shopRepository.findById(shopId)
+            .map(shopMapper::mapShopToShopDto);
   }
 
   public void updateShop() {
@@ -94,8 +102,10 @@ public class ShopService {
     long shopId = getInt("Choose shop id you want to update");
 
     getShopById(shopId)
-            .ifPresentOrElse(shop ->
-                            shopRepository.addOrUpdate(setShopComponentsFromDbIfTheyExist(getShopIfValid(getUpdatedShop(shop)))),
+            .ifPresentOrElse(shopDto ->
+                            shopRepository
+                                    .addOrUpdate(shopMapper
+                                            .mapShopDtoToShop(setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(getUpdatedShop(shopDto))))),
                     () -> {
                       throw new AppException("There is no shop with that id: " + shopId + " in DB");
                     });

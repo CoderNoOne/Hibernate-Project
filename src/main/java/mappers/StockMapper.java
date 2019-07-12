@@ -74,7 +74,5 @@ public class StockMapper {
                             .build())
                     .build())
             .build();
-
-
   }
 }

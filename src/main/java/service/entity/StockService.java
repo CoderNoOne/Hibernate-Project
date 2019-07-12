@@ -1,14 +1,13 @@
 package service.entity;
 
-import domain.CustomerOrderDto;
 import domain.Product;
 import domain.Shop;
-import domain.Stock;
-import dto.ProducerDto;
+import dto.*;
 import exception.AppException;
-import mapper.ProducerMapper;
-import mapper.ProductMapper;
-import org.mapstruct.factory.Mappers;
+import mappers.ProducerMapper;
+import mappers.ProductMapper;
+import mappers.ShopMapper;
+import mappers.StockMapper;
 import repository.abstract_repository.entity.StockRepository;
 import repository.impl.StockRepositoryImpl;
 
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 
 import static util.entity_utils.ProductUtil.*;
 import static util.entity_utils.ShopUtil.*;
-import static util.entity_utils.StockUtil.getStockIfValid;
+import static util.entity_utils.StockUtil.getStockDtoIfValid;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
 import static util.update.UpdateStockUtil.getUpdatedStock;
@@ -31,71 +30,78 @@ public class StockService {
   private final ProductService productService;
   private final CountryService countryService;
   private final ProducerMapper producerMapper;
+  private final StockMapper stockMapper;
+  private final ShopMapper shopMapper;
+  private final ProductMapper productMapper;
 
   public StockService() {
     this.stockRepository = new StockRepositoryImpl();
-    this.producerMapper = Mappers.getMapper(ProducerMapper.class);
+    this.producerMapper = new ProducerMapper();
     this.shopService = new ShopService();
     this.productService = new ProductService();
     this.countryService = new CountryService();
+    this.stockMapper = new StockMapper();
+    this.shopMapper = new ShopMapper();
+    this.productMapper = new ProductMapper();
   }
 
-  public Optional<Stock> addStockToDb(Stock stock) {
-    return stockRepository.addOrUpdate(stock);
+  private Optional<StockDto> addStockToDb(StockDto stockDto) {
+    return stockRepository.addOrUpdate(stockMapper.mapStockDtoToStock(stockDto))
+            .map(stockMapper::mapStockToStockDto);
   }
 
-  public void addStockToDbFromUserInput(Stock stock) {
-    if (!isStockUniqueByShopAndProduct(stock.getShop(), stock.getProduct())) {
-      var stockFromDb = getStockByShopAndProduct(stock.getShop(), stock.getProduct()).orElseThrow(() -> new AppException("Stock doesn't exist in db"));
-      stockFromDb.setQuantity(getStockQuantity(stockFromDb) + stock.getQuantity());
-      stock = stockFromDb;
+  public void addStockToDbFromUserInput(StockDto stockDto) {
+    if (!isStockUniqueByShopAndProduct(stockDto.getShopDto(), stockDto.getProductDto())) {
+      var stockFromDb = getStockByShopAndProduct(stockDto.getShopDto(), stockDto.getProductDto()).orElseThrow(() -> new AppException("Stock doesn't exist in db"));
+      stockFromDb.setQuantity(getStockQuantity(stockFromDb) + stockDto.getQuantity());
+      stockDto = stockFromDb;
     }
-    addStockToDb(stock);
+    addStockToDb(stockDto);
   }
 
-  private Stock setStockComponentsFromDbIfTheyExist(Stock stock) {
-    return Stock.builder()
-            .id(stock.getId())
-            .quantity(stock.getQuantity())
-            .shop(shopService.getShopFromDbIfExists(stock.getShop()))
-            .product(productService.getProductFromDbIfExists(stock.getProduct()))
+  private StockDto setStockDtoComponentsFromDbIfTheyExist(StockDto stockDto) {
+    return StockDto.builder()
+            .id(stockDto.getId())
+            .quantity(stockDto.getQuantity())
+            .shopDto(shopService.getShopFromDbIfExists(stockDto.getShopDto()))
+            .productDto(productService.getProductFromDbIfExists(stockDto.getProductDto()))
             .build();
   }
 
 
-  public Stock specifyShop(Stock stock) {
+  public StockDto specifyShop(StockDto stockDto) {
 
-    var shopsByName = shopService.getShopsByName(stock.getShop().getName());
+    var shopsByName = shopService.getShopsByName(stockDto.getShopDto().getName());
 
-    var shop = !shopsByName.isEmpty() ?
-            chooseAvailableShop(shopsByName) : setShopComponentsFromDbIfTheyExist(getShopIfValid(preciseShopDetails(stock)));
+    var shopDto = !shopsByName.isEmpty() ?
+            chooseAvailableShop(shopsByName) : setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(preciseShopDtoDetails(stockDto)));
 
-    stock.setShop(shop);
-    return stock;
+    stockDto.setShopDto(shopDto);
+    return stockDto;
 
   }
 
-  private Shop setShopComponentsFromDbIfTheyExist(Shop shop) {
+  private ShopDto setShopComponentsFromDbIfTheyExist(ShopDto shopDto) {
 
-    return Shop.builder()
-            .name(shop.getName())
-            .country(countryService.getCountryFromDbIfExists(shop.getCountry()))
+    return ShopDto.builder()
+            .name(shopDto.getName())
+            .countryDto(countryService.getCountryFromDbIfExists(shopDto.getCountryDto()))
             .build();
   }
 
-  private boolean isStockUniqueByShopAndProduct(Shop shop, Product product) {
-    return stockRepository.findStockByShopAndProduct(shop, product).isEmpty();
+  private boolean isStockUniqueByShopAndProduct(ShopDto shopDto, ProductDto productDto) {
+    return stockRepository.findStockByShopAndProduct(shopMapper.mapShopDtoToShop(shopDto), productMapper.mapProductDtoToProduct(productDto)).isEmpty();
   }
 
-  public void decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrderDto customerOrder) {
+  public void decreaseStockQuantityIfValid(Map<ShopDto, Integer> map, CustomerOrderDto customerOrder) {
 
     getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct())
-            .ifPresentOrElse(stock -> {
-              if (stock.getQuantity() >= customerOrder.getQuantity()) {
-                decreaseStockQuantityBySpecifiedAmount(stock, customerOrder.getQuantity());
+            .ifPresentOrElse(stockDto -> {
+              if (stockDto.getQuantity() >= customerOrder.getQuantity()) {
+                decreaseStockQuantityBySpecifiedAmount(stockDto, customerOrder.getQuantity());
               } else {
                 throw new AppException(String.format("Not enough products in stock. Customer wants %d but there are only %d products in the stock",
-                        customerOrder.getQuantity(), stock.getQuantity()));
+                        customerOrder.getQuantity(), stockDto.getQuantity()));
               }
             }, () -> {
               throw new AppException(String.format("No stock was found for product: %s and for shop: %s",
@@ -103,28 +109,36 @@ public class StockService {
             });
   }
 
-  private Integer getStockQuantity(Stock stock) {
-    return stockRepository.findStockByShopAndProduct(stock.getShop(), stock.getProduct())
+  private Integer getStockQuantity(StockDto stockDto) {
+    return stockRepository.findStockByShopAndProduct(shopMapper.mapShopDtoToShop(stockDto.getShopDto()), productMapper.mapProductDtoToProduct(stockDto.getProductDto()))
             .orElseThrow(() -> new AppException("No such stock exists")).getQuantity();
   }
 
-  public Optional<Stock> getStockByShopAndProduct(Shop shop, Product product) {
-    return stockRepository.findStockByShopAndProduct(shop, product);
+  private Optional<StockDto> getStockByShopAndProduct(ShopDto shopDto, ProductDto productDto) {
+    return stockRepository
+            .findStockByShopAndProduct(shopMapper.mapShopDtoToShop(shopDto), productMapper.mapProductDtoToProduct(productDto))
+            .map(stockMapper::mapStockToStockDto);
   }
 
-  public Map<Shop, Integer> getShopListWithProductInStock(Product product) {
-    return stockRepository.findShopsWithProductInStock(product);
+  Map<ShopDto, Integer> getShopListWithProductInStock(ProductDto productDto) {
+    return stockRepository.findShopsWithProductInStock(productMapper.mapProductDtoToProduct(productDto))
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                    e -> shopMapper.mapShopToShopDto(e.getKey()),
+                    Map.Entry::getValue
+            ));
   }
 
-  public void decreaseStockQuantityBySpecifiedAmount(Stock stock, Integer quantity) {
-    stock.setQuantity(getStockQuantity(stock) - quantity);
-    addStockToDb(stock);
+  private void decreaseStockQuantityBySpecifiedAmount(StockDto stockDto, Integer quantity) {
+    stockDto.setQuantity(getStockQuantity(stockDto) - quantity);
+    addStockToDb(stockDto);
   }
 
   public List<ProducerDto> getProducersWithTradeAndNumberOfProductsProducedGreaterThan(String tradeName, Integer minAmountOfProducts) {
     return stockRepository
             .findProducersWithTradeAndNumberOfProducedProductsGreaterThan(tradeName, minAmountOfProducts).stream()
-            .map(producerMapper::producerToProducerDto).collect(Collectors.toList());
+            .map(producerMapper::mapProducerToProducerDto).collect(Collectors.toList());
   }
 
   public void updateStock() {
@@ -133,34 +147,41 @@ public class StockService {
     long stockId = getInt("Choose stock id you want to update");
 
     getStockById(stockId)
-            .ifPresentOrElse(stock ->
-                            stockRepository.addOrUpdate(setStockComponentsFromDbIfTheyExist(getStockIfValid(getUpdatedStock(stock)))),
+            .ifPresentOrElse(stockDto ->
+                            stockRepository
+                                    .addOrUpdate(stockMapper
+                                            .mapStockDtoToStock(setStockDtoComponentsFromDbIfTheyExist(getStockDtoIfValid(getUpdatedStock(stockDto))))),
                     () -> {
                       throw new AppException("There is no stock with that id: " + stockId + " in DB");
                     });
 
   }
 
-  public Stock specifyProduct(Stock stock) {
+  public StockDto specifyProduct(StockDto stockDto) {
 
-    var productList = productService.getProductsByNameAndCategory(stock.getProduct().getName(),
-            stock.getProduct().getCategory());
+    var productList = productService.getProductsByNameAndCategory(stockDto.getProductDto().getName(),
+            stockDto.getProductDto().getCategoryDto());
 
-    var product = !productList.isEmpty() ? chooseAvailableProduct(productList) : productService.setProductComponentsFromDbIfTheyExist(
-            getProductIfValid(preciseProductDetails(stock)));
+    var productDto = !productList.isEmpty() ? chooseAvailableProduct(productList) : productService.setProductComponentsFromDbIfTheyExist(
+            getProductIfValid(preciseProductDtoDetails(stockDto)));
 
-    stock.setProduct(product);
+    stockDto.setProductDto(productDto);
 
-    return stock;
+    return stockDto;
   }
 
 
-  private Optional<Stock> getStockById(long stockId) {
-    return stockRepository.findById(stockId);
+  private Optional<StockDto> getStockById(long stockId) {
+    return stockRepository.findById(stockId)
+            .map(stockMapper::mapStockToStockDto);
   }
 
-  public List<Stock> getAllStocks() {
-    return stockRepository.findAll();
+  private List<StockDto> getAllStocks() {
+
+    return stockRepository.findAll()
+            .stream()
+            .map(stockMapper::mapStockToStockDto)
+            .collect(Collectors.toList());
   }
 
   public void deleteAllStocks() {

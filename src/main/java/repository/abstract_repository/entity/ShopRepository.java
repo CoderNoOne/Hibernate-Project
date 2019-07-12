@@ -1,6 +1,5 @@
 package repository.abstract_repository.entity;
 
-import domain.Country;
 import domain.Shop;
 import repository.abstract_repository.base.CrudRepository;
 

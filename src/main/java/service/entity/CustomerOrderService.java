@@ -1,11 +1,10 @@
 package service.entity;
 
-import domain.CustomerOrderDto;
 import domain.Shop;
 import domain.enums.EGuarantee;
 import dto.*;
 import exception.AppException;
-import org.mapstruct.factory.Mappers;
+import mappers.*;
 import repository.abstract_repository.entity.CustomerOrderRepository;
 import repository.impl.CustomerOrderRepositoryImpl;
 
@@ -32,19 +31,23 @@ public class CustomerOrderService {
 
   public CustomerOrderService() {
     this.customerOrderRepository = new CustomerOrderRepositoryImpl();
-    this.categoryMapper = Mappers.getMapper(CategoryMapper.class);
-    this.productMapper = Mappers.getMapper(ProductMapper.class);
-    this.customerOrderMapper = Mappers.getMapper(CustomerOrderMapper.class);
-    this.producerMapper = Mappers.getMapper(ProducerMapper.class);
-    this.customerMapper = Mappers.getMapper(CustomerMapper.class);
+    this.categoryMapper = new CategoryMapper();
+    this.productMapper = new ProductMapper();
+    this.customerOrderMapper = new CustomerOrderMapper();
+    this.producerMapper = new ProducerMapper();
+    this.customerMapper = new CustomerMapper();
     this.stockService = new StockService();
     this.customerService = new CustomerService();
     this.productService = new ProductService();
     this.paymentService = new PaymentService();
   }
 
-  private Optional<CustomerOrderDto> addCustomerOrderToDb(CustomerOrderDto customerOrder) {
-    return customerOrderRepository.addOrUpdate(customerOrder);
+  private Optional<CustomerOrderDto> addCustomerOrderToDb(CustomerOrderDto customerOrderDto) {
+    return customerOrderRepository
+            .addOrUpdate(customerOrderMapper.mapCustomerOrderDtoToCustomerOrder(customerOrderDto))
+            .map(customerOrderMapper::mapCustomerOrderToCustomerOrderDto);
+
+
   }
 
   private CustomerOrderDto setCustomerOrderComponentsFromDbIfTheyExist(CustomerOrderDto customerOrder) {
@@ -56,7 +59,7 @@ public class CustomerOrderService {
             .date(customerOrder.getDate())
             .quantity(customerOrder.getQuantity())
             .product(productService.getProductFromDbIfExists(customerOrder.getProduct()))
-            .customer(customerService.getCustomerFromDbIfExists(customerOrder.getCustomer()))
+            .customer(customerService.getCustomerDtoFromDbIfExists(customerOrder.getCustomer()))
             .build();
   }
 
@@ -68,9 +71,9 @@ public class CustomerOrderService {
 
     return customerOrderRepository.findTheMostExpensiveOrderedProductInEachCategoryWithNumberOfPurchases()
             .entrySet().stream().collect(Collectors.toMap(
-                    e -> categoryMapper.categoryToCategoryDTO(e.getKey()),
+                    e -> categoryMapper.mapCategoryToCategoryDto(e.getKey()),
                     e -> e.getValue().entrySet().stream().collect(Collectors.toMap(
-                            ee -> productMapper.productToProductDTO(ee.getKey()),
+                            ee -> productMapper.mapProductToProductDto(ee.getKey()),
                             Map.Entry::getValue
                     ))));
   }
@@ -79,7 +82,7 @@ public class CustomerOrderService {
   public CustomerOrderDto specifyOrderedProductDetail(CustomerOrderDto customerOrderFromUserInput) {
 
     var productsByNameAndCategory = productService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
-            customerOrderFromUserInput.getProduct().getCategory());
+            customerOrderFromUserInput.getProduct().getCategoryDto());
 
     if (!productsByNameAndCategory.isEmpty()) {
       customerOrderFromUserInput.setProduct(chooseAvailableProduct(productsByNameAndCategory));
@@ -87,14 +90,14 @@ public class CustomerOrderService {
     }
 
     throw new AppException(String.format("There wasn't any product in a DB for product name: %s and product category: %s",
-            customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory().getName()));
+            customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategoryDto().getName()));
   }
 
-  public CustomerOrderDto specifyCustomerDetail(domain.CustomerOrderDto customerOrder) {
+  public CustomerOrderDto specifyCustomerDetail(CustomerOrderDto customerOrder) {
 
     var customerName = customerOrder.getCustomer().getName();
     var customerSurname = customerOrder.getCustomer().getSurname();
-    var customerCountry = customerOrder.getCustomer().getCountry();
+    var customerCountry = customerOrder.getCustomer().getCountryDto();
 
     customerService.getCustomerByNameAndSurnameAndCountry(customerName,
             customerSurname, customerCountry)
@@ -108,9 +111,9 @@ public class CustomerOrderService {
     return customerOrder;
   }
 
-  public Map<Shop, Integer> specifyShopDetailForCustomerOrder(CustomerOrderDto customerOrder) {
+  public Map<ShopDto, Integer> specifyShopDetailForCustomerOrder(CustomerOrderDto customerOrderDto) {
 
-    Map<Shop, Integer> shopMap = stockService.getShopListWithProductInStock(customerOrder.getProduct());
+    Map<ShopDto, Integer> shopMap = stockService.getShopListWithProductInStock(customerOrderDto.getProduct());
 
     if (!shopMap.isEmpty()) {
       var shop = chooseAvailableShop(new ArrayList<>(shopMap.keySet()));
@@ -124,29 +127,29 @@ public class CustomerOrderService {
   public List<ProductDto> getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(String countryName, Integer minAge, Integer maxAge) {
 
     return customerOrderRepository.findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange(countryName, minAge, maxAge)
-            .stream().distinct().map(productMapper::productToProductDTO).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList());
+            .stream().distinct().map(productMapper::mapProductToProductDto).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList());
   }
 
   public List<dto.CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
     return customerOrderRepository.
             findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount)
             .stream()
-            .map(customerOrderMapper::customerOrderToCustomerOrderDto)
+            .map(customerOrderMapper::mapCustomerOrderToCustomerOrderDto)
             .collect(Collectors.toList());
   }
 
   public Map<String, List<ProductDto>> getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(Set<EGuarantee> guaranteeComponents) {
 
     return customerOrderRepository.findProductsWithActiveWarrantyAndWithGuaranteeComponents(guaranteeComponents)
-            .stream().map(productMapper::productToProductDTO).collect(Collectors.groupingBy(ProductDto::getCategoryName));
+            .stream().map(productMapper::mapProductToProductDto).collect(Collectors.groupingBy(ProductDto::getName));
   }
 
   public Map<ProducerDto, List<ProductDto>> getProductsOrderedByCustomerGroupedByProducer(String customerName, String customerSurname, String countryName) {
 
     return customerOrderRepository.findProductsOrderedByCustomerGroupedByProducer(customerName, customerSurname, countryName)
             .entrySet().stream().collect(Collectors.toMap(
-                    e -> producerMapper.producerToProducerDto(e.getKey()),
-                    e -> e.getValue().stream().map(productMapper::productToProductDTO).collect(Collectors.toList())));
+                    e -> producerMapper.mapProducerToProducerDto(e.getKey()),
+                    e -> e.getValue().stream().map(productMapper::mapProductToProductDto).collect(Collectors.toList())));
   }
 
   public Map<CustomerDto, Long> getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim() {
@@ -155,7 +158,7 @@ public class CustomerOrderService {
             .findCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim()
             .entrySet().stream()
             .collect(Collectors.toMap(
-                    e -> customerMapper.customerToCustomerDto(e.getKey()),
+                    e -> customerMapper.mapCustomerToCustomerDto(e.getKey()),
                     Map.Entry::getValue));
   }
 

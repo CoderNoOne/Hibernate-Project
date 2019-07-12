@@ -2,7 +2,7 @@ package repository.abstract_repository.base;
 
 import configuration.DbConnection;
 import exception.AppException;
-import jdk.swing.interop.SwingInterOpUtils;
+
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

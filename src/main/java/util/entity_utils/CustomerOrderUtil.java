@@ -2,6 +2,7 @@ package util.entity_utils;
 
 import domain.*;
 import domain.enums.Epayment;
+import dto.*;
 import exception.AppException;
 import validator.impl.CustomerOrderDtoValidator;
 
@@ -16,26 +17,26 @@ public class CustomerOrderUtil {
   private CustomerOrderUtil() {
   }
 
-  public static CustomerOrderDto createCustomerOrderFromUserInput() {
+  public static CustomerOrderDto createCustomerOrderDtoFromUserInput() {
 
     return CustomerOrderDto.builder()
-            .customer(Customer.builder()
+            .customer(CustomerDto.builder()
                     .name(getString("Input customer name"))
                     .surname(getString("Input customer surname"))
-                    .country(Country.builder()
+                    .countryDto(CountryDto.builder()
                             .name(getString("Input country name"))
-                            .build())/*customer moze istniec w db - lub nie*/
+                            .build())
                     .build())
             .date(getLocalDate("Input order date in format yyyy-MM-dd"))
             .quantity(getInt("Input order quantity"))
-            .product(Product.builder()/*moze byc kilka ze względu na innego producenta*/
+            .product(ProductDto.builder()/*moze byc kilka ze względu na innego producenta*/
                     .name(getString("Input product name"))
-                    .category(Category.builder()
+                    .categoryDto(CategoryDto.builder()
                             .name(getString("Input category name"))
                             .build())
                     .build())
             .discount(getBigDecimal("Input order discount <0.0,1.0>"))
-            .payment(Payment.builder()
+            .payment(PaymentDto.builder()
                     .epayment(Epayment.valueOf(getString("Input payment type: CASH, CARD, MONEY_TRANSFER")))
                     .build())
             .build();

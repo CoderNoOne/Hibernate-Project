@@ -1,6 +1,10 @@
 package util.entity_utils;
 
 import domain.*;
+import dto.CategoryDto;
+import dto.ProductDto;
+import dto.ShopDto;
+import dto.StockDto;
 import exception.AppException;
 import validator.impl.StockDtoValidator;
 
@@ -15,34 +19,34 @@ public class StockUtil {
   private StockUtil() {
   }
 
-  public static Stock createStockDetailFromUserInput() {
+  public static StockDto createStockDtoDetailFromUserInput() {
 
-    return Stock.builder()
-            .product(Product.builder()
+    return StockDto.builder()
+            .productDto(ProductDto.builder()
                     .name(getString("Input product name"))
-                    .category(Category.builder()
+                    .categoryDto(CategoryDto.builder()
                             .name(getString("Input category name"))
                             .build())
                     .build())
-            .shop(Shop.builder()
+            .shopDto(ShopDto.builder()
                     .name(getString("Input shop name"))
                     .build())
             .quantity(getInt("Input stock quantity"))
             .build();
   }
 
-  public static Stock getStockIfValid(Stock stock) {
+  public static StockDto getStockDtoIfValid(StockDto stockDto) {
 
-    if (stock == null) {
+    if (stockDto== null) {
       throw new AppException("Stock is null");
     }
-    var stockValidator = new StockDtoValidator();
-    var errorsMap = stockValidator.validate(stock);
+    var stockDtoValidator = new StockDtoValidator();
+    var errorsMap = stockDtoValidator.validate(stockDto);
 
-    if (stockValidator.hasErrors()) {
+    if (stockDtoValidator.hasErrors()) {
       printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
       throw new AppException("Stock is not valid");
     }
-    return stock;
+    return stockDto;
   }
 }

@@ -2,7 +2,7 @@ package util.entity_utils;
 
 import domain.*;
 import domain.enums.EGuarantee;
-import dto.ProductDto;
+import dto.*;
 import exception.AppException;
 import util.others.UserDataUtils;
 import validator.impl.ProductDtoValidator;
@@ -19,18 +19,22 @@ public final class ProductUtil {
   private ProductUtil() {
   }
 
-  public static Product createProductFromUserInput() {
+  public static ProductDto createProductDtoFromUserInput() {
 
-    return Product.builder()
-            .category(Category.builder()
+    return ProductDto.builder()
+            .categoryDto(CategoryDto.builder()
                     .name(getString("Input category name"))
                     .build())
             .name(getString("Input product name"))
             .price(getBigDecimal("Input product price"))
-            .producer(Producer.builder()
+            .producerDto(ProducerDto.builder()
                     .name(getString("Input producer name"))
-                    .country(Country.builder().name(getString("Input country name")).build())
-                    .trade(Trade.builder().name(getString("Input trade name")).build())
+                    .country(CountryDto.builder()
+                            .name(getString("Input country name"))
+                            .build())
+                    .trade(TradeDto.builder()
+                            .name(getString("Input trade name"))
+                            .build())
                     .build())
             .guaranteeComponents(createGuaranteeComponentsFromUserInput())
             .build();
@@ -48,22 +52,22 @@ public final class ProductUtil {
     return product;
   }
 
-  public static Product preciseProductDetails(Stock stock) {
+  public static ProductDto preciseProductDtoDetails(StockDto stockDto) {
 
     printMessage(String.format("Any product with specified name:%s and category: %s  exists in a DB. You need to specify product details: "
-            , stock.getProduct().getName(), stock.getProduct().getCategory().getName()));
+            , stockDto.getProductDto().getName(), stockDto.getProductDto().getCategoryDto().getName()));
 
-    return Product.builder()
-            .name(stock.getProduct().getName())
-            .category(stock.getProduct().getCategory())
+    return ProductDto.builder()
+            .name(stockDto.getProductDto().getName())
+            .categoryDto(stockDto.getProductDto().getCategoryDto())
             .price(getBigDecimal("Input product price"))
             .guaranteeComponents(createGuaranteeComponentsFromUserInput())
-            .producer(Producer.builder()
+            .producerDto(ProducerDto.builder()
                     .name(getString("Input producer name"))
-                    .country(Country.builder()
+                    .country(CountryDto.builder()
                             .name(getString("Input producer country name"))
                             .build())
-                    .trade(Trade.builder()
+                    .trade(TradeDto.builder()
                             .name(getString("Input producer trade name"))
                             .build())
                     .build())
@@ -90,15 +94,15 @@ public final class ProductUtil {
     return guaranteeListInput;
   }
 
-  public static Product chooseAvailableProduct(List<Product> productList) {
+  public static ProductDto chooseAvailableProduct(List<ProductDto> productList) {
 
-    if(productList.isEmpty()){
+    if (productList.isEmpty()) {
       throw new AppException("There are no products who meet specified criteria");
     }
 
     int productNumber;
     do {
-      printCollectionWithNumeration(productList.stream().map(Product::getName).collect(Collectors.toList()));
+      printCollectionWithNumeration(productList.stream().map(ProductDto::getName).collect(Collectors.toList()));
       productNumber = getInt("Choose product by number");
     } while (!(productNumber >= 1 && productNumber <= productList.size()));
 

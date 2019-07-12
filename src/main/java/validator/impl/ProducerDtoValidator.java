@@ -41,8 +41,8 @@ public class ProducerDtoValidator extends AbstractValidator<ProducerDto>  {
     return !getCountryValidator(producerDto).hasErrors();
   }
 
-  private TradeValidator getTradeValidator(ProducerDto producerDto) {
-    TradeValidator tradeValidator = new TradeValidator();
+  private TradeDtoValidator getTradeValidator(ProducerDto producerDto) {
+    TradeDtoValidator tradeValidator = new TradeDtoValidator();
     tradeValidator.validate(producerDto.getTrade());
     return tradeValidator;
   }

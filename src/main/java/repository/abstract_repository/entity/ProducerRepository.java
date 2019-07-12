@@ -10,5 +10,4 @@ import java.util.Optional;
 
 public interface ProducerRepository extends CrudRepository<Producer, Long> {
   Optional<Producer> findByNameAndTradeAndCountry(String name, Trade trade, Country country);
-
 }

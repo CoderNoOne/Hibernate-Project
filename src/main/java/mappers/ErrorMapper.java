@@ -22,6 +22,4 @@ public class ErrorMapper {
             .date(error.getDate())
             .build();
   }
-
-
 }

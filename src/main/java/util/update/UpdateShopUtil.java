@@ -1,8 +1,7 @@
 package util.update;
 
-import domain.Country;
-import domain.Shop;
-import util.update.enums.CustomerField;
+import dto.CountryDto;
+import dto.ShopDto;
 import util.update.enums.ShopField;
 
 import java.util.Arrays;
@@ -14,7 +13,7 @@ import static util.others.UserDataUtils.getString;
 
 public interface UpdateShopUtil {
 
-  static Shop getUpdatedShop(Shop shop){
+  static ShopDto getUpdatedShop(ShopDto shopDto){
 
     List<ShopField> shopFields = Arrays.stream(ShopField.values()).collect(Collectors.toList());
 
@@ -27,18 +26,18 @@ public interface UpdateShopUtil {
         case NAME -> {
           String updatedName = getString("Type customer new name");
           shopFields.remove(ShopField.NAME);
-          shop.setName(updatedName);
+          shopDto.setName(updatedName);
         }
         case COUNTRY -> {
           String updatedCountryName = getString("Type shop new country");
           shopFields.remove(ShopField.COUNTRY);
-          shop.setCountry(Country.builder().name(updatedCountryName).build());
+          shopDto.setCountryDto(CountryDto.builder().name(updatedCountryName).build());
         }
         default -> System.out.println("Not valid shop property");
       }
       hasNext = getString("Do you want to update other shop property? (Y/N)").equalsIgnoreCase("Y");
     } while (hasNext && !shopFields.isEmpty());
 
-    return shop;
+    return shopDto;
   }
 }

@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<CustomerOrderDto, Long> implements CustomerOrderRepository {
+public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<CustomerOrder, Long> implements CustomerOrderRepository {
 
   public static final int GUARANTEE_PERIOD_IN_YEARS = 2;
 
@@ -36,15 +36,15 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
               .createQuery("from " + entityType.getSimpleName(), entityType)
               .getResultList();
 
-      resultMap = resultList.stream().map(CustomerOrderDto::getCustomer).distinct()
+      resultMap = resultList.stream().map(CustomerOrder::getCustomer).distinct()
               .collect(Collectors.collectingAndThen(Collectors.toMap(
                       Function.identity(),
                       customer -> (Long) resultList.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
-                              .filter(customerOrder -> customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrderDto::getQuantity).count()),
+                              .filter(customerOrder -> customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrder::getQuantity).count()),
                       map -> map.entrySet().stream().filter(e ->  e.getValue() >= 1).map(Map.Entry::getKey).collect(Collectors.toMap(
                               Function.identity(),
                               customer -> (Long) resultList.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
-                                      .filter(customerOrder -> !customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrderDto::getQuantity).count()))));
+                                      .filter(customerOrder -> !customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrder::getQuantity).count()))));
       tx.commit();
     } catch (Exception e) {
       log.info(e.getMessage());
@@ -80,7 +80,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
               .setParameter("customerSurname", customerSurname)
               .setParameter("countryName", countryName)
               .getResultStream().collect(Collectors.groupingBy(customerOrder -> customerOrder.getProduct().getProducer(),
-                      Collectors.mapping(CustomerOrderDto::getProduct, Collectors.toList())));
+                      Collectors.mapping(CustomerOrder::getProduct, Collectors.toList())));
       tx.commit();
     } catch (Exception e) {
       log.info(e.getMessage());
@@ -115,7 +115,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
               .createQuery("select e from " + entityType.getSimpleName() + " as e where (e.date >= :guaranteeLimit OR CURRENT_DATE < e.date)", entityType)
               .setParameter("guaranteeLimit", LocalDate.now().minusYears(GUARANTEE_PERIOD_IN_YEARS)) /*now - X <= 2 -> now - 2 <= X*/
               .getResultStream().filter(customerOrder -> guaranteeComponents.isEmpty() || customerOrder.getProduct().getGuaranteeComponents().stream().anyMatch(guaranteeComponents::contains))
-              .map(CustomerOrderDto::getProduct)
+              .map(CustomerOrder::getProduct)
               .collect(Collectors.toList());
 
       tx.commit();
@@ -136,11 +136,11 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
   }
 
   @Override
-  public List<CustomerOrderDto> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
+  public List<CustomerOrder> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
 
-    List<CustomerOrderDto> productList = new ArrayList<>();
+    List<CustomerOrder> productList = new ArrayList<>();
 
     try {
       tx.begin();
@@ -234,11 +234,11 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
                       category -> {
                         Map<Category, Integer> theHighestQuantityOrderInEachCategory = resultList.stream().filter(customerOrder -> customerOrder.getProduct().getCategory().equals(category))
                                 .collect(Collectors.groupingBy(customerOrder -> customerOrder.getProduct().getCategory(),
-                                        Collectors.mapping(CustomerOrderDto::getQuantity, Collectors.reducing(0, (v1, v2) -> v1 >= v2 ? v1 : v2))));
+                                        Collectors.mapping(CustomerOrder::getQuantity, Collectors.reducing(0, (v1, v2) -> v1 >= v2 ? v1 : v2))));
 
                         return resultList.stream().filter(customerOrder -> customerOrder.getProduct().getCategory().equals(category))
-                                .collect(Collectors.groupingBy(CustomerOrderDto::getProduct,
-                                        Collectors.mapping(CustomerOrderDto::getQuantity, Collectors.filtering(
+                                .collect(Collectors.groupingBy(CustomerOrder::getProduct,
+                                        Collectors.mapping(CustomerOrder::getQuantity, Collectors.filtering(
                                                 quantity -> quantity.intValue() == theHighestQuantityOrderInEachCategory.get(category).intValue(),
                                                 Collectors.reducing(0, (v1, v2) -> v1 > v2 ? v1 : v2)))));
                       }));
@@ -278,7 +278,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
               .createQuery("select e from " + entityType.getSimpleName() + " as e where e.product IN :products", entityType)
               .setParameter("products", productList)
               .getResultStream()
-              .collect(Collectors.groupingBy(CustomerOrderDto::getProduct, Collectors.summingInt(CustomerOrderDto::getQuantity)));
+              .collect(Collectors.groupingBy(CustomerOrder::getProduct, Collectors.summingInt(CustomerOrder::getQuantity)));
 
       tx.commit();
     } catch (Exception e) {

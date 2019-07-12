@@ -5,7 +5,7 @@ import dto.PaymentDto;
 
 public class PaymentMapper {
 
-  public Payment mapPaymentToPaymentDto(PaymentDto paymentDto) {
+  public Payment mapPaymentDtoToPayment(PaymentDto paymentDto) {
 
     return Payment.builder()
             .id(paymentDto.getId())
@@ -13,7 +13,7 @@ public class PaymentMapper {
             .build();
   }
 
-  public PaymentDto mapPaymentDtoToPayment(Payment payment){
+  public PaymentDto mapPaymentToPaymentDto(Payment payment) {
     return PaymentDto.builder()
             .id(payment.getId())
             .epayment(payment.getEpayment())

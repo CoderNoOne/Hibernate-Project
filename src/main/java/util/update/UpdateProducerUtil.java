@@ -1,7 +1,7 @@
 package util.update;
 
-import domain.Country;
-import domain.Producer;
+import dto.CountryDto;
+import dto.ProducerDto;
 import util.update.enums.CustomerField;
 import util.update.enums.ProducerField;
 
@@ -14,7 +14,7 @@ import static util.others.UserDataUtils.getString;
 
 public interface UpdateProducerUtil {
 
-  static Producer getUpdatedProducer(Producer producer) {
+  static ProducerDto getUpdatedProducerDto(ProducerDto producerDto) {
 
     List<ProducerField> producerFields = Arrays.stream(ProducerField.values()).collect(Collectors.toList());
 
@@ -27,19 +27,19 @@ public interface UpdateProducerUtil {
         case NAME -> {
           String updatedName = getString("Type producer new name");
           producerFields.remove(ProducerField.NAME);
-          producer.setName(updatedName);
+          producerDto.setName(updatedName);
         }
 
         case COUNTRY -> {
           String updatedCountryName = getString("Type producer new country");
           producerFields.remove(ProducerField.COUNTRY);
-          producer.setCountry(Country.builder().name(updatedCountryName).build());
+          producerDto.setCountry(CountryDto.builder().name(updatedCountryName).build());
         }
         default -> printMessage("Not valid producer property");
       }
       hasNext = getString("Do you want to update another producer property? (Y/N)").equalsIgnoreCase("Y");
     } while (hasNext && !producerFields.isEmpty());
 
-    return producer;
+    return producerDto;
   }
 }

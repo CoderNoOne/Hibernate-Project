@@ -1,7 +1,7 @@
 package service.other;
 
 import converters.impl.*;
-import domain.Error;
+import dto.ErrorDto;
 import exception.AppException;
 import lombok.extern.log4j.Log4j;
 import service.entity.*;
@@ -64,7 +64,7 @@ public class DataService {
 
     try {
       var categoryValidator = new CategoryDtoValidator();
-      new CategoryListJsonConverter(categoriesJsonFilename)
+      new CategoryDtoListJsonConverter(categoriesJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + categoriesJsonFilename + " is empty"))
               .stream()
@@ -78,7 +78,7 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      errorService.addErrorToDb(Error.builder()
+      errorService.addErrorToDb(ErrorDto.builder()
               .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
@@ -87,7 +87,7 @@ public class DataService {
 
     try {
       var shopValidator = new ShopDtoValidator();
-      new ShopListJsonConverter(shopsJsonFilename)
+      new ShopDtoListJsonConverter(shopsJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + shopsJsonFilename + " is empty"))
               .stream()
@@ -101,7 +101,7 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      errorService.addErrorToDb(Error.builder()
+      errorService.addErrorToDb(ErrorDto.builder()
               .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
@@ -111,7 +111,7 @@ public class DataService {
     try {
       var countryValidator = new CountryDtoValidator();
 
-      new CountryListJsonConverter(countriesJsonFilename)
+      new CountryDtoListJsonConverter(countriesJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + countriesJsonFilename + " is empty"))
               .stream()
@@ -125,7 +125,7 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      errorService.addErrorToDb(Error.builder()
+      errorService.addErrorToDb(ErrorDto.builder()
               .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
@@ -133,9 +133,9 @@ public class DataService {
   private void initTrades(final String tradesJsonFilename) {
 
     try {
-      var tradeValidator = new TradeValidator();
+      var tradeValidator = new TradeDtoValidator();
 
-      new TradeListJsonConverter(tradesJsonFilename)
+      new TradeDtoListJsonConverter(tradesJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + tradesJsonFilename + " is empty"))
               .stream()
@@ -149,7 +149,7 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      errorService.addErrorToDb(Error.builder()
+      errorService.addErrorToDb(ErrorDto.builder()
               .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
 
@@ -158,9 +158,9 @@ public class DataService {
   private void initProducers(final String producersJsonFilename) {
 
     try {
-      var producerValidator = new ProducerValidator();
+      var producerValidator = new ProducerDtoValidator();
 
-      new ProducerListJsonConverter(producersJsonFilename)
+      new ProducerDtoListJsonConverter(producersJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + producersJsonFilename + " is empty"))
               .stream()
@@ -174,7 +174,7 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      errorService.addErrorToDb(Error.builder()
+      errorService.addErrorToDb(ErrorDto.builder()
               .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
@@ -184,7 +184,7 @@ public class DataService {
     try {
       var customerValidator = new CustomerDtoValidator();
 
-      new CustomerListJsonConverter(customersJsonFilename)
+      new CustomerDtoListJsonConverter(customersJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + customersJsonFilename + " is empty"))
               .stream()
@@ -199,7 +199,7 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      errorService.addErrorToDb(Error.builder()
+      errorService.addErrorToDb(ErrorDto.builder()
               .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }
@@ -209,7 +209,7 @@ public class DataService {
     try {
       var productValidator = new ProductDtoValidator();
 
-      new ProductListJsonConverter(productsJsonFilename)
+      new ProductDtoListJsonConverter(productsJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + productsJsonFilename + " is empty"))
               .stream()
@@ -224,7 +224,7 @@ public class DataService {
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
-      errorService.addErrorToDb(Error.builder()
+      errorService.addErrorToDb(ErrorDto.builder()
               .date(LocalDateTime.now()).message(e.getMessage()).build());
     }
   }

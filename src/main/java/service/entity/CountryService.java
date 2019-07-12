@@ -1,7 +1,8 @@
 package service.entity;
 
-import domain.Country;
+import dto.CountryDto;
 import exception.AppException;
+import mappers.CountryMapper;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.impl.CountryRepositoryImpl;
 
@@ -11,23 +12,26 @@ import java.util.Optional;
 public class CountryService {
 
   private final CountryRepository countryRepository;
-
+  private final CountryMapper countryMapper;
 
   public CountryService() {
-    countryRepository = new CountryRepositoryImpl();
+    this.countryRepository = new CountryRepositoryImpl();
+    this.countryMapper = new CountryMapper();
   }
 
-  public Optional<Country> addCountryToDb(Country country) {
+  public Optional<CountryDto> addCountryToDb(CountryDto countryDto) {
 
-    if (country == null) {
+    if (countryDto == null) {
       throw new AppException("Country is null");
     }
 
-    if (!isCountryUniqueByName(country.getName())) {
-      throw new AppException("Country is not unique by name: " + country.getName());
+    if (!isCountryUniqueByName(countryDto.getName())) {
+      throw new AppException("Country is not unique by name: " + countryDto.getName());
     }
 
-    return countryRepository.addOrUpdate(country);
+    return countryRepository
+            .addOrUpdate(countryMapper.mapCountryDtoToCountry(countryDto))
+            .map(countryMapper::mapCountryToCountryDto);
   }
 
   public boolean isCountryUniqueByName(String name) {
@@ -38,16 +42,16 @@ public class CountryService {
   }
 
 
-  public Optional<Country> getCountryByName(String name) {
-    return countryRepository.findCountryByName(name);
+  public Optional<CountryDto> getCountryByName(String name) {
+    return countryRepository.findCountryByName(name)
+            .map(countryMapper::mapCountryToCountryDto);
   }
 
-  public void deleteAllCountries(){
+  public void deleteAllCountries() {
     countryRepository.deleteAll();
   }
 
-  public Country getCountryFromDbIfExists(Country country) {
-    return getCountryByName(country.getName()).orElse(country);
+  public CountryDto getCountryFromDbIfExists(CountryDto countryDto) {
+    return getCountryByName(countryDto.getName()).orElse(countryDto);
   }
-
 }

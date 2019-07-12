@@ -1,78 +1,89 @@
 package service.entity;
 
-import domain.Country;
-import domain.Producer;
-import domain.Trade;
+import dto.CountryDto;
+import dto.ProducerDto;
+import dto.TradeDto;
 import exception.AppException;
+import mappers.CountryMapper;
+import mappers.ProducerMapper;
+import mappers.TradeMapper;
 import repository.abstract_repository.entity.ProducerRepository;
 import repository.impl.ProducerRepositoryImpl;
 
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static util.entity_utils.CustomerUtil.getCustomerIfValid;
-import static util.entity_utils.ProducerUtil.getProducerIfValid;
+import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
-import static util.update.UpdateCustomerUtil.getUpdatedCustomer;
-import static util.update.UpdateProducerUtil.getUpdatedProducer;
+import static util.update.UpdateProducerUtil.getUpdatedProducerDto;
 
 public class ProducerService {
 
   private final ProducerRepository producerRepository;
   private final TradeService tradeService;
   private final CountryService countryService;
+  private final ProducerMapper producerMapper;
+  private final TradeMapper tradeMapper;
+  private final CountryMapper countryMapper;
 
   public ProducerService() {
     this.producerRepository = new ProducerRepositoryImpl();
     this.tradeService = new TradeService();
     this.countryService = new CountryService();
+    this.producerMapper = new ProducerMapper();
+    this.tradeMapper = new TradeMapper();
+    this.countryMapper = new CountryMapper();
   }
 
-  public Optional<Producer> addProducerToDb(Producer producer) {
-    return producerRepository.addOrUpdate(producer);
+  public Optional<ProducerDto> addProducerToDb(ProducerDto producerDto) {
+    return producerRepository
+            .addOrUpdate(producerMapper.mapProducerDtoToProducer(producerDto))
+            .map(producerMapper::mapProducerToProducerDto);
   }
 
 
-  public Producer setProducerComponentsFromDbIfTheyExist(Producer producer) {
+  public ProducerDto setProducerComponentsFromDbIfTheyExist(ProducerDto producerDto) {
 
-    return Producer.builder()
-            .id(producer.getId())
-            .name(producer.getName())
-            .trade(tradeService.getTradeFromDbIfExists(producer.getTrade()))
-            .country(countryService.getCountryFromDbIfExists(producer.getCountry()))
+    return ProducerDto.builder()
+            .id(producerDto.getId())
+            .name(producerDto.getName())
+            .trade(tradeService.getTradeFromDbIfExists(producerDto.getTrade()))
+            .country(countryService.getCountryFromDbIfExists(producerDto.getCountry()))
             .build();
   }
 
-  public Producer getProducerFromDbIfExists(Producer producer) {
-    return getProducerByNameAndTradeAndCountry(
-            producer.getName(), producer.getTrade(),
-            producer.getCountry()).orElse(producer);
+  public ProducerDto getProducerFromDbIfExists(ProducerDto producerDto) {
+    return getProducerDtoByNameAndTradeAndCountry(
+            producerDto.getName(), producerDto.getTrade(),
+            producerDto.getCountry()).orElse(producerDto);
   }
 
-  public void addProducerToDbFromUserInput(Producer producer) {
-    if (!isProducerUniqueByNameAndTradeAndCountry(producer.getName(), producer.getTrade(), producer.getCountry())) {
+  public void addProducerToDbFromUserInput(ProducerDto producerDto) {
+    if (!isProducerUniqueByNameAndTradeAndCountry(producerDto.getName(), producerDto.getTrade(), producerDto.getCountry())) {
       throw new AppException("Couldn't add new producer to db - producer's not unique by name, trade and country");
     }
-    addProducerToDb(setProducerComponentsFromDbIfTheyExist(producer));
+    addProducerToDb(setProducerComponentsFromDbIfTheyExist(producerDto));
   }
 
-  private boolean isProducerUniqueByNameAndTradeAndCountry(String name, Trade trade, Country country) {
-    if (trade == null) {
+  private boolean isProducerUniqueByNameAndTradeAndCountry(String name, TradeDto tradeDto, CountryDto countryDto) {
+    if (tradeDto == null) {
       throw new AppException("Trade is null");
     }
 
-    if (country == null) {
+    if (countryDto == null) {
       throw new AppException("Country is null");
     }
 
-    return producerRepository.findByNameAndTradeAndCountry(name, trade, country).isEmpty();
+    return producerRepository.findByNameAndTradeAndCountry(
+            name, tradeMapper.mapTradeDtoToTrade(tradeDto), countryMapper.mapCountryDtoToCountry(countryDto)).isEmpty();
   }
 
-  public Optional<Producer> getProducerByNameAndTradeAndCountry(String name, Trade trade, Country country) {
-    return producerRepository.findByNameAndTradeAndCountry(name, trade, country);
+  public Optional<ProducerDto> getProducerDtoByNameAndTradeAndCountry(String name, TradeDto tradeDto, CountryDto countryDto) {
+    return producerRepository.findByNameAndTradeAndCountry(name, tradeMapper.mapTradeDtoToTrade(tradeDto), countryMapper.mapCountryDtoToCountry(countryDto))
+            .map(producerMapper::mapProducerToProducerDto);
   }
 
   public void deleteAllProducers() {
@@ -84,20 +95,27 @@ public class ProducerService {
     printCollectionWithNumeration(getAllProducers());
     long producerId = getInt("Choose producer id you want to update");
 
-    getProducerById(producerId)
-            .ifPresentOrElse(producer ->
-                            producerRepository.addOrUpdate(setProducerComponentsFromDbIfTheyExist(getProducerIfValid(getUpdatedProducer(producer)))),
+    getProducerDtoById(producerId)
+            .ifPresentOrElse(producerDto ->
+                            producerRepository
+                                    .addOrUpdate(producerMapper
+                                            .mapProducerDtoToProducer(setProducerComponentsFromDbIfTheyExist(getProducerDtoIfValid(getUpdatedProducerDto(producerDto)))))
+                                    .map(producerMapper::mapProducerToProducerDto),
                     () -> {
                       throw new AppException("There is no producer with that id: " + producerId + " in DB");
                     });
   }
 
-  private Optional<Producer> getProducerById(long producerId) {
-    return producerRepository.findById(producerId);
+  private Optional<ProducerDto> getProducerDtoById(long producerId) {
+    return producerRepository.findById(producerId)
+            .map(producerMapper::mapProducerToProducerDto);
   }
 
-  private List<Producer> getAllProducers() {
-    return producerRepository.findAll();
+  private List<ProducerDto> getAllProducers() {
+    return producerRepository.findAll()
+            .stream()
+            .map(producerMapper::mapProducerToProducerDto)
+            .collect(Collectors.toList());
   }
 
 }

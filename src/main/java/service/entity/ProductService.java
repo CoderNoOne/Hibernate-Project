@@ -1,6 +1,8 @@
 package service.entity;
 
+import dto.ProducerDto;
 import mappers.CategoryMapper;
+import mappers.ProducerMapper;
 import mappers.ProductMapper;
 import domain.Category;
 import domain.Producer;
@@ -30,17 +32,21 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final CategoryService categoryService;
   private final ProducerService producerService;
+  private final ProducerMapper producerMapper;
 
   public ProductService() {
     this.productRepository = new ProductRepositoryImpl();
-    this.productMapper = Mappers.getMapper(ProductMapper.class);
-    this.categoryMapper = Mappers.getMapper(CategoryMapper.class);
+    this.productMapper = new ProductMapper();
+    this.categoryMapper = new CategoryMapper();
     this.categoryService = new CategoryService();
     this.producerService = new ProducerService();
+    this.producerMapper = new ProducerMapper();
   }
 
-  private Optional<Product> addProductToDb(Product product) {
-    return productRepository.addOrUpdate(product);
+  private Optional<ProductDto> addProductToDb(ProductDto productDto) {
+    return productRepository
+            .addOrUpdate(productMapper.mapProductDtoToProduct(productDto))
+            .map(productMapper::mapProductToProductDto);
   }
 
 
@@ -52,39 +58,40 @@ public class ProductService {
             .price(productDto.getPrice())
             .categoryDto(categoryService.getCategoryFromDbIfExists(productDto.getCategoryDto()))
             .guaranteeComponents(productDto.getGuaranteeComponents())
-            .producer(producerService.getProducerFromDbIfExists(producerService.setProducerComponentsFromDbIfTheyExist(productDto.getProducer())))
+            .producerDto(producerService.getProducerFromDbIfExists(producerService.setProducerComponentsFromDbIfTheyExist(productDto.getProducerDto())))
             .build();
   }
 
-  public ProductDto getProductFromDbIfExists(Product product) {
-    ProductDto other = productMapper.mapProductToProductDto(product);
+  public ProductDto getProductFromDbIfExists(ProductDto productDto) {
 
-    return productMapper.mapProductToProductDto(getProductByNameAndCategoryAndProducer(product.getName(), product.getCategory(),
-            product.getProducer()).orElse(product)));
+    return getProductByNameAndCategoryAndProducer(productDto.getName(), productDto.getCategoryDto(),
+            productDto.getProducerDto())
+            .orElse(productDto);
   }
 
-  public void addProductToDbFromUserInput(Product product) {
-    if (!isProductUniqueByNameAndCategoryAndProducer(product.getName(), product.getCategory(), product.getProducer())) {
-      throw new AppException(String.format("Couldn't add new product to db - product: %s is not unique by name and category and producer", product));
+  public void addProductToDbFromUserInput(ProductDto productDto) {
+    if (!isProductUniqueByNameAndCategoryAndProducer(productDto.getName(), productDto.getCategoryDto(), productDto.getProducerDto())) {
+      throw new AppException(String.format("Couldn't add new product to db - product: %s is not unique by name and category and producer", productDto));
     }
-    addProductToDb(setProductComponentsFromDbIfTheyExist(product));
+    addProductToDb(setProductComponentsFromDbIfTheyExist(productDto));
 
   }
 
-  private boolean isProductUniqueByNameAndCategoryAndProducer(String name, Category category, Producer producer) {
-    return productRepository.findByNameAndCategoryAndProducer(name, category, producer).isEmpty();
+  private boolean isProductUniqueByNameAndCategoryAndProducer(String name, CategoryDto categoryDto, ProducerDto producerDto) {
+    return productRepository.findByNameAndCategoryAndProducer(name, categoryMapper.mapCategoryDtoToCategory(categoryDto),
+            producerMapper.mapProducerDtoToProducer(producerDto)).isEmpty();
   }
 
-  public Optional<ProductDto> getProductByNameAndCategoryAndProducer(String name, Category category, Producer producer) {
+  public Optional<ProductDto> getProductByNameAndCategoryAndProducer(String name, CategoryDto categoryDto, ProducerDto producerDto) {
     return Optional.ofNullable(
             productMapper.mapProductToProductDto(
-                    productRepository.findByNameAndCategoryAndProducer(name, category, producer)
+                    productRepository.findByNameAndCategoryAndProducer(name, categoryMapper.mapCategoryDtoToCategory(categoryDto), producerMapper.mapProducerDtoToProducer(producerDto))
                             .orElseThrow(() -> new AppException("No product was found for name: " + name + " category " +
-                                    category + " and producer: " + producer))));
+                                    categoryDto + " and producer: " + producerDto))));
   }
 
-  public List<ProductDto> getProductsByNameAndCategory(String name, Category category) {
-    return productRepository.findProductsByNameAndCategory(name, category)
+  public List<ProductDto> getProductsByNameAndCategory(String name, CategoryDto categoryDto) {
+    return productRepository.findProductsByNameAndCategory(name, categoryMapper.mapCategoryDtoToCategory(categoryDto))
             .stream()
             .map(productMapper::mapProductToProductDto)
             .collect(Collectors.toList());
@@ -110,8 +117,9 @@ public class ProductService {
   }
 
   public Optional<ProductDto> getProductDtoById(Long id) {
-    return Optional.ofNullable(productMapper.mapProductToProductDto(
-            productRepository.findById(id).orElseThrow(() -> new AppException("There's not a product with id: " + id))));
+    return productRepository.findById(id)
+            .map(productMapper::mapProductToProductDto);
+
   }
 
   public void updateProduct() {
@@ -121,7 +129,9 @@ public class ProductService {
 
     getProductDtoById(productId)
             .ifPresentOrElse(productDto ->
-                            productRepository.addOrUpdate(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(productDto)))),
+                            productRepository
+                                    .addOrUpdate(productMapper.mapProductDtoToProduct(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(productDto)))))
+                                    .map(productMapper::mapProductToProductDto),
                     () -> {
                       throw new AppException("There is no product with that id: " + productId + " in DB");
                     });

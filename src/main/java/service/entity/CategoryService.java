@@ -1,7 +1,6 @@
 package service.entity;
 
 import mappers.CategoryMapper;
-import domain.Category;
 import dto.CategoryDto;
 import exception.AppException;
 import repository.abstract_repository.entity.CategoryRepository;
@@ -19,22 +18,24 @@ public class CategoryService {
     this.categoryMapper = new CategoryMapper();
   }
 
-  public Optional<Category> addCategoryToDb(Category category) {
+  public Optional<CategoryDto> addCategoryToDb(CategoryDto categoryDto) {
 
-    if (category == null) {
+    if (categoryDto == null) {
       throw new AppException("Category is null");
     }
 
-    if (!isCategoryUniqueByName(category.getName())) {
-      throw new AppException("Category is not unique by name: " + category.getName());
+    if (!isCategoryUniqueByName(categoryDto.getName())) {
+      throw new AppException("Category is not unique by name: " + categoryDto.getName());
     }
-    return categoryRepository.addOrUpdate(category);
+    return categoryRepository
+            .addOrUpdate(categoryMapper.mapCategoryDtoToCategory(categoryDto))
+            .map(categoryMapper::mapCategoryToCategoryDto);
   }
 
   public Optional<CategoryDto> getCategoryByName(String name) {
-    return categoryRepository.findCategoryByName(name).isPresent() ?
-            Optional.of(categoryMapper.mapCategoryToCategoryDto(categoryRepository.findCategoryByName(name).get()))
-            : Optional.empty();
+
+    return categoryRepository.findCategoryByName(name)
+            .map(categoryMapper::mapCategoryToCategoryDto);
   }
 
 

@@ -1,6 +1,7 @@
 package main;
 
 import domain.Error;
+import dto.ErrorDto;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.entity.ErrorService;
@@ -43,7 +44,7 @@ class AdminMenu {
       } catch (AppException e) {
         log.info(e.getMessage());
         log.error(Arrays.toString(e.getStackTrace()));
-        errorService.addErrorToDb(Error.builder()
+        errorService.addErrorToDb(ErrorDto.builder()
                 .date(LocalDateTime.now()).message(e.getMessage()).build());
       }
     }

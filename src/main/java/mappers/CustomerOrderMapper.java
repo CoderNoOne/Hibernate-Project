@@ -1,53 +1,13 @@
 package mappers;
 
 import domain.*;
-import domain.CustomerOrderDto;
 import dto.*;
 
 public class CustomerOrderMapper {
 
-  public CustomerOrderDto mapCustomerOrderDtoToCusomerOrder(dto.CustomerOrderDto customerOrderDto) {
+  public CustomerOrderDto mapCustomerOrderToCustomerOrderDto(CustomerOrder customerOrder) {
 
     return CustomerOrderDto.builder()
-            .id(customerOrderDto.getId())
-            .discount(customerOrderDto.getDiscount())
-            .quantity(customerOrderDto.getQuantity())
-            .customer(Customer.builder()
-                    .id(customerOrderDto.getCustomer().getId())
-                    .age(customerOrderDto.getCustomer().getAge())
-                    .build())
-            .payment(Payment.builder()
-                    .id(customerOrderDto.getPayment().getId())
-                    .epayment(customerOrderDto.getPayment().getEpayment())
-                    .build())
-            .product(Product.builder()
-                    .id(customerOrderDto.getProduct().getId())
-                    .name(customerOrderDto.getProduct().getName())
-                    .producer(Producer.builder()
-                            .id(customerOrderDto.getProduct().getProducerDto().getId())
-                            .name(customerOrderDto.getProduct().getProducerDto().getName())
-                            .country(Country.builder()
-                                    .id(customerOrderDto.getProduct().getProducerDto().getCountry().getId())
-                                    .name(customerOrderDto.getProduct().getProducerDto().getCountry().getName())
-                                    .build())
-                            .trade(Trade.builder()
-                                    .id(customerOrderDto.getProduct().getProducerDto().getTrade().getId())
-                                    .name(customerOrderDto.getProduct().getProducerDto().getTrade().getName())
-                                    .build())
-                            .build())
-                    .guaranteeComponents(customerOrderDto.getProduct().getGuaranteeComponents())
-                    .category(Category.builder()
-                            .id(customerOrderDto.getProduct().getCategoryDto().getId())
-                            .name(customerOrderDto.getProduct().getCategoryDto().getName())
-                            .build())
-                    .build())
-            .date(customerOrderDto.getDate())
-            .build();
-  }
-
-  public dto.CustomerOrderDto mapCustomerOrderToCustomerOrderDto(CustomerOrderDto customerOrder) {
-
-    return dto.CustomerOrderDto.builder()
             .id(customerOrder.getId())
             .discount(customerOrder.getDiscount())
             .quantity(customerOrder.getQuantity())
@@ -82,7 +42,44 @@ public class CustomerOrderMapper {
                     .build())
             .date(customerOrder.getDate())
             .build();
+  }
 
+  public CustomerOrder mapCustomerOrderDtoToCustomerOrder(CustomerOrderDto customerOrderDto) {
 
+    return CustomerOrder.builder()
+            .id(customerOrderDto.getId())
+            .discount(customerOrderDto.getDiscount())
+            .quantity(customerOrderDto.getQuantity())
+            .customer(Customer.builder()
+                    .id(customerOrderDto.getCustomer().getId())
+                    .age(customerOrderDto.getCustomer().getAge())
+                    .build())
+            .payment(Payment.builder()
+                    .id(customerOrderDto.getPayment().getId())
+                    .epayment(customerOrderDto.getPayment().getEpayment())
+                    .build())
+            .product(Product.builder()
+                    .id(customerOrderDto.getProduct().getId())
+                    .name(customerOrderDto.getProduct().getName())
+                    .producer(Producer.builder()
+                            .id(customerOrderDto.getProduct().getProducerDto().getId())
+                            .name(customerOrderDto.getProduct().getProducerDto().getName())
+                            .country(Country.builder()
+                                    .id(customerOrderDto.getProduct().getProducerDto().getCountry().getId())
+                                    .name(customerOrderDto.getProduct().getProducerDto().getCountry().getName())
+                                    .build())
+                            .trade(Trade.builder()
+                                    .id(customerOrderDto.getProduct().getProducerDto().getTrade().getId())
+                                    .name(customerOrderDto.getProduct().getProducerDto().getTrade().getName())
+                                    .build())
+                            .build())
+                    .guaranteeComponents(customerOrderDto.getProduct().getGuaranteeComponents())
+                    .category(Category.builder()
+                            .id(customerOrderDto.getProduct().getCategoryDto().getId())
+                            .name(customerOrderDto.getProduct().getCategoryDto().getName())
+                            .build())
+                    .build())
+            .date(customerOrderDto.getDate())
+            .build();
   }
 }

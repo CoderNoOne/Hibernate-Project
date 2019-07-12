@@ -1,7 +1,8 @@
 package service.entity;
 
-import domain.Trade;
+import dto.TradeDto;
 import exception.AppException;
+import mappers.TradeMapper;
 import repository.abstract_repository.entity.TradeRepository;
 import repository.impl.TradeRepositoryImpl;
 
@@ -10,18 +11,21 @@ import java.util.Optional;
 public class TradeService {
 
   private final TradeRepository tradeRepository;
+  private final TradeMapper tradeMapper;
 
   public TradeService() {
     this.tradeRepository = new TradeRepositoryImpl();
+    this.tradeMapper = new TradeMapper();
   }
 
-  public Optional<Trade> addTradeToDb(Trade trade) {
-    return tradeRepository.addOrUpdate(trade);
+  private Optional<TradeDto> addTradeToDb(TradeDto tradeDto) {
+    return tradeRepository.addOrUpdate(tradeMapper.mapTradeDtoToTrade(tradeDto))
+            .map(tradeMapper::mapTradeToTradeDto);
   }
 
-  public void addTradeToDbFromUserInput(Trade trade) {
-    if (isTradeUniqueByName(trade.getName())) {
-      addTradeToDb(trade);
+  public void addTradeToDbFromUserInput(TradeDto tradeDto) {
+    if (isTradeUniqueByName(tradeDto.getName())) {
+      addTradeToDb(tradeDto);
     } else {
       throw new AppException("Couldn't add a trade to db - trade's not unique by name");
     }
@@ -31,15 +35,17 @@ public class TradeService {
     return getTradeByName(name).isEmpty();
   }
 
-  public Optional<Trade> getTradeByName(String name) {
-    return tradeRepository.findByName(name);
+  private Optional<TradeDto> getTradeByName(String name) {
+    return tradeRepository.findByName(name)
+            .map(tradeMapper::mapTradeToTradeDto);
   }
 
   public void deleteAllTrades() {
     tradeRepository.deleteAll();
   }
 
-  public Trade getTradeFromDbIfExists(Trade trade) {
-    return getTradeByName(trade.getName()).orElse(trade);
+  TradeDto getTradeFromDbIfExists(TradeDto tradeDto) {
+    return getTradeByName(tradeDto.getName())
+            .orElse(tradeDto);
   }
 }
