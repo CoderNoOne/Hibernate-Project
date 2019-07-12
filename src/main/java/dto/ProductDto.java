@@ -16,17 +16,17 @@ import java.util.List;
 @Data
 public class ProductDto {
 
-  private String productName;
-  private BigDecimal price;
-  private String categoryName;
-  private String producerName;
-  private String countryName;
-
-//  private Long id;
-//  private String name;
+//  private String productName;
 //  private BigDecimal price;
-//  private CategoryDto categoryDto;
-//  private ProducerDto producerDto;
-//  private List<EGuarantee> guaranteeComponents;
+//  private String categoryName;
+//  private String producerName;
+//  private String countryName;
+
+  private Long id;
+  private String name;
+  private BigDecimal price;
+  private CategoryDto categoryDto;
+  private ProducerDto producerDto;
+  private List<EGuarantee> guaranteeComponents;
 
 }
