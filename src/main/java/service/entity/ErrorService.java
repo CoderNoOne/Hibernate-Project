@@ -3,7 +3,7 @@ package service.entity;
 import repository.abstract_repository.entity.ErrorRepository;
 import repository.impl.ErrorRepositoryImpl;
 import domain.Error;
-import validator.impl.ErrorValidator;
+import validator.impl.ErrorDtoValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,11 +11,11 @@ import java.util.Optional;
 public class ErrorService {
 
   private final ErrorRepository errorRepository;
-  private final ErrorValidator errorValidator;
+  private final ErrorDtoValidator errorValidator;
 
   public ErrorService() {
     errorRepository = new ErrorRepositoryImpl();
-    errorValidator = new ErrorValidator();
+    errorValidator = new ErrorDtoValidator();
   }
 
   public Optional<Error> addErrorToDb(Error error) {

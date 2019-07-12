@@ -3,8 +3,7 @@ package util.entity_utils;
 import domain.*;
 import domain.enums.Epayment;
 import exception.AppException;
-import service.entity.CustomerService;
-import validator.impl.CustomerOrderValidator;
+import validator.impl.CustomerOrderDtoValidator;
 
 import java.util.stream.Collectors;
 
@@ -17,9 +16,9 @@ public class CustomerOrderUtil {
   private CustomerOrderUtil() {
   }
 
-  public static CustomerOrder createCustomerOrderFromUserInput() {
+  public static CustomerOrderDto createCustomerOrderFromUserInput() {
 
-    return CustomerOrder.builder()
+    return CustomerOrderDto.builder()
             .customer(Customer.builder()
                     .name(getString("Input customer name"))
                     .surname(getString("Input customer surname"))
@@ -42,13 +41,13 @@ public class CustomerOrderUtil {
             .build();
   }
 
-  public static CustomerOrder getCustomerOrderIfValid(CustomerOrder customerOrder) {
-    var customerOrderValidator = new CustomerOrderValidator();
+  public static CustomerOrderDto getCustomerOrderIfValid(CustomerOrderDto customerOrder) {
+    var customerOrderValidator = new CustomerOrderDtoValidator();
     var errorsMap = customerOrderValidator.validate(customerOrder);
 
     if (customerOrderValidator.hasErrors()) {
       printMessage(errorsMap.entrySet().stream().map(e -> e.getKey() + " : " + e.getValue()).collect(Collectors.joining("\n")));
-      throw new AppException("CustomerOrder is not valid: " + customerOrderValidator.getErrors());
+      throw new AppException("CustomerOrderDto is not valid: " + customerOrderValidator.getErrors());
     }
     return customerOrder;
   }

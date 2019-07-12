@@ -63,7 +63,7 @@ public class DataService {
   private void initCategories(final String categoriesJsonFilename) {
 
     try {
-      var categoryValidator = new CategoryValidator();
+      var categoryValidator = new CategoryDtoValidator();
       new CategoryListJsonConverter(categoriesJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + categoriesJsonFilename + " is empty"))
@@ -86,7 +86,7 @@ public class DataService {
   private void initShops(final String shopsJsonFilename) {
 
     try {
-      var shopValidator = new ShopValidator();
+      var shopValidator = new ShopDtoValidator();
       new ShopListJsonConverter(shopsJsonFilename)
               .fromJson()
               .orElseThrow(() -> new AppException("FILE " + shopsJsonFilename + " is empty"))
@@ -109,7 +109,7 @@ public class DataService {
   private void initCountries(final String countriesJsonFilename) {
 
     try {
-      var countryValidator = new CountryValidator();
+      var countryValidator = new CountryDtoValidator();
 
       new CountryListJsonConverter(countriesJsonFilename)
               .fromJson()
@@ -182,7 +182,7 @@ public class DataService {
   private void initCustomers(final String customersJsonFilename) {
 
     try {
-      var customerValidator = new CustomerValidator();
+      var customerValidator = new CustomerDtoValidator();
 
       new CustomerListJsonConverter(customersJsonFilename)
               .fromJson()
@@ -207,7 +207,7 @@ public class DataService {
   private void initProducts(final String productsJsonFilename) {
 
     try {
-      var productValidator = new ProductValidator();
+      var productValidator = new ProductDtoValidator();
 
       new ProductListJsonConverter(productsJsonFilename)
               .fromJson()

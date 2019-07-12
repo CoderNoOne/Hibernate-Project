@@ -2,20 +2,15 @@ package service.entity;
 
 import domain.Country;
 import domain.Customer;
-import domain.CustomerOrder;
 import exception.AppException;
-import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.CustomerRepository;
-import repository.impl.CountryRepositoryImpl;
 import repository.impl.CustomerRepositoryImpl;
 
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static util.entity_utils.CustomerUtil.getCustomerIfValid;
-import static util.entity_utils.ProductUtil.chooseAvailableProduct;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
 import static util.update.UpdateCustomerUtil.getUpdatedCustomer;

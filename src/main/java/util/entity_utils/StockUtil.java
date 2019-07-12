@@ -2,7 +2,7 @@ package util.entity_utils;
 
 import domain.*;
 import exception.AppException;
-import validator.impl.StockValidator;
+import validator.impl.StockDtoValidator;
 
 import java.util.stream.Collectors;
 
@@ -36,7 +36,7 @@ public class StockUtil {
     if (stock == null) {
       throw new AppException("Stock is null");
     }
-    var stockValidator = new StockValidator();
+    var stockValidator = new StockDtoValidator();
     var errorsMap = stockValidator.validate(stock);
 
     if (stockValidator.hasErrors()) {

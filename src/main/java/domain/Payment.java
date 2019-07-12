@@ -23,5 +23,5 @@ public class Payment {
   @OneToMany(mappedBy = "payment")
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private List<CustomerOrder> customerOrders;
+  private List<CustomerOrderDto> customerOrders;
 }

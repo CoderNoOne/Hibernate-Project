@@ -1,6 +1,6 @@
 package service.entity;
 
-import domain.CustomerOrder;
+import domain.CustomerOrderDto;
 import domain.Product;
 import domain.Shop;
 import domain.Stock;
@@ -11,9 +11,7 @@ import mapper.ProductMapper;
 import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.StockRepository;
 import repository.impl.StockRepositoryImpl;
-import util.entity_utils.StockUtil;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -89,7 +87,7 @@ public class StockService {
     return stockRepository.findStockByShopAndProduct(shop, product).isEmpty();
   }
 
-  public void decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrder customerOrder) {
+  public void decreaseStockQuantityIfValid(Map<Shop, Integer> map, CustomerOrderDto customerOrder) {
 
     getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct())
             .ifPresentOrElse(stock -> {

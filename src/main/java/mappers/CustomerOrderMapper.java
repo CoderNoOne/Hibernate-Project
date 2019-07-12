@@ -1,13 +1,14 @@
 package mappers;
 
 import domain.*;
+import domain.CustomerOrderDto;
 import dto.*;
 
 public class CustomerOrderMapper {
 
-  public CustomerOrder mapCustomerOrderDtoToCusomerOrder(CustomerOrderDto customerOrderDto) {
+  public CustomerOrderDto mapCustomerOrderDtoToCusomerOrder(dto.CustomerOrderDto customerOrderDto) {
 
-    return CustomerOrder.builder()
+    return CustomerOrderDto.builder()
             .id(customerOrderDto.getId())
             .discount(customerOrderDto.getDiscount())
             .quantity(customerOrderDto.getQuantity())
@@ -44,9 +45,9 @@ public class CustomerOrderMapper {
             .build();
   }
 
-  public CustomerOrderDto mapCustomerOrderToCustomerOrderDto(CustomerOrder customerOrder) {
+  public dto.CustomerOrderDto mapCustomerOrderToCustomerOrderDto(CustomerOrderDto customerOrder) {
 
-    return CustomerOrderDto.builder()
+    return dto.CustomerOrderDto.builder()
             .id(customerOrder.getId())
             .discount(customerOrder.getDiscount())
             .quantity(customerOrder.getQuantity())

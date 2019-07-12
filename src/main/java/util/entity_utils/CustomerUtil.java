@@ -3,7 +3,7 @@ package util.entity_utils;
 import domain.Country;
 import domain.Customer;
 import exception.AppException;
-import validator.impl.CustomerValidator;
+import validator.impl.CustomerDtoValidator;
 
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public final class CustomerUtil {
 
   public static Customer getCustomerIfValid(Customer customer){
 
-    var customerValidator = new CustomerValidator();
+    var customerValidator = new CustomerDtoValidator();
     var errorsMap = customerValidator.validate(customer);
 
     if (customerValidator.hasErrors()) {

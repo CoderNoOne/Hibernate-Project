@@ -1,28 +1,29 @@
 package validator.impl;
 
-import domain.Trade;
+
+import dto.TradeDto;
 import validator.AbstractValidator;
 
 import java.util.Map;
 
-public class TradeValidator extends AbstractValidator<Trade> {
+public class TradeDtoValidator extends AbstractValidator<TradeDto> {
 
   @Override
-  public Map<String, String> validate(Trade trade) {
+  public Map<String, String> validate(TradeDto tradeDto) {
     errors.clear();
-    if (trade == null) {
+    if (tradeDto == null) {
       errors.put("Trade object", "Trade object is null");
       return errors;
     }
 
-    if (!isTradeNameValid(trade)) {
+    if (!isTradeNameValid(tradeDto)) {
       errors.put("Trade name", "Trade name should contain only capital letters and optionally whitespace between letters");
     }
     return errors;
   }
 
-  private boolean isTradeNameValid(Trade trade) {
-    return trade.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+  private boolean isTradeNameValid(TradeDto tradeDto) {
+    return tradeDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
 }

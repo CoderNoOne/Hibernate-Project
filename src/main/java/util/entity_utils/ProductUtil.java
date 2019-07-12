@@ -5,7 +5,7 @@ import domain.enums.EGuarantee;
 import dto.ProductDto;
 import exception.AppException;
 import util.others.UserDataUtils;
-import validator.impl.ProductValidator;
+import validator.impl.ProductDtoValidator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public final class ProductUtil {
 
   public static ProductDto getProductIfValid(ProductDto product) {
 
-    var productValidator = new ProductValidator();
+    var productValidator = new ProductDtoValidator();
     var errorsMap = productValidator.validate(product);
 
     if (productValidator.hasErrors()) {

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, Long> {
+public interface CustomerOrderRepository extends CrudRepository<CustomerOrderDto, Long> {
 
   Map<Product, Integer> findNumberOfProductsOrders(List<Product> productList);
 
@@ -25,7 +25,7 @@ public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, L
   //Pobranie z bazy danych zamówień, które złożono w przedziale dat
   // pobranym od użytkownika o kwocie zamówienia (po uwzględnieniu zniżki) większej niż wartość podana przez użytkownika.
 
-  List<CustomerOrder> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount);
+  List<CustomerOrderDto> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount);
 
   List<Product> findProductsWithActiveWarrantyAndWithGuaranteeComponents(Set<EGuarantee> guaranteeSet);
 

@@ -1,17 +1,17 @@
 package validator.impl;
 
-import domain.Payment;
+import dto.PaymentDto;
 import validator.AbstractValidator;
 
 
 import java.util.Map;
 
-public class PaymentValidator extends AbstractValidator<Payment> {
+public class PaymentDtoValidator extends AbstractValidator<PaymentDto> {
 
   @Override
-  public Map<String, String> validate(Payment payment) {
+  public Map<String, String> validate(PaymentDto paymentDto) {
     errors.clear();
-    if (payment == null) {
+    if (paymentDto == null) {
       errors.put("Payment object", "Payment object is null");
       return errors;
     }

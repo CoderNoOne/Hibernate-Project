@@ -40,7 +40,7 @@ public class Product {
   @OneToMany(mappedBy = "product")
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  private List<CustomerOrder> customerOrders;
+  private List<CustomerOrderDto> customerOrders;
 
   @OneToMany(mappedBy = "product")
   @ToString.Exclude

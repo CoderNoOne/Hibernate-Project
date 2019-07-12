@@ -1,19 +1,20 @@
 package validator.impl;
 
-import domain.CustomerOrder;
+
+import dto.CustomerOrderDto;
 import validator.AbstractValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
-public class CustomerOrderValidator extends AbstractValidator<CustomerOrder> {
+public class CustomerOrderDtoValidator extends AbstractValidator<CustomerOrderDto> {
 
   @Override
-  public Map<String, String> validate(CustomerOrder customerOrder) {
+  public Map<String, String> validate(CustomerOrderDto customerOrder) {
     errors.clear();
     if (customerOrder == null) {
-      errors.put("CustomerOrder object", "CutomerOrder object is null");
+      errors.put("CustomerOrderDto object", "CutomerOrder object is null");
       return errors;
     }
 
@@ -38,40 +39,40 @@ public class CustomerOrderValidator extends AbstractValidator<CustomerOrder> {
     return errors;
   }
 
-  private boolean isDiscountValid(CustomerOrder customerOrder) {
+  private boolean isDiscountValid(CustomerOrderDto customerOrder) {
     return customerOrder.getDiscount().compareTo(BigDecimal.ZERO) >= 0 && customerOrder.getDiscount().compareTo(BigDecimal.ONE) <= 0;
   }
 
-  private boolean isOrderDateValid(CustomerOrder customerOrder) {
+  private boolean isOrderDateValid(CustomerOrderDto customerOrder) {
     return customerOrder.getDate().compareTo(LocalDate.now()) >= 0;
   }
 
-  private boolean isPaymentValid(CustomerOrder customerOrder){
+  private boolean isPaymentValid(CustomerOrderDto customerOrder){
     return !getPaymentValidator(customerOrder).hasErrors();
   }
 
-  private boolean isCustomerValid(CustomerOrder customerOrder){
+  private boolean isCustomerValid(CustomerOrderDto customerOrder){
     return !getCustomerValidator(customerOrder).hasErrors();
   }
 
-  private boolean isProductValid(CustomerOrder customerOrder){
+  private boolean isProductValid(CustomerOrderDto customerOrder){
     return !getProductValidator(customerOrder).hasErrors();
   }
 
-  private ProductValidator getProductValidator(CustomerOrder customerOrder) {
-    ProductValidator productValidator = new ProductValidator();
+  private ProductDtoValidator getProductValidator(CustomerOrderDto customerOrder) {
+    ProductDtoValidator productValidator = new ProductDtoValidator();
     productValidator.validate(customerOrder.getProduct());
     return productValidator;
   }
 
-  private CustomerValidator getCustomerValidator(CustomerOrder customerOrder) {
-    var customerValidator = new CustomerValidator();
-    customerValidator.validate(customerOrder.getCustomer());
-    return customerValidator;
+  private CustomerDtoValidator getCustomerValidator(CustomerOrderDto customerOrderDto) {
+    var customerDtoValidator = new CustomerDtoValidator();
+    customerDtoValidator.validate(customerOrderDto.getCustomer());
+    return customerDtoValidator;
   }
 
-  private PaymentValidator getPaymentValidator(CustomerOrder customerOrder) {
-    var paymentValidator = new PaymentValidator();
+  private PaymentDtoValidator getPaymentValidator(CustomerOrderDto customerOrder) {
+    var paymentValidator = new PaymentDtoValidator();
     paymentValidator.validate(customerOrder.getPayment());
     return paymentValidator;
   }

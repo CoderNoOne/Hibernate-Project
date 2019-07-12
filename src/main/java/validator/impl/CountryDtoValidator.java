@@ -1,28 +1,28 @@
 package validator.impl;
 
-import domain.Country;
+import dto.CountryDto;
 import validator.AbstractValidator;
 
 import java.util.Map;
 
-public class CountryValidator extends AbstractValidator<Country>{
+public class CountryDtoValidator extends AbstractValidator<CountryDto>{
 
   @Override
-  public Map<String, String> validate(Country country) {
+  public Map<String, String> validate(CountryDto countryDto) {
     errors.clear();
-    if (country == null) {
+    if (countryDto == null) {
       errors.put("Country object", "Country object is null");
       return errors;
     }
 
-    if (!isCountryNameValid(country)) {
+    if (!isCountryNameValid(countryDto)) {
       errors.put("Country name", "Country name should contain only capital letters and optionally a single whitespace between them");
     }
 
     return errors;
   }
 
-  private boolean isCountryNameValid(Country country) {
-    return country.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+  private boolean isCountryNameValid(CountryDto countryDto) {
+    return countryDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 }

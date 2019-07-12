@@ -4,7 +4,7 @@ import domain.Country;
 import domain.Shop;
 import domain.Stock;
 import exception.AppException;
-import validator.impl.ShopValidator;
+import validator.impl.ShopDtoValidator;
 
 
 import java.util.List;
@@ -43,7 +43,7 @@ public final class ShopUtil {
 
   public static Shop getShopIfValid(Shop shop) {
 
-    var shopValidator = new ShopValidator();
+    var shopValidator = new ShopDtoValidator();
     var errorsMap = shopValidator.validate(shop);
 
     if (shopValidator.hasErrors()) {

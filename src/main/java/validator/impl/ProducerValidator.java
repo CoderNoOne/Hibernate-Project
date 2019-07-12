@@ -1,57 +1,55 @@
 package validator.impl;
 
-import domain.Producer;
+import dto.ProducerDto;
 import validator.AbstractValidator;
-import validator.Validator;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class ProducerValidator extends AbstractValidator<Producer>  {
+public class ProducerDtoValidator extends AbstractValidator<ProducerDto>  {
 
   @Override
-  public Map<String, String> validate(Producer producer) {
+  public Map<String, String> validate(ProducerDto producerDto) {
     errors.clear();
-    if (producer == null) {
+    if (producerDto == null) {
       errors.put("Producer object", "Producer object is null");
       return errors;
     }
 
-    if (!isProducerNameValid(producer)) {
+    if (!isProducerNameValid(producerDto)) {
       errors.put("Producer name", "Producer name should contain only capital letters and optionally a whitespace between them");
     }
 
-    if (!isTradeValid(producer)) {
-      errors.putAll(getTradeValidator(producer).getErrors());
+    if (!isTradeValid(producerDto)) {
+      errors.putAll(getTradeValidator(producerDto).getErrors());
     }
 
-    if(!isCountryValid(producer)){
-      errors.putAll(getCountryValidator(producer).getErrors());
+    if(!isCountryValid(producerDto)){
+      errors.putAll(getCountryValidator(producerDto).getErrors());
     }
     return errors;
   }
 
-  private boolean isProducerNameValid(Producer producer) {
-    return producer.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+  private boolean isProducerNameValid(ProducerDto producerDto) {
+    return producerDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
-  private boolean isTradeValid(Producer producer) {
-    return !getTradeValidator(producer).hasErrors();
+  private boolean isTradeValid(ProducerDto producerDto) {
+    return !getTradeValidator(producerDto).hasErrors();
   }
 
-  private boolean isCountryValid(Producer producer){
-    return !getCountryValidator(producer).hasErrors();
+  private boolean isCountryValid(ProducerDto producerDto){
+    return !getCountryValidator(producerDto).hasErrors();
   }
 
-  private TradeValidator getTradeValidator(Producer producer) {
+  private TradeValidator getTradeValidator(ProducerDto producerDto) {
     TradeValidator tradeValidator = new TradeValidator();
-    tradeValidator.validate(producer.getTrade());
+    tradeValidator.validate(producerDto.getTrade());
     return tradeValidator;
   }
 
-  private CountryValidator getCountryValidator(Producer producer) {
-    CountryValidator countryValidator = new CountryValidator();
-    countryValidator.validate(producer.getCountry());
+  private CountryDtoValidator getCountryValidator(ProducerDto producerDto) {
+    CountryDtoValidator countryValidator = new CountryDtoValidator();
+    countryValidator.validate(producerDto.getCountry());
     return countryValidator;
   }
 }

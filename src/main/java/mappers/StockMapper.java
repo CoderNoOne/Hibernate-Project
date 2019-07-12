@@ -1,13 +1,14 @@
 package mappers;
 
 import domain.*;
+import domain.Stock;
 import dto.*;
 
 public class StockMapper {
 
-  public StockDto mapStockToStockDto(Stock stock) {
+  public dto.StockDto mapStockToStockDto(Stock stock) {
 
-    return StockDto.builder()
+    return dto.StockDto.builder()
             .id(stock.getId())
             .quantity(stock.getQuantity())
             .productDto(ProductDto.builder()
@@ -40,7 +41,7 @@ public class StockMapper {
             .build();
   }
 
-  public Stock mapStockDtoToStock(StockDto stockDto) {
+  public Stock mapStockDtoToStock(dto.StockDto stockDto) {
 
     return Stock.builder()
             .id(stockDto.getId())

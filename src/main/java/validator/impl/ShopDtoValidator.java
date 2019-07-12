@@ -1,29 +1,26 @@
 package validator.impl;
 
-import domain.Shop;
+import dto.ShopDto;
 import validator.AbstractValidator;
-import validator.Validator;
-
-import java.util.HashMap;
 import java.util.Map;
 
-public class ShopValidator extends AbstractValidator<Shop> {
+public class ShopDtoValidator extends AbstractValidator<ShopDto> {
 
   @Override
-  public Map<String, String> validate(Shop shop) {
+  public Map<String, String> validate(ShopDto shopDto) {
     errors.clear();
-    if (shop == null) {
+    if (shopDto == null) {
       errors.put("Shop object", "Shop object is null");
       return errors;
     }
 
-    if (!isNameValid(shop)) {
+    if (!isNameValid(shopDto)) {
       errors.put("Shop name", " Shop name should contain only capital letters and optionally white space between letters");
     }
     return errors;
   }
 
-  private boolean isNameValid(Shop shop) {
-    return shop.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+  private boolean isNameValid(ShopDto shopDto) {
+    return shopDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 }

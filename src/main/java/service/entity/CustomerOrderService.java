@@ -1,12 +1,10 @@
 package service.entity;
 
-import domain.CustomerOrder;
-import domain.Product;
+import domain.CustomerOrderDto;
 import domain.Shop;
 import domain.enums.EGuarantee;
 import dto.*;
 import exception.AppException;
-import mapper.*;
 import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.CustomerOrderRepository;
 import repository.impl.CustomerOrderRepositoryImpl;
@@ -45,13 +43,13 @@ public class CustomerOrderService {
     this.paymentService = new PaymentService();
   }
 
-  private Optional<CustomerOrder> addCustomerOrderToDb(CustomerOrder customerOrder) {
+  private Optional<CustomerOrderDto> addCustomerOrderToDb(CustomerOrderDto customerOrder) {
     return customerOrderRepository.addOrUpdate(customerOrder);
   }
 
-  private CustomerOrder setCustomerOrderComponentsFromDbIfTheyExist(CustomerOrder customerOrder) {
+  private CustomerOrderDto setCustomerOrderComponentsFromDbIfTheyExist(CustomerOrderDto customerOrder) {
 
-    return CustomerOrder.builder()
+    return CustomerOrderDto.builder()
             .id(customerOrder.getId())
             .payment(paymentService.getPaymentFromDbIfExists(customerOrder.getPayment()))
             .discount(customerOrder.getDiscount())
@@ -62,7 +60,7 @@ public class CustomerOrderService {
             .build();
   }
 
-  public void addCustomerOrderToDbFromUserInput(CustomerOrder customerOrder) {
+  public void addCustomerOrderToDbFromUserInput(CustomerOrderDto customerOrder) {
     addCustomerOrderToDb(setCustomerOrderComponentsFromDbIfTheyExist(customerOrder));
   }
 
@@ -78,7 +76,7 @@ public class CustomerOrderService {
   }
 
 
-  public CustomerOrder specifyOrderedProductDetail(CustomerOrder customerOrderFromUserInput) {
+  public CustomerOrderDto specifyOrderedProductDetail(CustomerOrderDto customerOrderFromUserInput) {
 
     var productsByNameAndCategory = productService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
             customerOrderFromUserInput.getProduct().getCategory());
@@ -92,7 +90,7 @@ public class CustomerOrderService {
             customerOrderFromUserInput.getProduct().getName(), customerOrderFromUserInput.getProduct().getCategory().getName()));
   }
 
-  public CustomerOrder specifyCustomerDetail(CustomerOrder customerOrder) {
+  public CustomerOrderDto specifyCustomerDetail(domain.CustomerOrderDto customerOrder) {
 
     var customerName = customerOrder.getCustomer().getName();
     var customerSurname = customerOrder.getCustomer().getSurname();
@@ -110,7 +108,7 @@ public class CustomerOrderService {
     return customerOrder;
   }
 
-  public Map<Shop, Integer> specifyShopDetailForCustomerOrder(CustomerOrder customerOrder) {
+  public Map<Shop, Integer> specifyShopDetailForCustomerOrder(CustomerOrderDto customerOrder) {
 
     Map<Shop, Integer> shopMap = stockService.getShopListWithProductInStock(customerOrder.getProduct());
 
@@ -129,7 +127,7 @@ public class CustomerOrderService {
             .stream().distinct().map(productMapper::productToProductDTO).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList());
   }
 
-  public List<CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
+  public List<dto.CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
     return customerOrderRepository.
             findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount)
             .stream()

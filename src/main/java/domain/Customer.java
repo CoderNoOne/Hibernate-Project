@@ -27,5 +27,5 @@ public class Customer {
   @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private List<CustomerOrder> customerOrders;
+  private List<CustomerOrderDto> customerOrders;
 }
