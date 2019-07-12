@@ -74,7 +74,16 @@ public class DataService {
                   printCollectionWithNumeration(categoryValidator.getErrors().entrySet());
                 }
                 return !categoryValidator.hasErrors();
-              }).forEach(categoryService::addCategoryToDb);
+              }).forEach(categoryDto -> {
+        try {
+          categoryService.addCategoryToDb(categoryDto);
+        } catch (Exception e) {
+          log.info(e.getMessage());
+          log.error(Arrays.toString(e.getStackTrace()));
+          errorService.addErrorToDb(ErrorDto.builder()
+                  .date(LocalDateTime.now()).message(e.getMessage()).build());
+        }
+      });
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -97,7 +106,16 @@ public class DataService {
                   printCollectionWithNumeration(shopValidator.getErrors().entrySet());
                 }
                 return !shopValidator.hasErrors();
-              }).forEach(shopService::addShopToDbFromUserInput);
+              }).forEach(shopDto -> {
+        try {
+          shopService.addShopToDbFromUserInput(shopDto);
+        } catch (Exception e) {
+          log.info(e.getMessage());
+          log.error(Arrays.toString(e.getStackTrace()));
+          errorService.addErrorToDb(ErrorDto.builder()
+                  .date(LocalDateTime.now()).message(e.getMessage()).build());
+        }
+      });
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -121,7 +139,16 @@ public class DataService {
                   printCollectionWithNumeration(countryValidator.getErrors().entrySet());
                 }
                 return !countryValidator.hasErrors();
-              }).forEach(countryService::addCountryToDb);
+              }).forEach(countryDto -> {
+        try {
+          countryService.addCountryToDb(countryDto);
+        } catch (Exception e) {
+          log.info(e.getMessage());
+          log.error(Arrays.toString(e.getStackTrace()));
+          errorService.addErrorToDb(ErrorDto.builder()
+                  .date(LocalDateTime.now()).message(e.getMessage()).build());
+        }
+      });
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -145,7 +172,16 @@ public class DataService {
                   printCollectionWithNumeration(tradeValidator.getErrors().entrySet());
                 }
                 return !tradeValidator.hasErrors();
-              }).forEach(tradeService::addTradeToDbFromUserInput);
+              }).forEach(tradeDto -> {
+        try {
+          tradeService.addTradeToDbFromUserInput(tradeDto);
+        } catch (Exception e) {
+          log.info(e.getMessage());
+          log.error(Arrays.toString(e.getStackTrace()));
+          errorService.addErrorToDb(ErrorDto.builder()
+                  .date(LocalDateTime.now()).message(e.getMessage()).build());
+        }
+      });
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -238,7 +274,16 @@ public class DataService {
                 }
                 return !productValidator.hasErrors();
               })
-              .forEach(productService::addProductToDbFromUserInput);
+              .forEach(productDto -> {
+                try {
+                  productService.addProductToDbFromUserInput(productDto);
+                } catch (Exception e) {
+                  log.info(e.getMessage());
+                  log.error(Arrays.toString(e.getStackTrace()));
+                  errorService.addErrorToDb(ErrorDto.builder()
+                          .date(LocalDateTime.now()).message(e.getMessage()).build());
+                }
+              });
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
