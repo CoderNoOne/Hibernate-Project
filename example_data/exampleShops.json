@@ -1,37 +1,37 @@
 [
   {
     "name": "KAUFLAND",
-    "country": {
+    "countryDto": {
       "name": "POLAND"
     }
   },
   {
     "name": "KOMPUTRONIK",
-    "country": {
+    "countryDto": {
       "name": "POLAND"
     }
   },
   {
     "name": "WALMART",
-    "country": {
+    "countryDto": {
       "name": "USA"
     }
   },
   {
     "name": "WESTFIELD",
-    "country": {
+    "countryDto": {
       "name": "ENGLAND"
     }
   },
   {
     "name": "ALTMARKT",
-    "country": {
+    "countryDto": {
       "name": "GERMANY"
     }
   },
   {
     "name": "HAUSMAN",
-    "country": {
+    "countryDto": {
       "name": "FRANCE"
     }
   }

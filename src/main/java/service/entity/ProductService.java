@@ -4,13 +4,9 @@ import dto.ProducerDto;
 import mappers.CategoryMapper;
 import mappers.ProducerMapper;
 import mappers.ProductMapper;
-import domain.Category;
-import domain.Producer;
-import domain.Product;
 import dto.CategoryDto;
 import dto.ProductDto;
 import exception.AppException;
-import org.mapstruct.factory.Mappers;
 import repository.abstract_repository.entity.ProductRepository;
 import repository.impl.ProductRepositoryImpl;
 
@@ -50,7 +46,7 @@ public class ProductService {
   }
 
 
-  public ProductDto setProductComponentsFromDbIfTheyExist(ProductDto productDto) {
+  ProductDto setProductComponentsFromDbIfTheyExist(ProductDto productDto) {
 
     return ProductDto.builder()
             .id(productDto.getId())
@@ -62,7 +58,7 @@ public class ProductService {
             .build();
   }
 
-  public ProductDto getProductFromDbIfExists(ProductDto productDto) {
+  ProductDto getProductFromDbIfExists(ProductDto productDto) {
 
     return getProductByNameAndCategoryAndProducer(productDto.getName(), productDto.getCategoryDto(),
             productDto.getProducerDto())
@@ -82,7 +78,7 @@ public class ProductService {
             producerMapper.mapProducerDtoToProducer(producerDto)).isEmpty();
   }
 
-  public Optional<ProductDto> getProductByNameAndCategoryAndProducer(String name, CategoryDto categoryDto, ProducerDto producerDto) {
+  private Optional<ProductDto> getProductByNameAndCategoryAndProducer(String name, CategoryDto categoryDto, ProducerDto producerDto) {
     return Optional.ofNullable(
             productMapper.mapProductToProductDto(
                     productRepository.findByNameAndCategoryAndProducer(name, categoryMapper.mapCategoryDtoToCategory(categoryDto), producerMapper.mapProducerDtoToProducer(producerDto))
@@ -90,7 +86,7 @@ public class ProductService {
                                     categoryDto + " and producer: " + producerDto))));
   }
 
-  public List<ProductDto> getProductsByNameAndCategory(String name, CategoryDto categoryDto) {
+  List<ProductDto> getProductsByNameAndCategory(String name, CategoryDto categoryDto) {
     return productRepository.findProductsByNameAndCategory(name, categoryMapper.mapCategoryDtoToCategory(categoryDto))
             .stream()
             .map(productMapper::mapProductToProductDto)
@@ -109,14 +105,14 @@ public class ProductService {
     productRepository.deleteAll();
   }
 
-  public List<ProductDto> getAllProducts() {
+  private List<ProductDto> getAllProducts() {
     return productRepository.findAll()
             .stream()
             .map(productMapper::mapProductToProductDto)
             .collect(Collectors.toList());
   }
 
-  public Optional<ProductDto> getProductDtoById(Long id) {
+  private Optional<ProductDto> getProductDtoById(Long id) {
     return productRepository.findById(id)
             .map(productMapper::mapProductToProductDto);
 

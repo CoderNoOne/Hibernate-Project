@@ -1,8 +1,5 @@
 package util.entity_utils;
 
-import domain.Country;
-import domain.Producer;
-import domain.Trade;
 import dto.CountryDto;
 import dto.ProducerDto;
 import dto.TradeDto;

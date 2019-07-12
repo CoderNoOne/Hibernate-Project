@@ -3,7 +3,7 @@
     "name": "JAN",
     "surname": "KOWALSKI",
     "age": 30,
-    "country": {
+    "countryDto": {
       "name": "POLAND"
     }
   },
@@ -11,7 +11,7 @@
     "name": "JOHN",
     "surname": "SMITH",
     "age": 22,
-    "country": {
+    "countryDto": {
       "name": "ENGLAND"
     }
   },
@@ -19,7 +19,7 @@
     "name": "JOHN",
     "surname": "SMITH",
     "age": 22,
-    "country": {
+    "countryDto": {
       "name": "ENGLAND"
     }
   },
@@ -27,7 +27,7 @@
     "name": "KATARZYNA",
     "surname": "NOWAK",
     "age": 35,
-    "country": {
+    "countryDto": {
       "name": "POLAND"
     }
   },
@@ -35,7 +35,7 @@
     "name": "STEFAN",
     "surname": "KUHLE",
     "age": 45,
-    "country": {
+    "countryDto": {
       "name": "GERMANY"
     }
   },
@@ -43,7 +43,7 @@
     "name": "MAURO",
     "surname": "KESSIE",
     "age": 67,
-    "country": {
+    "countryDto": {
       "name": "SPAIN"
     }
   }

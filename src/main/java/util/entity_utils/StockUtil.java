@@ -1,6 +1,5 @@
 package util.entity_utils;
 
-import domain.*;
 import dto.CategoryDto;
 import dto.ProductDto;
 import dto.ShopDto;

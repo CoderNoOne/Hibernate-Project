@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -16,17 +17,11 @@ import java.util.List;
 @Data
 public class ProductDto {
 
-//  private String productName;
-//  private BigDecimal price;
-//  private String categoryName;
-//  private String producerName;
-//  private String countryName;
-
   private Long id;
   private String name;
   private BigDecimal price;
   private CategoryDto categoryDto;
   private ProducerDto producerDto;
-  private List<EGuarantee> guaranteeComponents;
+  private List<EGuarantee> guaranteeComponents = new ArrayList<>();
 
 }

@@ -2,31 +2,26 @@
   {
     "name": "MONITOR",
     "price": "1000",
-    "category": {
+    "categoryDto": {
       "name": "DISPLAY"
     },
-    "producer": {
+    "producerDto": {
       "name": "SAMSUNG",
       "country": {
         "name": "SOUTH_KOREA"
       },
       "trade": {
         "name": "ELECTRONICS"
-      },
-      "guaranteeComponents": [
-        {
-          "enum": "HELP_DESK"
-        }
-      ]
+      }
     }
   },
   {
     "name": "MELON",
     "price": "20.30",
-    "category": {
+    "categoryDto": {
       "name": "FRUITS"
     },
-    "producer": {
+    "producerDto": {
       "name": "SPANIARDS",
       "country": {
         "name": "SPAIN"
@@ -39,10 +34,10 @@
   {
     "name": "PC",
     "price": "4500",
-    "category": {
+    "categoryDto": {
       "name": "COMPUTERS"
     },
-    "producer": {
+    "producerDto": {
       "name": "OPTIMUS",
       "country": {
         "name": "POLAND"
@@ -55,10 +50,10 @@
   {
     "name": "PHONE",
     "price": "1200",
-    "category": {
+    "categoryDto": {
       "name": "PORTABLE_DEVICES"
     },
-    "producer": {
+    "producerDto": {
       "name": "HTC",
       "country": {
         "name": "TAIWAN"
@@ -71,10 +66,10 @@
   {
     "name": "KEYBOARD",
     "price": "200",
-    "category": {
+    "categoryDto": {
       "name": "PORTABLE_DEVICES"
     },
-    "producer": {
+    "producerDto": {
       "name": "QWERTY",
       "country": {
         "name": "VIETNAM"
@@ -87,10 +82,10 @@
   {
     "name": "DESK",
     "price": "300",
-    "category": {
+    "categoryDto": {
       "name": "OFFICE"
     },
-    "producer": {
+    "producerDto": {
       "name": "CABINETO",
       "country": {
         "name": "PORTUGAL"
@@ -103,10 +98,10 @@
   {
     "name": "BEER",
     "price": "10",
-    "category": {
+    "categoryDto": {
       "name": "DRINKS"
     },
-    "producer": {
+    "producerDto": {
       "name": "HEINEKEN",
       "country": {
         "name": "NETHERLANDS"
@@ -119,10 +114,10 @@
   {
     "name": "CAR",
     "price": "150000",
-    "category": {
+    "categoryDto": {
       "name": "AUTOMOBILE"
     },
-    "producer": {
+    "producerDto": {
       "name": "PORSCHE",
       "country": {
         "name": "GERMANY"
@@ -135,10 +130,10 @@
   {
     "name": "GUN",
     "price": "5000",
-    "category": {
+    "categoryDto": {
       "name": "MACHINE PISTOL"
     },
-    "producer": {
+    "producerDto": {
       "name": "COLT",
       "country": {
         "name": "USA"

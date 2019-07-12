@@ -170,7 +170,16 @@ public class DataService {
                   printCollectionWithNumeration(producerValidator.getErrors().entrySet());
                 }
                 return !producerValidator.hasErrors();
-              }).forEach(producerService::addProducerToDbFromUserInput);
+              }).forEach(productDto -> {
+        try {
+          producerService.addProducerToDbFromUserInput(productDto);
+        } catch (Exception e) {
+          log.info(e.getMessage());
+          log.error(Arrays.toString(e.getStackTrace()));
+          errorService.addErrorToDb(ErrorDto.builder()
+                  .date(LocalDateTime.now()).message(e.getMessage()).build());
+        }
+      });
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -195,7 +204,16 @@ public class DataService {
                 }
                 return !customerValidator.hasErrors();
               })
-              .forEach(customerService::addCustomerToDbFromUserInput);
+              .forEach(customerDto -> {
+                try {
+                  customerService.addCustomerToDbFromUserInput(customerDto);
+                } catch (Exception e) {
+                  log.info(e.getMessage());
+                  log.error(Arrays.toString(e.getStackTrace()));
+                  errorService.addErrorToDb(ErrorDto.builder()
+                          .date(LocalDateTime.now()).message(e.getMessage()).build());
+                }
+              });
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
