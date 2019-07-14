@@ -187,7 +187,6 @@ class Menu {
   private void executeOption15() {
 
     try {
-      printMessage("\nInput customer's information you want to delete\n");
       CustomerDto customerDto = specifyCustomerDtoDetailToDelete();
       customerService.deleteCustomer(customerDto);
     } catch (Exception e) {

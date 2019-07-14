@@ -6,7 +6,9 @@ import exception.AppException;
 import repository.abstract_repository.entity.CategoryRepository;
 import repository.impl.CategoryRepositoryImpl;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CategoryService {
 
@@ -15,6 +17,11 @@ public class CategoryService {
 
   public CategoryService() {
     this.categoryRepository = new CategoryRepositoryImpl();
+    this.categoryMapper = new CategoryMapper();
+  }
+
+  public CategoryService(CategoryRepository categoryRepository){
+    this.categoryRepository = categoryRepository;
     this.categoryMapper = new CategoryMapper();
   }
 
@@ -54,5 +61,12 @@ public class CategoryService {
   public CategoryDto getCategoryFromDbIfExists(CategoryDto categoryDto) {
     return getCategoryByName(categoryDto.getName()).orElse(categoryDto);
   }
+  public List<CategoryDto> findAllCountries(){
+    return categoryRepository.findAll()
+            .stream()
+            .map(categoryMapper::mapCategoryToCategoryDto)
+            .collect(Collectors.toList());
+  }
+
 
 }

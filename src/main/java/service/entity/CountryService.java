@@ -7,7 +7,9 @@ import repository.abstract_repository.entity.CountryRepository;
 import repository.impl.CountryRepositoryImpl;
 
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CountryService {
 
@@ -53,5 +55,12 @@ public class CountryService {
 
   public CountryDto getCountryFromDbIfExists(CountryDto countryDto) {
     return getCountryByName(countryDto.getName()).orElse(countryDto);
+  }
+
+  public List<CountryDto> findAllCountries(){
+    return countryRepository.findAll()
+            .stream()
+            .map(countryMapper::mapCountryToCountryDto)
+            .collect(Collectors.toList());
   }
 }

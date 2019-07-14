@@ -1,9 +1,8 @@
 package service.entity;
 
-import domain.Product;
-import domain.Shop;
 import dto.*;
 import exception.AppException;
+import jdk.swing.interop.SwingInterOpUtils;
 import mappers.ProducerMapper;
 import mappers.ProductMapper;
 import mappers.ShopMapper;
@@ -46,6 +45,7 @@ public class StockService {
   }
 
   private Optional<StockDto> addStockToDb(StockDto stockDto) {
+    System.out.println("STOCKDTO IN ADDSTOCKTODB METHOD: " + stockDto);
     return stockRepository.addOrUpdate(stockMapper.mapStockDtoToStock(stockDto))
             .map(stockMapper::mapStockToStockDto);
   }
@@ -56,16 +56,19 @@ public class StockService {
       stockFromDb.setQuantity(getStockQuantity(stockFromDb) + stockDto.getQuantity());
       stockDto = stockFromDb;
     }
-    addStockToDb(stockDto);
+    System.out.println("STOCKDTO: " + stockDto);
+    addStockToDb(setStockDtoComponentsFromDbIfTheyExist(stockDto));
   }
 
   private StockDto setStockDtoComponentsFromDbIfTheyExist(StockDto stockDto) {
+
     return StockDto.builder()
             .id(stockDto.getId())
             .quantity(stockDto.getQuantity())
             .shopDto(shopService.getShopFromDbIfExists(stockDto.getShopDto()))
             .productDto(productService.getProductFromDbIfExists(stockDto.getProductDto()))
             .build();
+
   }
 
 
@@ -84,6 +87,7 @@ public class StockService {
   private ShopDto setShopComponentsFromDbIfTheyExist(ShopDto shopDto) {
 
     return ShopDto.builder()
+            .id(shopDto.getId())
             .name(shopDto.getName())
             .countryDto(countryService.getCountryFromDbIfExists(shopDto.getCountryDto()))
             .build();

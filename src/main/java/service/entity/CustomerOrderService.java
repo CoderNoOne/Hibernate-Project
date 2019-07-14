@@ -1,6 +1,6 @@
 package service.entity;
 
-import domain.Shop;
+
 import domain.enums.EGuarantee;
 import dto.*;
 import exception.AppException;

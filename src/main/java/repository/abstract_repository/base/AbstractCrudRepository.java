@@ -2,6 +2,7 @@ package repository.abstract_repository.base;
 
 import configuration.DbConnection;
 import exception.AppException;
+import lombok.extern.slf4j.Slf4j;
 
 
 import javax.persistence.EntityManager;
@@ -13,13 +14,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T, Id> {
 
   protected final EntityManagerFactory entityManagerFactory = DbConnection.getInstance().getEntityManagerFactory();
 
   protected final Class<T> entityType = (Class<T>) (((ParameterizedType) this.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
   protected final Class<Id> idType = (Class<Id>) (((ParameterizedType) this.getClass().getGenericSuperclass())).getActualTypeArguments()[1];
-
 
   @Override
   public Optional<T> addOrUpdate(T t) {
@@ -37,8 +38,8 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
       item = Optional.ofNullable(entityManager.merge(t));
       tx.commit();
     } catch (Exception e) {
-      System.err.println(e.getMessage());
-      System.err.println(Arrays.toString(e.getStackTrace()));
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }
@@ -66,6 +67,8 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
               .getResultList();
       tx.commit();
     } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }
@@ -94,13 +97,10 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
     try {
       tx.begin();
       item = Optional.ofNullable(entityManager.find(entityType, id));
-//              .createQuery("select e from " + entityType.getSimpleName() + " e where e.id = :id", entityType)
-//              .setParameter("id", id)
-              /*.getResultList()
-              .stream()
-              .findFirst();*/
       tx.commit();
     } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }
@@ -140,6 +140,8 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
               });
       tx.commit();
     } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }
@@ -166,6 +168,8 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
               .executeUpdate();
       tx.commit();
     } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }

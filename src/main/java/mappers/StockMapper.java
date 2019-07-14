@@ -6,7 +6,7 @@ import dto.*;
 
 public class StockMapper {
 
-  public dto.StockDto mapStockToStockDto(Stock stock) {
+  public StockDto mapStockToStockDto(Stock stock) {
 
     return dto.StockDto.builder()
             .id(stock.getId())
@@ -29,6 +29,8 @@ public class StockMapper {
                                     .name(stock.getProduct().getProducer().getTrade().getName())
                                     .build())
                             .build())
+                    .price(stock.getProduct().getPrice())
+                    .name(stock.getProduct().getName())
                     .build())
             .shopDto(ShopDto.builder()
                     .id(stock.getShop().getId())
@@ -41,7 +43,7 @@ public class StockMapper {
             .build();
   }
 
-  public Stock mapStockDtoToStock(dto.StockDto stockDto) {
+  public Stock mapStockDtoToStock(StockDto stockDto) {
 
     return Stock.builder()
             .id(stockDto.getId())
@@ -64,6 +66,8 @@ public class StockMapper {
                                     .name(stockDto.getProductDto().getProducerDto().getTrade().getName())
                                     .build())
                             .build())
+                    .price(stockDto.getProductDto().getPrice())
+                    .name(stockDto.getProductDto().getName())
                     .build())
             .shop(Shop.builder()
                     .id(stockDto.getShopDto().getId())

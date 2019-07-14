@@ -22,6 +22,8 @@ public final class CustomerUtil {
 
   public static CustomerDto specifyCustomerDtoDetailToDelete(){
 
+    printMessage("\nInput customer's information you want to delete\n");
+
     return CustomerDto.builder()
             .name(getString("Input customer name"))
             .surname(getString("Input customer surname"))

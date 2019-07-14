@@ -1,6 +1,7 @@
 package service.entity;
 
 import dto.ProducerDto;
+import jdk.swing.interop.SwingInterOpUtils;
 import mappers.CategoryMapper;
 import mappers.ProducerMapper;
 import mappers.ProductMapper;
@@ -48,7 +49,7 @@ public class ProductService {
 
   ProductDto setProductComponentsFromDbIfTheyExist(ProductDto productDto) {
 
-    return ProductDto.builder()
+   return ProductDto.builder()
             .id(productDto.getId())
             .name(productDto.getName())
             .price(productDto.getPrice())
@@ -56,6 +57,7 @@ public class ProductService {
             .guaranteeComponents(productDto.getGuaranteeComponents())
             .producerDto(producerService.getProducerFromDbIfExists(producerService.setProducerComponentsFromDbIfTheyExist(productDto.getProducerDto())))
             .build();
+
   }
 
   ProductDto getProductFromDbIfExists(ProductDto productDto) {
