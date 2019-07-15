@@ -3,7 +3,7 @@ package service.entity;
 import domain.enums.Epayment;
 import dto.PaymentDto;
 import exception.AppException;
-import mappers.PaymentMapper;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.PaymentRepository;
 import repository.impl.PaymentRepositoryImpl;
 
@@ -12,17 +12,21 @@ import java.util.Optional;
 public class PaymentService {
 
   private final PaymentRepository paymentRepository;
-  private final PaymentMapper paymentMapper;
+
 
   public PaymentService() {
     this.paymentRepository = new PaymentRepositoryImpl();
-    this.paymentMapper = new PaymentMapper();
+  }
+
+  public PaymentService(PaymentRepository paymentRepository) {
+    this.paymentRepository = paymentRepository;
+
   }
 
   private Optional<PaymentDto> addPaymentToDb(PaymentDto paymentDto) {
     return paymentRepository
-            .addOrUpdate(paymentMapper.mapPaymentDtoToPayment(paymentDto))
-            .map(paymentMapper::mapPaymentToPaymentDto);
+            .addOrUpdate(ModelMapper.mapPaymentDtoToPayment(paymentDto))
+            .map(ModelMapper::mapPaymentToPaymentDto);
   }
 
   public void addPaymentToDbFromUserInput(PaymentDto paymentDto) {
@@ -35,7 +39,7 @@ public class PaymentService {
 
   public Optional<PaymentDto> getPaymentByEpayment(Epayment epayment) {
     return paymentRepository.findPaymentByEPayment(epayment)
-            .map(paymentMapper::mapPaymentToPaymentDto);
+            .map(ModelMapper::mapPaymentToPaymentDto);
   }
 
 

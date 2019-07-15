@@ -4,9 +4,7 @@ import dto.CountryDto;
 import dto.ProducerDto;
 import dto.TradeDto;
 import exception.AppException;
-import mappers.CountryMapper;
-import mappers.ProducerMapper;
-import mappers.TradeMapper;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.ProducerRepository;
 import repository.impl.ProducerRepositoryImpl;
 
@@ -25,23 +23,24 @@ public class ProducerService {
   private final ProducerRepository producerRepository;
   private final TradeService tradeService;
   private final CountryService countryService;
-  private final ProducerMapper producerMapper;
-  private final TradeMapper tradeMapper;
-  private final CountryMapper countryMapper;
+
 
   public ProducerService() {
     this.producerRepository = new ProducerRepositoryImpl();
     this.tradeService = new TradeService();
     this.countryService = new CountryService();
-    this.producerMapper = new ProducerMapper();
-    this.tradeMapper = new TradeMapper();
-    this.countryMapper = new CountryMapper();
+  }
+
+  public ProducerService(ProducerRepository producerRepository, TradeService tradeService, CountryService countryService) {
+    this.producerRepository = producerRepository;
+    this.tradeService = tradeService;
+    this.countryService = countryService;
   }
 
   public Optional<ProducerDto> addProducerToDb(ProducerDto producerDto) {
     return producerRepository
-            .addOrUpdate(producerMapper.mapProducerDtoToProducer(producerDto))
-            .map(producerMapper::mapProducerToProducerDto);
+            .addOrUpdate(ModelMapper.mapProducerDtoToProducer(producerDto))
+            .map(ModelMapper::mapProducerToProducerDto);
   }
 
 
@@ -78,12 +77,12 @@ public class ProducerService {
     }
 
     return producerRepository.findByNameAndTradeAndCountry(
-            name, tradeMapper.mapTradeDtoToTrade(tradeDto), countryMapper.mapCountryDtoToCountry(countryDto)).isEmpty();
+            name, ModelMapper.mapTradeDtoToTrade(tradeDto), ModelMapper.mapCountryDtoToCountry(countryDto)).isEmpty();
   }
 
   public Optional<ProducerDto> getProducerDtoByNameAndTradeAndCountry(String name, TradeDto tradeDto, CountryDto countryDto) {
-    return producerRepository.findByNameAndTradeAndCountry(name, tradeMapper.mapTradeDtoToTrade(tradeDto), countryMapper.mapCountryDtoToCountry(countryDto))
-            .map(producerMapper::mapProducerToProducerDto);
+    return producerRepository.findByNameAndTradeAndCountry(name, ModelMapper.mapTradeDtoToTrade(tradeDto), ModelMapper.mapCountryDtoToCountry(countryDto))
+            .map(ModelMapper::mapProducerToProducerDto);
   }
 
   public void deleteAllProducers() {
@@ -98,9 +97,9 @@ public class ProducerService {
     getProducerDtoById(producerId)
             .ifPresentOrElse(producerDto ->
                             producerRepository
-                                    .addOrUpdate(producerMapper
+                                    .addOrUpdate(ModelMapper
                                             .mapProducerDtoToProducer(setProducerComponentsFromDbIfTheyExist(getProducerDtoIfValid(getUpdatedProducerDto(producerDto)))))
-                                    .map(producerMapper::mapProducerToProducerDto),
+                                    .map(ModelMapper::mapProducerToProducerDto),
                     () -> {
                       throw new AppException("There is no producer with that id: " + producerId + " in DB");
                     });
@@ -108,13 +107,13 @@ public class ProducerService {
 
   private Optional<ProducerDto> getProducerDtoById(long producerId) {
     return producerRepository.findById(producerId)
-            .map(producerMapper::mapProducerToProducerDto);
+            .map(ModelMapper::mapProducerToProducerDto);
   }
 
   private List<ProducerDto> getAllProducers() {
     return producerRepository.findAll()
             .stream()
-            .map(producerMapper::mapProducerToProducerDto)
+            .map(ModelMapper::mapProducerToProducerDto)
             .collect(Collectors.toList());
   }
 

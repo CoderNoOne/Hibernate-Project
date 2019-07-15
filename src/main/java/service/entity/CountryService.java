@@ -2,7 +2,7 @@ package service.entity;
 
 import dto.CountryDto;
 import exception.AppException;
-import mappers.CountryMapper;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.impl.CountryRepositoryImpl;
 
@@ -14,11 +14,13 @@ import java.util.stream.Collectors;
 public class CountryService {
 
   private final CountryRepository countryRepository;
-  private final CountryMapper countryMapper;
 
   public CountryService() {
     this.countryRepository = new CountryRepositoryImpl();
-    this.countryMapper = new CountryMapper();
+  }
+
+  public CountryService(CountryRepository countryRepository) {
+    this.countryRepository = countryRepository;
   }
 
   public Optional<CountryDto> addCountryToDb(CountryDto countryDto) {
@@ -32,8 +34,8 @@ public class CountryService {
     }
 
     return countryRepository
-            .addOrUpdate(countryMapper.mapCountryDtoToCountry(countryDto))
-            .map(countryMapper::mapCountryToCountryDto);
+            .addOrUpdate(ModelMapper.mapCountryDtoToCountry(countryDto))
+            .map(ModelMapper::mapCountryToCountryDto);
   }
 
   public boolean isCountryUniqueByName(String name) {
@@ -46,7 +48,7 @@ public class CountryService {
 
   public Optional<CountryDto> getCountryByName(String name) {
     return countryRepository.findCountryByName(name)
-            .map(countryMapper::mapCountryToCountryDto);
+            .map(ModelMapper::mapCountryToCountryDto);
   }
 
   public void deleteAllCountries() {
@@ -57,10 +59,10 @@ public class CountryService {
     return getCountryByName(countryDto.getName()).orElse(countryDto);
   }
 
-  public List<CountryDto> findAllCountries(){
+  public List<CountryDto> findAllCountries() {
     return countryRepository.findAll()
             .stream()
-            .map(countryMapper::mapCountryToCountryDto)
+            .map(ModelMapper::mapCountryToCountryDto)
             .collect(Collectors.toList());
   }
 }

@@ -4,7 +4,7 @@ package service.entity;
 import domain.enums.EGuarantee;
 import dto.*;
 import exception.AppException;
-import mappers.*;
+import mapper.*;
 import repository.abstract_repository.entity.CustomerOrderRepository;
 import repository.impl.CustomerOrderRepositoryImpl;
 
@@ -19,11 +19,6 @@ import static util.entity_utils.ShopUtil.chooseAvailableShop;
 public class CustomerOrderService {
 
   private final CustomerOrderRepository customerOrderRepository;
-  private final CategoryMapper categoryMapper;
-  private final ProductMapper productMapper;
-  private final CustomerOrderMapper customerOrderMapper;
-  private final ProducerMapper producerMapper;
-  private final CustomerMapper customerMapper;
   private final StockService stockService;
   private final CustomerService customerService;
   private final ProductService productService;
@@ -31,21 +26,25 @@ public class CustomerOrderService {
 
   public CustomerOrderService() {
     this.customerOrderRepository = new CustomerOrderRepositoryImpl();
-    this.categoryMapper = new CategoryMapper();
-    this.productMapper = new ProductMapper();
-    this.customerOrderMapper = new CustomerOrderMapper();
-    this.producerMapper = new ProducerMapper();
-    this.customerMapper = new CustomerMapper();
     this.stockService = new StockService();
     this.customerService = new CustomerService();
     this.productService = new ProductService();
     this.paymentService = new PaymentService();
+
+  }
+
+  public CustomerOrderService(CustomerOrderRepository customerOrderRepository, StockService stockService, CustomerService customerService, ProductService productService, PaymentService paymentService) {
+    this.customerOrderRepository = customerOrderRepository;
+    this.customerService = customerService;
+    this.stockService = stockService;
+    this.productService = productService;
+    this.paymentService = paymentService;
   }
 
   private Optional<CustomerOrderDto> addCustomerOrderToDb(CustomerOrderDto customerOrderDto) {
     return customerOrderRepository
-            .addOrUpdate(customerOrderMapper.mapCustomerOrderDtoToCustomerOrder(customerOrderDto))
-            .map(customerOrderMapper::mapCustomerOrderToCustomerOrderDto);
+            .addOrUpdate(ModelMapper.mapCustomerOrderDtoToCustomerOrder(customerOrderDto))
+            .map(ModelMapper::mapCustomerOrderToCustomerOrderDto);
 
 
   }
@@ -71,9 +70,9 @@ public class CustomerOrderService {
 
     return customerOrderRepository.findTheMostExpensiveOrderedProductInEachCategoryWithNumberOfPurchases()
             .entrySet().stream().collect(Collectors.toMap(
-                    e -> categoryMapper.mapCategoryToCategoryDto(e.getKey()),
+                    e -> ModelMapper.mapCategoryToCategoryDto(e.getKey()),
                     e -> e.getValue().entrySet().stream().collect(Collectors.toMap(
-                            ee -> productMapper.mapProductToProductDto(ee.getKey()),
+                            ee -> ModelMapper.mapProductToProductDto(ee.getKey()),
                             Map.Entry::getValue
                     ))));
   }
@@ -127,29 +126,29 @@ public class CustomerOrderService {
   public List<ProductDto> getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(String countryName, Integer minAge, Integer maxAge) {
 
     return customerOrderRepository.findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange(countryName, minAge, maxAge)
-            .stream().distinct().map(productMapper::mapProductToProductDto).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList());
+            .stream().distinct().map(ModelMapper::mapProductToProductDto).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList());
   }
 
   public List<dto.CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
     return customerOrderRepository.
             findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount)
             .stream()
-            .map(customerOrderMapper::mapCustomerOrderToCustomerOrderDto)
+            .map(ModelMapper::mapCustomerOrderToCustomerOrderDto)
             .collect(Collectors.toList());
   }
 
   public Map<String, List<ProductDto>> getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(Set<EGuarantee> guaranteeComponents) {
 
     return customerOrderRepository.findProductsWithActiveWarrantyAndWithGuaranteeComponents(guaranteeComponents)
-            .stream().map(productMapper::mapProductToProductDto).collect(Collectors.groupingBy(ProductDto::getName));
+            .stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.groupingBy(ProductDto::getName));
   }
 
   public Map<ProducerDto, List<ProductDto>> getProductsOrderedByCustomerGroupedByProducer(String customerName, String customerSurname, String countryName) {
 
     return customerOrderRepository.findProductsOrderedByCustomerGroupedByProducer(customerName, customerSurname, countryName)
             .entrySet().stream().collect(Collectors.toMap(
-                    e -> producerMapper.mapProducerToProducerDto(e.getKey()),
-                    e -> e.getValue().stream().map(productMapper::mapProductToProductDto).collect(Collectors.toList())));
+                    e -> ModelMapper.mapProducerToProducerDto(e.getKey()),
+                    e -> e.getValue().stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.toList())));
   }
 
   public Map<CustomerDto, Long> getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim() {
@@ -158,11 +157,19 @@ public class CustomerOrderService {
             .findCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim()
             .entrySet().stream()
             .collect(Collectors.toMap(
-                    e -> customerMapper.mapCustomerToCustomerDto(e.getKey()),
+                    e -> ModelMapper.mapCustomerToCustomerDto(e.getKey()),
                     Map.Entry::getValue));
   }
 
   public void deleteAllCustomerOrders() {
     customerOrderRepository.deleteAll();
+  }
+
+  public List<CustomerOrderDto> getAllCustomerOrders() {
+
+    return customerOrderRepository.findAll()
+            .stream()
+            .map(ModelMapper::mapCustomerOrderToCustomerOrderDto)
+            .collect(Collectors.toList());
   }
 }

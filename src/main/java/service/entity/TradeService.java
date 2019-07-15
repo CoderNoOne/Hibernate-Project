@@ -2,7 +2,7 @@ package service.entity;
 
 import dto.TradeDto;
 import exception.AppException;
-import mappers.TradeMapper;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.TradeRepository;
 import repository.impl.TradeRepositoryImpl;
 
@@ -11,16 +11,18 @@ import java.util.Optional;
 public class TradeService {
 
   private final TradeRepository tradeRepository;
-  private final TradeMapper tradeMapper;
 
   public TradeService() {
     this.tradeRepository = new TradeRepositoryImpl();
-    this.tradeMapper = new TradeMapper();
+  }
+
+  public TradeService(TradeRepository tradeRepository) {
+    this.tradeRepository = tradeRepository;
   }
 
   private Optional<TradeDto> addTradeToDb(TradeDto tradeDto) {
-    return tradeRepository.addOrUpdate(tradeMapper.mapTradeDtoToTrade(tradeDto))
-            .map(tradeMapper::mapTradeToTradeDto);
+    return tradeRepository.addOrUpdate(ModelMapper.mapTradeDtoToTrade(tradeDto))
+            .map(ModelMapper::mapTradeToTradeDto);
   }
 
   public void addTradeToDbFromUserInput(TradeDto tradeDto) {
@@ -37,7 +39,7 @@ public class TradeService {
 
   private Optional<TradeDto> getTradeByName(String name) {
     return tradeRepository.findByName(name)
-            .map(tradeMapper::mapTradeToTradeDto);
+            .map(ModelMapper::mapTradeToTradeDto);
   }
 
   public void deleteAllTrades() {

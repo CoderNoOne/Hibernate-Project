@@ -1,10 +1,7 @@
 package service.entity;
 
 import dto.ProducerDto;
-import jdk.swing.interop.SwingInterOpUtils;
-import mappers.CategoryMapper;
-import mappers.ProducerMapper;
-import mappers.ProductMapper;
+import mapper.ModelMapper;
 import dto.CategoryDto;
 import dto.ProductDto;
 import exception.AppException;
@@ -24,26 +21,27 @@ import static util.update.UpdateProductUtil.getUpdatedProduct;
 
 public class ProductService {
 
-  private final ProductMapper productMapper;
-  private final CategoryMapper categoryMapper;
   private final ProductRepository productRepository;
   private final CategoryService categoryService;
   private final ProducerService producerService;
-  private final ProducerMapper producerMapper;
 
   public ProductService() {
     this.productRepository = new ProductRepositoryImpl();
-    this.productMapper = new ProductMapper();
-    this.categoryMapper = new CategoryMapper();
     this.categoryService = new CategoryService();
     this.producerService = new ProducerService();
-    this.producerMapper = new ProducerMapper();
   }
+
+  public ProductService(ProductRepository productRepository, CategoryService categoryService, ProducerService producerService) {
+    this.productRepository = productRepository;
+    this.categoryService = categoryService;
+    this.producerService = producerService;
+  }
+
 
   private Optional<ProductDto> addProductToDb(ProductDto productDto) {
     return productRepository
-            .addOrUpdate(productMapper.mapProductDtoToProduct(productDto))
-            .map(productMapper::mapProductToProductDto);
+            .addOrUpdate(ModelMapper.mapProductDtoToProduct(productDto))
+            .map(ModelMapper::mapProductToProductDto);
   }
 
 
@@ -76,22 +74,22 @@ public class ProductService {
   }
 
   private boolean isProductUniqueByNameAndCategoryAndProducer(String name, CategoryDto categoryDto, ProducerDto producerDto) {
-    return productRepository.findByNameAndCategoryAndProducer(name, categoryMapper.mapCategoryDtoToCategory(categoryDto),
-            producerMapper.mapProducerDtoToProducer(producerDto)).isEmpty();
+    return productRepository.findByNameAndCategoryAndProducer(name, ModelMapper.mapCategoryDtoToCategory(categoryDto),
+            ModelMapper.mapProducerDtoToProducer(producerDto)).isEmpty();
   }
 
   private Optional<ProductDto> getProductByNameAndCategoryAndProducer(String name, CategoryDto categoryDto, ProducerDto producerDto) {
     return Optional.ofNullable(
-            productMapper.mapProductToProductDto(
-                    productRepository.findByNameAndCategoryAndProducer(name, categoryMapper.mapCategoryDtoToCategory(categoryDto), producerMapper.mapProducerDtoToProducer(producerDto))
+            ModelMapper.mapProductToProductDto(
+                    productRepository.findByNameAndCategoryAndProducer(name, ModelMapper.mapCategoryDtoToCategory(categoryDto), ModelMapper.mapProducerDtoToProducer(producerDto))
                             .orElseThrow(() -> new AppException("No product was found for name: " + name + " category " +
                                     categoryDto + " and producer: " + producerDto))));
   }
 
   List<ProductDto> getProductsByNameAndCategory(String name, CategoryDto categoryDto) {
-    return productRepository.findProductsByNameAndCategory(name, categoryMapper.mapCategoryDtoToCategory(categoryDto))
+    return productRepository.findProductsByNameAndCategory(name, ModelMapper.mapCategoryDtoToCategory(categoryDto))
             .stream()
-            .map(productMapper::mapProductToProductDto)
+            .map(ModelMapper::mapProductToProductDto)
             .collect(Collectors.toList());
   }
 
@@ -99,8 +97,8 @@ public class ProductService {
 
     return productRepository.findTheMostExpensiveProductInEveryCategory().entrySet().stream()
             .collect(Collectors.toMap(
-                    e -> categoryMapper.mapCategoryToCategoryDto(e.getKey()),
-                    e -> e.getValue().stream().map(productMapper::mapProductToProductDto).collect(Collectors.toList())));
+                    e -> ModelMapper.mapCategoryToCategoryDto(e.getKey()),
+                    e -> e.getValue().stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.toList())));
   }
 
   public void deleteAllProducts() {
@@ -110,13 +108,13 @@ public class ProductService {
   private List<ProductDto> getAllProducts() {
     return productRepository.findAll()
             .stream()
-            .map(productMapper::mapProductToProductDto)
+            .map(ModelMapper::mapProductToProductDto)
             .collect(Collectors.toList());
   }
 
   private Optional<ProductDto> getProductDtoById(Long id) {
     return productRepository.findById(id)
-            .map(productMapper::mapProductToProductDto);
+            .map(ModelMapper::mapProductToProductDto);
 
   }
 
@@ -128,8 +126,8 @@ public class ProductService {
     getProductDtoById(productId)
             .ifPresentOrElse(productDto ->
                             productRepository
-                                    .addOrUpdate(productMapper.mapProductDtoToProduct(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(productDto)))))
-                                    .map(productMapper::mapProductToProductDto),
+                                    .addOrUpdate(ModelMapper.mapProductDtoToProduct(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(productDto)))))
+                                    .map(ModelMapper::mapProductToProductDto),
                     () -> {
                       throw new AppException("There is no product with that id: " + productId + " in DB");
                     });

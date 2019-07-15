@@ -3,8 +3,7 @@ package service.entity;
 import dto.CountryDto;
 import dto.CustomerDto;
 import exception.AppException;
-import mappers.CountryMapper;
-import mappers.CustomerMapper;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.CustomerRepository;
 import repository.impl.CustomerRepositoryImpl;
 
@@ -23,22 +22,23 @@ public class CustomerService {
 
   private final CustomerRepository customerRepository;
   private final CountryService countryService;
-  private final ProductService productService;
-  private final CustomerMapper customerMapper;
-  private final CountryMapper countryMapper;
+
 
   public CustomerService() {
     this.customerRepository = new CustomerRepositoryImpl();
     this.countryService = new CountryService();
-    this.productService = new ProductService();
-    this.customerMapper = new CustomerMapper();
-    this.countryMapper = new CountryMapper();
+  }
+
+  public CustomerService(CustomerRepository customerRepository, CountryService countryService) {
+    this.customerRepository = customerRepository;
+    this.countryService = countryService;
+
   }
 
   public Optional<CustomerDto> addCustomerToDb(CustomerDto customerDto) {
     return customerRepository
-            .addOrUpdate(customerMapper.mapCustomerDtoToCustomer(customerDto))
-            .map(customerMapper::mapCustomerToCustomerDto);
+            .addOrUpdate(ModelMapper.mapCustomerDtoToCustomer(customerDto))
+            .map(ModelMapper::mapCustomerToCustomerDto);
   }
 
   private CustomerDto setCustomerComponentsFromDbIfTheyExist(CustomerDto customerDto) {
@@ -71,8 +71,8 @@ public class CustomerService {
   }
 
   public Optional<CustomerDto> getCustomerByNameAndSurnameAndCountry(String name, String surname, CountryDto countryDto) {
-    return customerRepository.findByNameAndSurnameAndCountry(name, surname, countryMapper.mapCountryDtoToCountry(countryDto))
-            .map(customerMapper::mapCustomerToCustomerDto);
+    return customerRepository.findByNameAndSurnameAndCountry(name, surname, ModelMapper.mapCountryDtoToCountry(countryDto))
+            .map(ModelMapper::mapCustomerToCustomerDto);
   }
 
   public void deleteAllCustomers() {
@@ -85,19 +85,19 @@ public class CustomerService {
       throw new AppException("Customer object you wanted to delete is null");
     }
 
-    customerRepository.deleteCustomer(customerMapper.mapCustomerDtoToCustomer(customerDto));
+    customerRepository.deleteCustomer(ModelMapper.mapCustomerDtoToCustomer(customerDto));
   }
 
   public List<CustomerDto> getAllCustomers() {
     return customerRepository.findAll()
             .stream()
-            .map(customerMapper::mapCustomerToCustomerDto)
+            .map(ModelMapper::mapCustomerToCustomerDto)
             .collect(Collectors.toList());
   }
 
   public Optional<CustomerDto> getCustomerById(Long customerId) {
     return customerRepository.findById(customerId)
-            .map(customerMapper::mapCustomerToCustomerDto);
+            .map(ModelMapper::mapCustomerToCustomerDto);
   }
 
   public void updateCustomer() {
@@ -107,7 +107,7 @@ public class CustomerService {
     getCustomerById(customerId)
             .ifPresentOrElse(customerDto ->
                             customerRepository
-                                    .addOrUpdate(customerMapper
+                                    .addOrUpdate(ModelMapper
                                             .mapCustomerDtoToCustomer(
                                                     setCustomerComponentsFromDbIfTheyExist(
                                                             getCustomerDtoIfValid(getUpdatedCustomerDto(customerDto))))),

@@ -4,8 +4,6 @@ import converters.impl.*;
 import dto.ErrorDto;
 import exception.AppException;
 import lombok.extern.log4j.Log4j;
-import mappers.CategoryMapper;
-import repository.impl.CategoryRepositoryImpl;
 import service.entity.*;
 import validator.impl.*;
 

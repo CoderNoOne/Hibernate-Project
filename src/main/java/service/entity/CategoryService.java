@@ -1,8 +1,8 @@
 package service.entity;
 
-import mappers.CategoryMapper;
 import dto.CategoryDto;
 import exception.AppException;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.CategoryRepository;
 import repository.impl.CategoryRepositoryImpl;
 
@@ -13,16 +13,14 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
-  private final CategoryMapper categoryMapper;
+
 
   public CategoryService() {
     this.categoryRepository = new CategoryRepositoryImpl();
-    this.categoryMapper = new CategoryMapper();
   }
 
-  public CategoryService(CategoryRepository categoryRepository){
+  public CategoryService(CategoryRepository categoryRepository) {
     this.categoryRepository = categoryRepository;
-    this.categoryMapper = new CategoryMapper();
   }
 
   public Optional<CategoryDto> addCategoryToDb(CategoryDto categoryDto) {
@@ -35,14 +33,14 @@ public class CategoryService {
       throw new AppException("Category is not unique by name: " + categoryDto.getName());
     }
     return categoryRepository
-            .addOrUpdate(categoryMapper.mapCategoryDtoToCategory(categoryDto))
-            .map(categoryMapper::mapCategoryToCategoryDto);
+            .addOrUpdate(ModelMapper.mapCategoryDtoToCategory(categoryDto))
+            .map(ModelMapper::mapCategoryToCategoryDto);
   }
 
-  public Optional<CategoryDto> getCategoryByName(String name) {
+  Optional<CategoryDto> getCategoryByName(String name) {
 
     return categoryRepository.findCategoryByName(name)
-            .map(categoryMapper::mapCategoryToCategoryDto);
+            .map(ModelMapper::mapCategoryToCategoryDto);
   }
 
 
@@ -58,13 +56,14 @@ public class CategoryService {
     categoryRepository.deleteAll();
   }
 
-  public CategoryDto getCategoryFromDbIfExists(CategoryDto categoryDto) {
+  CategoryDto getCategoryFromDbIfExists(CategoryDto categoryDto) {
     return getCategoryByName(categoryDto.getName()).orElse(categoryDto);
   }
-  public List<CategoryDto> findAllCountries(){
+
+  List<CategoryDto> findAllCategories() {
     return categoryRepository.findAll()
             .stream()
-            .map(categoryMapper::mapCategoryToCategoryDto)
+            .map(ModelMapper::mapCategoryToCategoryDto)
             .collect(Collectors.toList());
   }
 

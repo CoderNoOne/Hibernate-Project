@@ -3,7 +3,7 @@ package service.entity;
 import dto.CountryDto;
 import dto.ShopDto;
 import exception.AppException;
-import mappers.ShopMapper;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.ShopRepository;
 import repository.impl.ShopRepositoryImpl;
 
@@ -22,13 +22,15 @@ public class ShopService {
 
   private final ShopRepository shopRepository;
   private final CountryService countryService;
-  private final ShopMapper shopMapper;
 
   public ShopService() {
-    shopRepository = new ShopRepositoryImpl();
-    countryService = new CountryService();
-    shopMapper = new ShopMapper();
+    this.shopRepository = new ShopRepositoryImpl();
+    this.countryService = new CountryService();
+  }
 
+  public ShopService(ShopRepository shopRepository, CountryService countryService) {
+    this.shopRepository = shopRepository;
+    this.countryService = countryService;
   }
 
   private ShopDto setShopComponentsFromDbIfTheyExist(ShopDto shopDto) {
@@ -43,8 +45,8 @@ public class ShopService {
   private Optional<ShopDto> addShopToDb(ShopDto shopDto) {
 
     return shopRepository
-            .addOrUpdate(shopMapper.mapShopDtoToShop(shopDto))
-            .map(shopMapper::mapShopToShopDto);
+            .addOrUpdate(ModelMapper.mapShopDtoToShop(shopDto))
+            .map(ModelMapper::mapShopToShopDto);
   }
 
   public void addShopToDbFromUserInput(ShopDto shopDto) {
@@ -66,13 +68,13 @@ public class ShopService {
 
   private Optional<ShopDto> getShopDtoByNameAndCountry(String name, String countryName) {
     return shopRepository.findShopByNameAndCountry(name, countryName)
-            .map(shopMapper::mapShopToShopDto);
+            .map(ModelMapper::mapShopToShopDto);
   }
 
   List<ShopDto> getShopsByName(String name) {
     return shopRepository.findShopListByName(name)
             .stream()
-            .map(shopMapper::mapShopToShopDto)
+            .map(ModelMapper::mapShopToShopDto)
             .collect(Collectors.toList());
   }
 
@@ -87,13 +89,13 @@ public class ShopService {
   private List<ShopDto> getAllShops() {
     return shopRepository.findAll()
             .stream()
-            .map(shopMapper::mapShopToShopDto)
+            .map(ModelMapper::mapShopToShopDto)
             .collect(Collectors.toList());
   }
 
   private Optional<ShopDto> getShopById(Long shopId) {
     return shopRepository.findById(shopId)
-            .map(shopMapper::mapShopToShopDto);
+            .map(ModelMapper::mapShopToShopDto);
   }
 
   public void updateShop() {
@@ -104,7 +106,7 @@ public class ShopService {
     getShopById(shopId)
             .ifPresentOrElse(shopDto ->
                             shopRepository
-                                    .addOrUpdate(shopMapper
+                                    .addOrUpdate(ModelMapper
                                             .mapShopDtoToShop(setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(getUpdatedShop(shopDto))))),
                     () -> {
                       throw new AppException("There is no shop with that id: " + shopId + " in DB");
