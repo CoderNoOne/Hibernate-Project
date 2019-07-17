@@ -40,23 +40,25 @@ public class ProductDtoValidator extends AbstractValidator<ProductDto> {
   }
 
   private boolean isProductNameValid(ProductDto productDto) {
-    return productDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+    return productDto.getName() != null && productDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isProductPriceValid(ProductDto productDto) {
-    return productDto.getPrice() == null || productDto.getPrice().compareTo(BigDecimal.ZERO) > 0;
+    return productDto.getPrice() != null && productDto.getPrice().compareTo(BigDecimal.ZERO) > 0;
   }
 
   private boolean isProducerValid(ProductDto productDto) {
-    return !getProducerDtoValidator(productDto).hasErrors();
+    return productDto.getProducerDto() != null && !getProducerDtoValidator(productDto).hasErrors();
+
   }
 
   private boolean isCategoryValid(ProductDto productDto) {
-    return !getCategoryDtoValidator(productDto).hasErrors();
+    return productDto.getCategoryDto() != null && !getCategoryDtoValidator(productDto).hasErrors();
+
   }
 
   private boolean areGuaranteeComponentsValid(ProductDto productDto) {
-    return productDto.getGuaranteeComponents().stream().allMatch(new HashSet<>()::add);
+    return productDto.getGuaranteeComponents() != null && productDto.getGuaranteeComponents().stream().allMatch(new HashSet<>()::add);
   }
 
   private CategoryDtoValidator getCategoryDtoValidator(ProductDto productDto) {

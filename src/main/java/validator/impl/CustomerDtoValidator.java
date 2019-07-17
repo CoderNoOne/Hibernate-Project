@@ -5,7 +5,7 @@ import validator.AbstractValidator;
 
 import java.util.Map;
 
-public class CustomerDtoValidator extends AbstractValidator<CustomerDto>{
+public class CustomerDtoValidator extends AbstractValidator<CustomerDto> {
 
   @Override
   public Map<String, String> validate(CustomerDto customerDto) {
@@ -27,7 +27,7 @@ public class CustomerDtoValidator extends AbstractValidator<CustomerDto>{
       errors.put("Customer age", "Customer age should be greater than or equal to 18");
     }
 
-    if(!isCountryValid(customerDto)){
+    if (!isCountryValid(customerDto)) {
 
       errors.putAll(getCountryValidator(customerDto).getErrors());
     }
@@ -35,23 +35,23 @@ public class CustomerDtoValidator extends AbstractValidator<CustomerDto>{
   }
 
   private boolean isCustomerNameValid(CustomerDto customerDto) {
-    return customerDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+    return customerDto.getName() != null && customerDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isCustomerSurnameValid(CustomerDto customerDto) {
-    return customerDto.getSurname().matches("[A-Z]+(\\s[A-Z]+)*");
+    return customerDto.getSurname() != null && customerDto.getSurname().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isCustomerAgeValid(CustomerDto customerDto) {
-    return customerDto.getAge() >= 18;
+    return customerDto.getAge() != null && customerDto.getAge() >= 18;
   }
 
-  private boolean isCountryValid(CustomerDto customerDto){
+  private boolean isCountryValid(CustomerDto customerDto) {
     return !getCountryValidator(customerDto).hasErrors();
 
   }
 
-  private CountryDtoValidator getCountryValidator(CustomerDto customerDto){
+  private CountryDtoValidator getCountryValidator(CustomerDto customerDto) {
     CountryDtoValidator countryValidator = new CountryDtoValidator();
     countryValidator.validate(customerDto.getCountryDto());
     return countryValidator;

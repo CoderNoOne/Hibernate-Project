@@ -1,6 +1,7 @@
 package service.entity;
 
 
+import domain.CustomerOrder;
 import domain.enums.EGuarantee;
 import dto.*;
 import exception.AppException;
@@ -11,7 +12,10 @@ import repository.impl.CustomerOrderRepositoryImpl;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static util.entity_utils.ProductUtil.chooseAvailableProduct;
 import static util.entity_utils.ShopUtil.chooseAvailableShop;
@@ -94,6 +98,14 @@ public class CustomerOrderService {
 
   public CustomerOrderDto specifyCustomerDetail(CustomerOrderDto customerOrder) {
 
+    if (customerOrder == null) {
+      throw new AppException("CustomerOrder object is null");
+    }
+
+    if (customerOrder.getCustomer() == null) {
+      throw new AppException("Customer object is null");
+    }
+
     var customerName = customerOrder.getCustomer().getName();
     var customerSurname = customerOrder.getCustomer().getSurname();
     var customerCountry = customerOrder.getCustomer().getCountryDto();
@@ -129,7 +141,7 @@ public class CustomerOrderService {
             .stream().distinct().map(ModelMapper::mapProductToProductDto).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList());
   }
 
-  public List<dto.CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
+  public List<dto.CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
     return customerOrderRepository.
             findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount)
             .stream()
@@ -143,7 +155,12 @@ public class CustomerOrderService {
             .stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.groupingBy(ProductDto::getName));
   }
 
+
   public Map<ProducerDto, List<ProductDto>> getProductsOrderedByCustomerGroupedByProducer(String customerName, String customerSurname, String countryName) {
+
+    if (customerName == null || customerSurname == null || countryName == null) {
+      throw new AppException("getProductsOrderedByCustomerGroupedByProducer - not valid input data");
+    }
 
     return customerOrderRepository.findProductsOrderedByCustomerGroupedByProducer(customerName, customerSurname, countryName)
             .entrySet().stream().collect(Collectors.toMap(
@@ -151,6 +168,7 @@ public class CustomerOrderService {
                     e -> e.getValue().stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.toList())));
   }
 
+  /*done*/
   public Map<CustomerDto, Long> getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim() {
 
     return customerOrderRepository
@@ -161,10 +179,30 @@ public class CustomerOrderService {
                     Map.Entry::getValue));
   }
 
+
+  public Map<CustomerDto, Long> getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim2() {
+
+    List<CustomerOrderDto> allCustomerOrders = getAllCustomerOrders();
+
+    return allCustomerOrders.stream().map(CustomerOrderDto::getCustomer).distinct()
+            .collect(Collectors.collectingAndThen(Collectors.toMap(
+                    Function.identity(),
+                    customer -> (Long) allCustomerOrders.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
+                            .filter(customerOrder -> customerOrder.getProduct().getProducerDto().getCountry().equals(customer.getCountryDto())).map(CustomerOrderDto::getQuantity).count()),
+                    map -> map.entrySet().stream().filter(e -> e.getValue() >= 1).map(Map.Entry::getKey).collect(Collectors.toMap(
+                            Function.identity(),
+                            customer -> (Long) allCustomerOrders.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
+                                    .filter(customerOrder -> !customerOrder.getProduct().getProducerDto().getCountry().equals(customer.getCountryDto())).map(CustomerOrderDto::getQuantity).count()))));
+
+  }
+
+
+  /*done*/
   public void deleteAllCustomerOrders() {
     customerOrderRepository.deleteAll();
   }
 
+  /*done*/
   public List<CustomerOrderDto> getAllCustomerOrders() {
 
     return customerOrderRepository.findAll()

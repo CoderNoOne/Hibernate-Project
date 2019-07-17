@@ -70,7 +70,7 @@ public class CustomerService {
 
   }
 
-  public Optional<CustomerDto> getCustomerByNameAndSurnameAndCountry(String name, String surname, CountryDto countryDto) {
+  Optional<CustomerDto> getCustomerByNameAndSurnameAndCountry(String name, String surname, CountryDto countryDto) {
     return customerRepository.findByNameAndSurnameAndCountry(name, surname, ModelMapper.mapCountryDtoToCountry(countryDto))
             .map(ModelMapper::mapCustomerToCustomerDto);
   }
@@ -88,14 +88,19 @@ public class CustomerService {
     customerRepository.deleteCustomer(ModelMapper.mapCustomerDtoToCustomer(customerDto));
   }
 
-  public List<CustomerDto> getAllCustomers() {
+  private List<CustomerDto> getAllCustomers() {
     return customerRepository.findAll()
             .stream()
             .map(ModelMapper::mapCustomerToCustomerDto)
             .collect(Collectors.toList());
   }
 
-  public Optional<CustomerDto> getCustomerById(Long customerId) {
+  private Optional<CustomerDto> getCustomerById(Long customerId) {
+
+    if (customerId == null) {
+      throw new AppException("getCustomerById method - Customer id is null");
+    }
+
     return customerRepository.findById(customerId)
             .map(ModelMapper::mapCustomerToCustomerDto);
   }
@@ -117,7 +122,7 @@ public class CustomerService {
 
   }
 
-  public CustomerDto getCustomerDtoFromDbIfExists(CustomerDto customerDto) {
+  CustomerDto getCustomerDtoFromDbIfExists(CustomerDto customerDto) {
     return getCustomerByNameAndSurnameAndCountry(customerDto.getName(), customerDto.getSurname(), customerDto.getCountryDto()).orElse(customerDto);
   }
 }

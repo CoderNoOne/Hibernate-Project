@@ -38,15 +38,22 @@ public class CountryService {
             .map(ModelMapper::mapCountryToCountryDto);
   }
 
-  public boolean isCountryUniqueByName(String name) {
+  private boolean isCountryUniqueByName(String name) {
+
     if (name == null) {
       throw new AppException("Country name is null");
     }
-    return countryRepository.findCountryByName(name).isEmpty();
+
+    return getCountryByName(name).isEmpty();
   }
 
 
-  public Optional<CountryDto> getCountryByName(String name) {
+  private Optional<CountryDto> getCountryByName(String name) {
+
+    if (name == null) {
+      throw new AppException("Country name is null");
+    }
+
     return countryRepository.findCountryByName(name)
             .map(ModelMapper::mapCountryToCountryDto);
   }
@@ -55,7 +62,13 @@ public class CountryService {
     countryRepository.deleteAll();
   }
 
-  public CountryDto getCountryFromDbIfExists(CountryDto countryDto) {
+  CountryDto getCountryFromDbIfExists(CountryDto countryDto) {
+
+    if (countryDto == null) {
+
+      throw new AppException("CountryDto is null");
+    }
+
     return getCountryByName(countryDto.getName()).orElse(countryDto);
   }
 

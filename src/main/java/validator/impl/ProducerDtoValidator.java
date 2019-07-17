@@ -5,7 +5,7 @@ import validator.AbstractValidator;
 
 import java.util.Map;
 
-public class ProducerDtoValidator extends AbstractValidator<ProducerDto>  {
+public class ProducerDtoValidator extends AbstractValidator<ProducerDto> {
 
   @Override
   public Map<String, String> validate(ProducerDto producerDto) {
@@ -23,22 +23,23 @@ public class ProducerDtoValidator extends AbstractValidator<ProducerDto>  {
       errors.putAll(getTradeValidator(producerDto).getErrors());
     }
 
-    if(!isCountryValid(producerDto)){
+    if (!isCountryValid(producerDto)) {
       errors.putAll(getCountryValidator(producerDto).getErrors());
     }
     return errors;
   }
 
   private boolean isProducerNameValid(ProducerDto producerDto) {
-    return producerDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+    return producerDto.getName() != null && producerDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 
   private boolean isTradeValid(ProducerDto producerDto) {
-    return !getTradeValidator(producerDto).hasErrors();
+    return producerDto.getTrade() != null && !getTradeValidator(producerDto).hasErrors();
   }
 
-  private boolean isCountryValid(ProducerDto producerDto){
-    return !getCountryValidator(producerDto).hasErrors();
+  private boolean isCountryValid(ProducerDto producerDto) {
+    return producerDto.getCountry() != null && !getCountryValidator(producerDto).hasErrors();
+
   }
 
   private TradeDtoValidator getTradeValidator(ProducerDto producerDto) {

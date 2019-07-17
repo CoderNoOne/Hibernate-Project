@@ -1,6 +1,5 @@
 package util.entity_utils;
 
-import domain.*;
 import domain.enums.Epayment;
 import dto.*;
 import exception.AppException;
@@ -29,7 +28,7 @@ public class CustomerOrderUtil {
                     .build())
             .date(getLocalDate("Input order date in format yyyy-MM-dd"))
             .quantity(getInt("Input order quantity"))
-            .product(ProductDto.builder()/*moze byc kilka ze względu na innego producenta*/
+            .product(ProductDto.builder()
                     .name(getString("Input product name"))
                     .categoryDto(CategoryDto.builder()
                             .name(getString("Input category name"))

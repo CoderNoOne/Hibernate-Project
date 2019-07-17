@@ -187,15 +187,6 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
               .setParameter("maxAge", maxAge)
               .setParameter("countryName", countryName.toUpperCase())
               .getResultList();
-
-        /*   .createQuery("from " + entityType.getSimpleName(), entityType)
-             .getResultStream()
-              .filter(customerOrder -> customerOrder.getCustomer().getAge() >= minAge &&
-                      customerOrder.getCustomer().getAge() <= maxAge)
-              .filter(customerOrder -> customerOrder.getCustomer().getCountry().getName().equalsIgnoreCase(countryName))
-              .map(CustomerOrderDto::getProduct)
-              .collect(Collectors.toList());*/
-
       tx.commit();
     } catch (Exception e) {
       System.out.println(e.getMessage());

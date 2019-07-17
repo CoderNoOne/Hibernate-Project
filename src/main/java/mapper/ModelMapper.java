@@ -6,193 +6,193 @@ import dto.*;
 
 public interface ModelMapper {
 
-
   static Error mapErrorDtoToError(ErrorDto errorDto) {
 
-    return Error.builder()
+    return errorDto != null ? Error.builder()
             .id(errorDto.getId())
             .message(errorDto.getMessage())
             .date(errorDto.getDate())
-            .build();
+            .build() : null;
   }
 
   static ErrorDto mapErrorToErrorDto(Error error) {
 
-    return ErrorDto.builder()
+    return error != null ? ErrorDto.builder()
             .id(error.getId())
             .message(error.getMessage())
             .date(error.getDate())
-            .build();
+            .build() : null;
   }
 
   static Trade mapTradeDtoToTrade(TradeDto tradeDto) {
 
-    return Trade.builder()
+    return tradeDto != null ? Trade.builder()
             .id(tradeDto.getId())
             .name(tradeDto.getName())
-            .build();
+            .build() : null;
   }
 
   static TradeDto mapTradeToTradeDto(Trade trade) {
 
-    return TradeDto.builder()
+    return trade != null ? TradeDto.builder()
             .id(trade.getId())
             .name(trade.getName())
-            .build();
+            .build() : null;
   }
 
   static Payment mapPaymentDtoToPayment(PaymentDto paymentDto) {
 
-    return Payment.builder()
+    return paymentDto != null ? Payment.builder()
             .id(paymentDto.getId())
             .epayment(paymentDto.getEpayment())
-            .build();
+            .build() : null;
   }
 
   static PaymentDto mapPaymentToPaymentDto(Payment payment) {
-    return PaymentDto.builder()
+    return payment != null ? PaymentDto.builder()
             .id(payment.getId())
             .epayment(payment.getEpayment())
-            .build();
+            .build() : null;
   }
 
   static Category mapCategoryDtoToCategory(CategoryDto categoryDto) {
-    return Category.builder()
+    return categoryDto != null ? Category.builder()
             .id(categoryDto.getId())
             .name(categoryDto.getName())
-            .build();
+            .build() : null;
   }
 
   static CategoryDto mapCategoryToCategoryDto(Category category) {
 
-    return CategoryDto.builder()
+    return category != null ? CategoryDto.builder()
             .id(category.getId())
             .name(category.getName())
-            .build();
+            .build() : null;
   }
 
   static CountryDto mapCountryToCountryDto(Country country) {
-    return CountryDto.builder()
+    return country != null ? CountryDto.builder()
             .id(country.getId())
             .name(country.getName())
-            .build();
+            .build() : null;
   }
 
   static Country mapCountryDtoToCountry(CountryDto countryDto) {
-    return Country.builder()
+    return countryDto != null ? Country.builder()
             .id(countryDto.getId())
             .name(countryDto.getName())
-            .build();
+            .build() : null;
   }
 
 
   static CustomerDto mapCustomerToCustomerDto(Customer customer) {
-    return CustomerDto.builder()
+    return customer != null ? CustomerDto.builder()
             .id(customer.getId())
             .age(customer.getAge())
             .name(customer.getName())
             .surname(customer.getSurname())
             .countryDto(mapCountryToCountryDto(customer.getCountry())
-            ).build();
+            ).build() : null;
   }
 
   static Customer mapCustomerDtoToCustomer(CustomerDto customerDto) {
 
-    return Customer.builder()
+    return customerDto != null ? Customer.builder()
             .id(customerDto.getId())
             .name(customerDto.getName())
             .surname(customerDto.getSurname())
             .age(customerDto.getAge())
             .country(mapCountryDtoToCountry(customerDto.getCountryDto()))
-            .build();
+            .build() : null;
   }
 
   static Producer mapProducerDtoToProducer(ProducerDto producerDto) {
 
-    return Producer.builder()
+    return producerDto != null ? Producer.builder()
             .id(producerDto.getId())
             .name(producerDto.getName())
             .trade(mapTradeDtoToTrade(producerDto.getTrade()))
             .country(mapCountryDtoToCountry(producerDto.getCountry()))
-            .build();
+            .build() : null;
   }
 
   static ProducerDto mapProducerToProducerDto(Producer producer) {
 
-    return ProducerDto.builder()
+    return producer != null ? ProducerDto.builder()
             .id(producer.getId())
             .name(producer.getName())
             .trade(mapTradeToTradeDto(producer.getTrade()))
             .country(mapCountryToCountryDto(producer.getCountry()))
-            .build();
+            .build() : null;
   }
 
+  /*---------------------------------------------*/
   static Product mapProductDtoToProduct(ProductDto productDto) {
 
-    return Product.builder()
+    return productDto != null ? Product.builder()
             .id(productDto.getId())
             .name(productDto.getName())
             .price(productDto.getPrice())
             .category(mapCategoryDtoToCategory(productDto.getCategoryDto()))
             .producer(mapProducerDtoToProducer(productDto.getProducerDto()))
             .guaranteeComponents(productDto.getGuaranteeComponents())
-            .build();
+            .build() : null;
   }
 
   static ProductDto mapProductToProductDto(Product product) {
 
-    return ProductDto.builder()
+    return product != null ? ProductDto.builder()
             .id(product.getId())
             .name(product.getName())
             .price(product.getPrice())
             .categoryDto(mapCategoryToCategoryDto(product.getCategory()))
             .producerDto(mapProducerToProducerDto(product.getProducer()))
             .guaranteeComponents(product.getGuaranteeComponents())
-            .build();
+            .build() : null;
   }
 
   static ShopDto mapShopToShopDto(Shop shop) {
-    return ShopDto.builder()
+    return shop != null ? ShopDto.builder()
             .id(shop.getId())
             .name(shop.getName())
             .countryDto(mapCountryToCountryDto(shop.getCountry()))
-            .build();
+            .build() : null;
   }
 
 
   static Shop mapShopDtoToShop(ShopDto shopDto) {
 
-    return Shop.builder()
+    return shopDto != null ? Shop.builder()
             .id(shopDto.getId())
             .name(shopDto.getName())
             .country(mapCountryDtoToCountry(shopDto.getCountryDto()))
-            .build();
+            .build() : null;
   }
 
   static StockDto mapStockToStockDto(Stock stock) {
 
-    return dto.StockDto.builder()
+    return stock != null ? StockDto.builder()
             .id(stock.getId())
             .quantity(stock.getQuantity())
             .productDto(mapProductToProductDto(stock.getProduct()))
             .shopDto(mapShopToShopDto(stock.getShop()))
-            .build();
+            .build() : null;
   }
 
   static Stock mapStockDtoToStock(StockDto stockDto) {
 
-    return Stock.builder()
+    return stockDto != null ? Stock.builder()
             .id(stockDto.getId())
             .quantity(stockDto.getQuantity())
             .product(mapProductDtoToProduct(stockDto.getProductDto()))
             .shop(mapShopDtoToShop(stockDto.getShopDto()))
-            .build();
+            .build() : null;
   }
 
 
   static CustomerOrderDto mapCustomerOrderToCustomerOrderDto(CustomerOrder customerOrder) {
 
-    return CustomerOrderDto.builder()
+    return customerOrder != null ? CustomerOrderDto.builder()
             .id(customerOrder.getId())
             .discount(customerOrder.getDiscount())
             .quantity(customerOrder.getQuantity())
@@ -200,12 +200,13 @@ public interface ModelMapper {
             .payment(mapPaymentToPaymentDto(customerOrder.getPayment()))
             .product(mapProductToProductDto(customerOrder.getProduct()))
             .date(customerOrder.getDate())
-            .build();
+            .build() : null;
+
   }
 
   static CustomerOrder mapCustomerOrderDtoToCustomerOrder(CustomerOrderDto customerOrderDto) {
 
-    return CustomerOrder.builder()
+    return customerOrderDto != null ? CustomerOrder.builder()
             .id(customerOrderDto.getId())
             .discount(customerOrderDto.getDiscount())
             .quantity(customerOrderDto.getQuantity())
@@ -213,6 +214,6 @@ public interface ModelMapper {
             .payment(mapPaymentDtoToPayment(customerOrderDto.getPayment()))
             .product(mapProductDtoToProduct(customerOrderDto.getProduct()))
             .date(customerOrderDto.getDate())
-            .build();
+            .build() : null;
   }
 }

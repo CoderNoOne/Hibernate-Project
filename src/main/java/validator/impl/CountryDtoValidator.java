@@ -5,7 +5,7 @@ import validator.AbstractValidator;
 
 import java.util.Map;
 
-public class CountryDtoValidator extends AbstractValidator<CountryDto>{
+public class CountryDtoValidator extends AbstractValidator<CountryDto> {
 
   @Override
   public Map<String, String> validate(CountryDto countryDto) {
@@ -23,6 +23,6 @@ public class CountryDtoValidator extends AbstractValidator<CountryDto>{
   }
 
   private boolean isCountryNameValid(CountryDto countryDto) {
-    return countryDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+    return countryDto.getName() != null && countryDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 }

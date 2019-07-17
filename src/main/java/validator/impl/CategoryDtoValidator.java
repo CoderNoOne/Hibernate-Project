@@ -23,6 +23,6 @@ public class CategoryDtoValidator extends AbstractValidator<CategoryDto> {
   }
 
   private boolean isCategoryNameValid(CategoryDto categoryDto) {
-    return categoryDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+    return categoryDto.getName() != null && categoryDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 }

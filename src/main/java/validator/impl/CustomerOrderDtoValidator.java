@@ -1,6 +1,7 @@
 package validator.impl;
 
 
+import domain.CustomerOrder;
 import dto.CustomerOrderDto;
 import validator.AbstractValidator;
 
@@ -11,52 +12,60 @@ import java.util.Map;
 public class CustomerOrderDtoValidator extends AbstractValidator<CustomerOrderDto> {
 
   @Override
-  public Map<String, String> validate(CustomerOrderDto customerOrder) {
+  public Map<String, String> validate(CustomerOrderDto customerOrderDto) {
     errors.clear();
-    if (customerOrder == null) {
+    if (customerOrderDto == null) {
       errors.put("CustomerOrderDto object", "CutomerOrder object is null");
       return errors;
     }
 
-    if (!isDiscountValid(customerOrder)) {
-      errors.put("Discount", "Discount shoould be in the range <0.0,1.0>");
+    if (!isDiscountValid(customerOrderDto)) {
+      errors.put("Discount", "Discount should be in the range <0.0,1.0>");
     }
 
-    if (!isOrderDateValid(customerOrder)) {
+    if (!isOrderDateValid(customerOrderDto)) {
       errors.put("Order date", "Order date should be at present day or in the future");
     }
 
-    if(!isProductValid(customerOrder)){
-      errors.putAll(getProductValidator(customerOrder).getErrors());
+    if (!isProductQuantityValid(customerOrderDto)) {
+      errors.put("Product Quantity", "Product quantity should be greater than 0");
+
     }
-    if(!isCustomerValid(customerOrder)){
-      errors.putAll(getCustomerValidator(customerOrder).getErrors());
+    if (!isProductValid(customerOrderDto)) {
+      errors.putAll(getProductValidator(customerOrderDto).getErrors());
     }
-    if(!isPaymentValid(customerOrder)){
-      errors.putAll(getPaymentValidator(customerOrder).getErrors());
+    if (!isCustomerValid(customerOrderDto)) {
+      errors.putAll(getCustomerValidator(customerOrderDto).getErrors());
+    }
+    if (!isPaymentValid(customerOrderDto)) {
+      errors.putAll(getPaymentValidator(customerOrderDto).getErrors());
     }
 
     return errors;
   }
 
+  private boolean isProductQuantityValid(CustomerOrderDto customerOrderDto) {
+    return customerOrderDto.getQuantity() != null && customerOrderDto.getQuantity() > 0;
+  }
+
   private boolean isDiscountValid(CustomerOrderDto customerOrder) {
-    return customerOrder.getDiscount().compareTo(BigDecimal.ZERO) >= 0 && customerOrder.getDiscount().compareTo(BigDecimal.ONE) <= 0;
+    return customerOrder.getDiscount() != null && customerOrder.getDiscount().compareTo(BigDecimal.ZERO) >= 0 && customerOrder.getDiscount().compareTo(BigDecimal.ONE) <= 0;
   }
 
   private boolean isOrderDateValid(CustomerOrderDto customerOrder) {
-    return customerOrder.getDate().compareTo(LocalDate.now()) >= 0;
+    return customerOrder.getDate() != null && customerOrder.getDate().compareTo(LocalDate.now()) >= 0;
   }
 
-  private boolean isPaymentValid(CustomerOrderDto customerOrder){
-    return !getPaymentValidator(customerOrder).hasErrors();
+  private boolean isPaymentValid(CustomerOrderDto customerOrder) {
+    return customerOrder.getPayment() != null && !getPaymentValidator(customerOrder).hasErrors();
   }
 
-  private boolean isCustomerValid(CustomerOrderDto customerOrder){
-    return !getCustomerValidator(customerOrder).hasErrors();
+  private boolean isCustomerValid(CustomerOrderDto customerOrder) {
+    return customerOrder.getCustomer() != null && !getCustomerValidator(customerOrder).hasErrors();
   }
 
-  private boolean isProductValid(CustomerOrderDto customerOrder){
-    return !getProductValidator(customerOrder).hasErrors();
+  private boolean isProductValid(CustomerOrderDto customerOrder) {
+    return customerOrder.getProduct() != null && !getProductValidator(customerOrder).hasErrors();
   }
 
   private ProductDtoValidator getProductValidator(CustomerOrderDto customerOrder) {

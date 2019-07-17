@@ -261,7 +261,7 @@ class Menu {
 
     var minPriceAfterDiscount = getBigDecimal("Input product price");
 
-    System.out.println(customerOrderService.getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDicountHigherThanSpecified(minLocalDate, maxLocalDate, minPriceAfterDiscount));
+    System.out.println(customerOrderService.getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(minLocalDate, maxLocalDate, minPriceAfterDiscount));
   }
 
   private void executeOption9() {

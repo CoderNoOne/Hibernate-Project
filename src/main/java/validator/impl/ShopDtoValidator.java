@@ -21,6 +21,6 @@ public class ShopDtoValidator extends AbstractValidator<ShopDto> {
   }
 
   private boolean isNameValid(ShopDto shopDto) {
-    return shopDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+    return shopDto.getName() != null && shopDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
   }
 }

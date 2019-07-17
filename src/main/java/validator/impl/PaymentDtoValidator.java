@@ -15,7 +15,14 @@ public class PaymentDtoValidator extends AbstractValidator<PaymentDto> {
       errors.put("Payment object", "Payment object is null");
       return errors;
     }
+
+    if (!isEpaymentValid(paymentDto)) {
+      errors.put("Epayment object", "Epayment is null");
+    }
     return errors;
   }
 
+  private boolean isEpaymentValid(PaymentDto paymentDto) {
+    return paymentDto.getEpayment() != null;
+  }
 }

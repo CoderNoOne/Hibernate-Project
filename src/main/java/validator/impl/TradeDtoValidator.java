@@ -23,7 +23,8 @@ public class TradeDtoValidator extends AbstractValidator<TradeDto> {
   }
 
   private boolean isTradeNameValid(TradeDto tradeDto) {
-    return tradeDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+    return tradeDto.getName() != null && tradeDto.getName().matches("[A-Z]+(\\s[A-Z]+)*");
+
   }
 
 }
