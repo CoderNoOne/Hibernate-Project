@@ -1,6 +1,7 @@
 package repository.impl;
 
 import domain.Shop;
+import dto.ShopDto;
 import exception.AppException;
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.ShopRepository;
@@ -12,6 +13,20 @@ import java.util.List;
 import java.util.Optional;
 
 public class ShopRepositoryImpl extends AbstractCrudRepository<Shop, Long> implements ShopRepository {
+
+  @Override
+  public void deleteShopDto(ShopDto shopDto) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    findShopByNameAndCountry(shopDto.getName(), shopDto.getCountryDto().getName()).ifPresentOrElse(shop -> {
+      tx.begin();
+      entityManager.remove(entityManager.merge(shop));
+      tx.commit();
+    }, () -> {
+      throw new AppException("Customer you wanted to delete: " + shopDto + " doesnt exist in DB");
+    });
+  }
 
   @Override
   public List<Shop> findShopListByName(String name) {

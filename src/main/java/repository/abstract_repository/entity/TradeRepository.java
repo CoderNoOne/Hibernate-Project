@@ -7,5 +7,7 @@ import java.util.Optional;
 
 public interface TradeRepository extends CrudRepository<Trade, Long> {
 
-  Optional<Trade> findByName(String name);
+  Optional<Trade> findTradeByName(String name);
+
+  void deleteTradeByName(String name);
 }

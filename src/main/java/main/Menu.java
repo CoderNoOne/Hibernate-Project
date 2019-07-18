@@ -2,8 +2,7 @@ package main;
 
 import configuration.DbConnection;
 import domain.enums.EGuarantee;
-import dto.CustomerDto;
-import dto.ErrorDto;
+import dto.*;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import service.entity.*;
@@ -17,6 +16,8 @@ import java.util.*;
 import static helper.enums.ErrorMessage.*;
 import static helper.enums.TableNames.*;
 import static repository.impl.CustomerOrderRepositoryImpl.GUARANTEE_PERIOD_IN_YEARS;
+import static util.entity_utils.CategoryUtil.*;
+import static util.entity_utils.CountryUtil.*;
 import static util.entity_utils.CustomerUtil.*;
 import static util.entity_utils.ProducerUtil.createProducerDtoFromUserInput;
 import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
@@ -26,6 +27,7 @@ import static util.entity_utils.ProductUtil.*;
 import static util.entity_utils.ShopUtil.*;
 import static util.entity_utils.StockUtil.createStockDtoDetailFromUserInput;
 import static util.entity_utils.StockUtil.getStockDtoIfValid;
+import static util.entity_utils.TradeUtil.*;
 import static util.others.UserDataUtils.*;
 
 @Slf4j
@@ -38,6 +40,9 @@ class Menu {
   private final ProductService productService = new ProductService();
   private final StockService stockService = new StockService();
   private final CustomerOrderService customerOrderService = new CustomerOrderService();
+  private final CountryService countryService = new CountryService();
+  private final CategoryService categoryService = new CategoryService();
+  private final TradeService tradeService = new TradeService();
 
   void mainMenu() {
     while (true) {
@@ -66,7 +71,14 @@ class Menu {
           case 18 -> executeOption18();
           case 19 -> executeOption19();
           case 20 -> executeOption20();
-          case 21 -> {
+          case 21 -> executeOption21();
+          case 22 -> executeOption22();
+          case 23 -> executeOption23();
+          case 24 -> executeOption24();
+          case 25 -> executeOption25();
+          case 26 -> executeOption26();
+          case 27 -> executeOption27();
+          case 28 -> {
             DbConnection.close();
             return;
           }
@@ -103,16 +115,22 @@ class Menu {
                     "Option no. 18 - {17}\n" +
                     "Option no. 19 - {18}\n" +
                     "Option no. 20 - {19}\n" +
-                    "Option no. 21 - {20}\n",
+                    "Option no. 21 - {20}\n" +
+                    "Option no. 22 - {21}\n" +
+                    "Option no. 23 - {22}\n" +
+                    "Option no. 24 - {23}\n" +
+                    "Option no. 25 - {24}\n" +
+                    "Option no. 26 - {25}\n" +
+                    "Option no. 27 - {26}\n",
 
 
             "Go to admin panel",
-            "Add new Customer",
+            "Add new customer",
             "Add new shop",
             "Add new producer",
             "Add new product",
             "Add new stock",
-            "Add new Customer order",
+            "Add new customer order",
             "Show the most expensive product in each category",
             "Show distinct products ordered by customer with age within specified range and from specified country - sorted by price in descending order",
             "Show orders with order date within and with price after discount higher than specified ",
@@ -126,10 +144,16 @@ class Menu {
             "Update product",
             "Update producer",
             "Update stock",
+            "Add new country",
+            "Add new category",
+            "Delete category",
+            "Delete country",
+            "Add trade",
+            "Delete trade",
+            "Delete shop",
             "Exit the program"
     ));
   }
-
 
   private void executeOption20() {
     try {
@@ -281,7 +305,7 @@ class Menu {
 
     customerOrderService.getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales().forEach(
             (category, innerMap) -> {
-              printMessage(String.format("Category: %sMax quantity: %d The products are: \n", category, innerMap.values().iterator().next()));
+              printMessage(String.format("Category: %sMax quantity: %d The products are: \n", category.getName(), innerMap.values().iterator().next()));
               printCollectionWithNumeration(innerMap.keySet());
             });
   }
@@ -376,4 +400,102 @@ class Menu {
     new AdminMenu().showAdminMenu(login());
   }
 
+  private void executeOption21() {
+
+    try {
+
+      var country = getCountryDtoIfValid(createCountryDtoFromUserInput());
+      countryService.addCountryToDb(country);
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", COUNTRY, ERROR_DURING_INSERTION, e.getMessage()));
+    }
+  }
+
+  private void executeOption22() {
+
+    try {
+
+      var category = getCategoryDtoIfValid(createCategoryDtoFromUserInput());
+      categoryService.addCategoryToDb(category);
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", CATEGORY, ERROR_DURING_INSERTION, e.getMessage()));
+    }
+  }
+
+  private void executeOption23() {
+
+    try {
+
+      CategoryDto categoryDto = getCategoryDtoIfValid(specifyCategoryDtoDetailToDelete());
+      categoryService.deleteCategoryByName(categoryDto.getName());
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", CATEGORY, ERROR_DURING_DELETION, e.getMessage()));
+    }
+  }
+
+  private void executeOption24() {
+
+    try {
+
+      CountryDto countryDto = getCountryDtoIfValid(specifyCountryDtoDetailToDelete());
+      countryService.deleteCountryByName(countryDto.getName());
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", COUNTRY, ERROR_DURING_DELETION, e.getMessage()));
+    }
+  }
+
+  private void executeOption26() {
+
+    try {
+
+      TradeDto tradeDto = getTradeDtoIfValid(specifyTradeDtoDetailToDelete());
+      tradeService.deleteTradeByName(tradeDto.getName());
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", TRADE, ERROR_DURING_DELETION, e.getMessage()));
+    }
+
+  }
+
+  private void executeOption25() {
+
+    try {
+      var tradeDto = getTradeDtoIfValid(createTradeDtoFromUserInput());
+      tradeService.addTradeToDbFromUserInput(tradeDto);
+
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", TRADE, ERROR_DURING_INSERTION, e.getMessage()));
+    }
+  }
+
+  private void executeOption27(){
+
+    try{
+
+      var shopDtp = getShopDtoIfValid(specifyShopDtoDetailToDelete());
+      shopService.deleteShopDto(shopDtp);
+
+    }catch (Exception e){
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      throw new AppException(String.format("%s;%s: %s", SHOP, ERROR_DURING_DELETION, e.getMessage()));
+    }
+  }
 }
+

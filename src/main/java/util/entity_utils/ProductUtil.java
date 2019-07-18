@@ -13,12 +13,9 @@ import java.util.stream.Collectors;
 
 import static util.others.UserDataUtils.*;
 
-public final class ProductUtil {
+public interface ProductUtil {
 
-  private ProductUtil() {
-  }
-
-  public static ProductDto createProductDtoFromUserInput() {
+  static ProductDto createProductDtoFromUserInput() {
 
     return ProductDto.builder()
             .categoryDto(CategoryDto.builder()
@@ -39,7 +36,7 @@ public final class ProductUtil {
             .build();
   }
 
-  public static ProductDto getProductIfValid(ProductDto product) {
+  static ProductDto getProductIfValid(ProductDto product) {
 
     var productValidator = new ProductDtoValidator();
     var errorsMap = productValidator.validate(product);
@@ -51,7 +48,7 @@ public final class ProductUtil {
     return product;
   }
 
-  public static ProductDto preciseProductDtoDetails(StockDto stockDto) {
+  static ProductDto preciseProductDtoDetails(StockDto stockDto) {
 
     printMessage(String.format("Any product with specified name:%s and category: %s  exists in a DB. You need to specify product details: "
             , stockDto.getProductDto().getName(), stockDto.getProductDto().getCategoryDto().getName()));
@@ -73,7 +70,7 @@ public final class ProductUtil {
             .build();
   }
 
-  private static List<EGuarantee> createGuaranteeComponentsFromUserInput() {
+  static List<EGuarantee> createGuaranteeComponentsFromUserInput() {
 
     List<EGuarantee> guaranteeListInput = new ArrayList<>();
 
@@ -93,7 +90,7 @@ public final class ProductUtil {
     return guaranteeListInput;
   }
 
-  public static ProductDto chooseAvailableProduct(List<ProductDto> productList) {
+  static ProductDto chooseAvailableProduct(List<ProductDto> productList) {
 
     if (productList.isEmpty()) {
       throw new AppException("There are no products who meet specified criteria");

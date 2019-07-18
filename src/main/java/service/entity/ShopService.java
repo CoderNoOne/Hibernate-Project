@@ -113,6 +113,13 @@ public class ShopService {
                     });
 
   }
+
+  public void deleteShopDto(ShopDto shopDtp) {
+    if (shopDtp == null ) {
+      throw new AppException("Shop is null/ undefined");
+    }
+    shopRepository.deleteShopDto(shopDtp);
+  }
 }
 
 

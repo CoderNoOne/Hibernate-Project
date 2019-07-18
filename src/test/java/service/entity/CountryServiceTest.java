@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-@DisplayName("Test cases for CountryService.class")
+@DisplayName("Test cases for CountryService")
 class CountryServiceTest {
 
   @Mock

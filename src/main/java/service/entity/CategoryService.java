@@ -68,4 +68,12 @@ public class CategoryService {
             .map(ModelMapper::mapCategoryToCategoryDto)
             .collect(Collectors.toList());
   }
+
+  public void deleteCategoryByName(String name) {
+
+    if (name == null || name.equals("")) {
+      throw new AppException("Category name is null/ undefined: " + name);
+    }
+    categoryRepository.deleteCategoryByName(name);
+  }
 }

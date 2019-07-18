@@ -12,7 +12,21 @@ import java.util.Optional;
 public class TradeRepositoryImpl extends AbstractCrudRepository<Trade, Long> implements TradeRepository {
 
   @Override
-  public Optional<Trade> findByName(String name) {
+  public void deleteTradeByName(String name) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    findTradeByName(name).ifPresentOrElse(trade -> {
+      tx.begin();
+      entityManager.remove(entityManager.merge(trade));
+      tx.commit();
+    }, () -> {
+      throw new AppException("Trade you wanted to delete: " + name + " doesnt exist in DB");
+    });
+  }
+
+  @Override
+  public Optional<Trade> findTradeByName(String name) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();

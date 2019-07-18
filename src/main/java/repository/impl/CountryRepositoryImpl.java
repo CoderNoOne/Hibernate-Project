@@ -12,6 +12,21 @@ import java.util.Optional;
 public class CountryRepositoryImpl extends AbstractCrudRepository<Country, Long> implements CountryRepository {
 
 
+  @Override
+  public void deleteCountryByName(String name) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    findCountryByName(name).ifPresentOrElse(country -> {
+      tx.begin();
+      entityManager.remove(entityManager.merge(country));
+      tx.commit();
+    }, () -> {
+      throw new AppException("Customer you wanted to delete: " + name + " doesnt exist in DB");
+    });
+  }
+
   public Optional<Country> findCountryByName(String name) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();

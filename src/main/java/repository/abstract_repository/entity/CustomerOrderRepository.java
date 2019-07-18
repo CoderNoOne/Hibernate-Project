@@ -13,20 +13,12 @@ import java.util.Set;
 
 public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, Long> {
 
-  Map<Category, Map<Product, Integer>> findTheMostExpensiveOrderedProductInEachCategoryWithNumberOfPurchases();
 
   List<Product> findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange(String countryName, Integer minAge, Integer maxAge);
 
-  List<Product> findProductsWithActiveWarrantyAndWithGuaranteeComponents(Set<EGuarantee> guaranteeSet);
+  List<CustomerOrder> findProductsWithActiveWarranty();
 
-  Map<Producer, List<Product>> findProductsOrderedByCustomerGroupedByProducer(String customerName, String customerSurname, String countryName);
-
-  List<CustomerOrder> findProductsOrderedByCustomerGroupedByProducer2(String customerName, String customerSurname, String countryName);
-
-  Map<Customer, Long> findCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim();
-
-  Map<Product, Integer> findNumberOfProductsOrders(List<Product> productList);
-
+  List<CustomerOrder> findProductsOrderedByCustomer(String customerName, String customerSurname, String countryName);
 
   List<CustomerOrder> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount);
 }

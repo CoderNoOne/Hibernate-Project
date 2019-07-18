@@ -15,6 +15,21 @@ import java.util.Optional;
 public class CategoryRepositoryImpl extends AbstractCrudRepository<Category, Long> implements CategoryRepository {
 
   @Override
+  public void deleteCategoryByName(String name) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    findCategoryByName(name).ifPresentOrElse(category -> {
+      tx.begin();
+      entityManager.remove(entityManager.merge(category));
+      tx.commit();
+    }, () -> {
+      throw new AppException("Category you wanted to delete: " + name + " doesnt exist in DB");
+    });
+  }
+
+  @Override
   public Optional<Category> findCategoryByName(String name) {
 
 

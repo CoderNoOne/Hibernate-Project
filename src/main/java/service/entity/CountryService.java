@@ -1,5 +1,6 @@
 package service.entity;
 
+import domain.Country;
 import dto.CountryDto;
 import exception.AppException;
 import mapper.ModelMapper;
@@ -77,5 +78,13 @@ public class CountryService {
             .stream()
             .map(ModelMapper::mapCountryToCountryDto)
             .collect(Collectors.toList());
+  }
+
+  public void deleteCountryByName(String name) {
+
+    if (name == null || name.equals("")) {
+      throw new AppException("Country name is null/ undefined: " + name);
+    }
+    countryRepository.deleteCountryByName(name);
   }
 }

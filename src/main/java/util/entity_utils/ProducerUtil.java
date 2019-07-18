@@ -10,12 +10,9 @@ import java.util.stream.Collectors;
 
 import static util.others.UserDataUtils.*;
 
-public class ProducerUtil {
+public interface ProducerUtil {
 
-  private ProducerUtil() {
-  }
-
-  public static ProducerDto createProducerDtoFromUserInput() {
+  static ProducerDto createProducerDtoFromUserInput() {
 
     return ProducerDto.builder()
             .name(getString("Input producer name"))
@@ -28,7 +25,7 @@ public class ProducerUtil {
             .build();
   }
 
-  public static ProducerDto getProducerDtoIfValid(ProducerDto producerDto) {
+  static ProducerDto getProducerDtoIfValid(ProducerDto producerDto) {
 
     var producerDtoValidator = new ProducerDtoValidator();
 

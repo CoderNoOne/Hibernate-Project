@@ -28,6 +28,7 @@ import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+@DisplayName("Test cases for CategoryService")
 class CategoryServiceTest {
 
   @Mock

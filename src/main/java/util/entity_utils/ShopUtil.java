@@ -12,13 +12,10 @@ import java.util.stream.Collectors;
 
 import static util.others.UserDataUtils.*;
 
+public interface ShopUtil {
 
-public final class ShopUtil {
 
-  private ShopUtil() {
-  }
-
-  public static ShopDto createShopDtoFromUserInput() {
+  static ShopDto createShopDtoFromUserInput() {
 
     return ShopDto.builder()
             .name(getString("Input shop name"))
@@ -28,7 +25,7 @@ public final class ShopUtil {
             .build();
   }
 
-  public static ShopDto preciseShopDtoDetails(StockDto stockDto) {
+  static ShopDto preciseShopDtoDetails(StockDto stockDto) {
 
     printMessage(String.format("Any shop with specified name:%s exists in a DB. You need to specify more shop details: "
             , stockDto.getShopDto().getName()));
@@ -41,7 +38,7 @@ public final class ShopUtil {
             .build();
   }
 
-  public static ShopDto getShopDtoIfValid(ShopDto shopDto) {
+  static ShopDto getShopDtoIfValid(ShopDto shopDto) {
 
     var shopValidator = new ShopDtoValidator();
     var errorsMap = shopValidator.validate(shopDto);
@@ -53,7 +50,7 @@ public final class ShopUtil {
     return shopDto;
   }
 
-  public static ShopDto chooseAvailableShop(List<ShopDto> shopList) {
+  static ShopDto chooseAvailableShop(List<ShopDto> shopList) {
 
     if (shopList.isEmpty()) {
       throw new AppException("There are no shops which meet specified criteria");
@@ -65,6 +62,12 @@ public final class ShopUtil {
     } while (!(shopNumber >= 1 && shopNumber <= shopList.size()));
 
     return shopList.get(shopNumber - 1);
+  }
+
+  static ShopDto specifyShopDtoDetailToDelete() {
+
+    printMessage("\nInput country's information you want to delete\n");
+    return createShopDtoFromUserInput();
   }
 
 }

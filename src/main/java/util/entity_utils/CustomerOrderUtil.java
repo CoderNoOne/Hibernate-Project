@@ -11,12 +11,9 @@ import static util.others.UserDataUtils.*;
 import static util.others.UserDataUtils.getLocalDate;
 import static util.others.UserDataUtils.printMessage;
 
-public class CustomerOrderUtil {
+public interface CustomerOrderUtil {
 
-  private CustomerOrderUtil() {
-  }
-
-  public static CustomerOrderDto createCustomerOrderDtoFromUserInput() {
+  static CustomerOrderDto createCustomerOrderDtoFromUserInput() {
 
     return CustomerOrderDto.builder()
             .customer(CustomerDto.builder()
@@ -41,7 +38,7 @@ public class CustomerOrderUtil {
             .build();
   }
 
-  public static CustomerOrderDto getCustomerOrderIfValid(CustomerOrderDto customerOrder) {
+  static CustomerOrderDto getCustomerOrderIfValid(CustomerOrderDto customerOrder) {
     var customerOrderValidator = new CustomerOrderDtoValidator();
     var errorsMap = customerOrderValidator.validate(customerOrder);
 

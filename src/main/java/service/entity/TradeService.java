@@ -38,7 +38,7 @@ public class TradeService {
   }
 
   private Optional<TradeDto> getTradeByName(String name) {
-    return tradeRepository.findByName(name)
+    return tradeRepository.findTradeByName(name)
             .map(ModelMapper::mapTradeToTradeDto);
   }
 
@@ -49,5 +49,13 @@ public class TradeService {
   TradeDto getTradeFromDbIfExists(TradeDto tradeDto) {
     return getTradeByName(tradeDto.getName())
             .orElse(tradeDto);
+  }
+
+  public void deleteTradeByName(String name) {
+
+    if (name == null || name.equals("")) {
+      throw new AppException("Trade name is null/ undefined: " + name);
+    }
+    tradeRepository.deleteTradeByName(name);
   }
 }

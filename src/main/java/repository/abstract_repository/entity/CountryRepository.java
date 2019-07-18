@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface CountryRepository extends CrudRepository<Country, Long> {
   Optional<Country> findCountryByName(String name);
+
+  void deleteCountryByName(String name);
 }

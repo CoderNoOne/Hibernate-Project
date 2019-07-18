@@ -1,6 +1,5 @@
 package util.entity_utils;
 
-import domain.Customer;
 import dto.CountryDto;
 import dto.CustomerDto;
 import exception.AppException;
@@ -11,16 +10,9 @@ import java.util.stream.Collectors;
 import static util.others.UserDataUtils.*;
 
 
-public final class CustomerUtil {
+public interface CustomerUtil {
 
-  private CustomerUtil() {
-  }
-
-  public static CustomerDto specifyCustomerDetailToUpdate(){
-    return createCustomerDtoFromUserInput();
-  }
-
-  public static CustomerDto specifyCustomerDtoDetailToDelete(){
+  static CustomerDto specifyCustomerDtoDetailToDelete() {
 
     printMessage("\nInput customer's information you want to delete\n");
 
@@ -33,7 +25,7 @@ public final class CustomerUtil {
             .build();
   }
 
-  public static CustomerDto createCustomerDtoFromUserInput() {
+  static CustomerDto createCustomerDtoFromUserInput() {
 
     return CustomerDto.builder()
             .name(getString("Input customer name"))
@@ -45,7 +37,7 @@ public final class CustomerUtil {
             .build();
   }
 
-  public static CustomerDto getCustomerDtoIfValid(CustomerDto customerDto){
+  static CustomerDto getCustomerDtoIfValid(CustomerDto customerDto) {
 
     var customerDtoValidator = new CustomerDtoValidator();
     var errorsMap = customerDtoValidator.validate(customerDto);

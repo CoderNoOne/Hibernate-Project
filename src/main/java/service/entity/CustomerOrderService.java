@@ -13,9 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static util.entity_utils.ProductUtil.chooseAvailableProduct;
 import static util.entity_utils.ShopUtil.chooseAvailableShop;
@@ -72,13 +70,23 @@ public class CustomerOrderService {
 
   public Map<CategoryDto, Map<ProductDto, Integer>> getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales() {
 
-    return customerOrderRepository.findTheMostExpensiveOrderedProductInEachCategoryWithNumberOfPurchases()
-            .entrySet().stream().collect(Collectors.toMap(
-                    e -> ModelMapper.mapCategoryToCategoryDto(e.getKey()),
-                    e -> e.getValue().entrySet().stream().collect(Collectors.toMap(
-                            ee -> ModelMapper.mapProductToProductDto(ee.getKey()),
-                            Map.Entry::getValue
-                    ))));
+    List<CustomerOrderDto> customerOrderDtoList = getAllCustomerOrders();
+
+    return customerOrderDtoList.stream().map(customerOrder -> customerOrder.getProduct().getCategoryDto()).distinct()
+            .collect(Collectors.toMap(
+                    Function.identity(),
+                    category -> {
+                      Map<CategoryDto, Integer> theHighestQuantityOrderInEachCategory = customerOrderDtoList.stream().filter(customerOrder -> customerOrder.getProduct().getCategoryDto().equals(category))
+                              .collect(Collectors.groupingBy(customerOrder -> customerOrder.getProduct().getCategoryDto(),
+                                      Collectors.mapping(CustomerOrderDto::getQuantity, Collectors.reducing(0, (v1, v2) -> v1 >= v2 ? v1 : v2))));
+
+                      return customerOrderDtoList.stream().filter(customerOrderDto -> customerOrderDto.getProduct().getCategoryDto().equals(category))
+                              .collect(Collectors.groupingBy(CustomerOrderDto::getProduct,
+                                      Collectors.mapping(CustomerOrderDto::getQuantity, Collectors.filtering(
+                                              quantity -> quantity.intValue() == theHighestQuantityOrderInEachCategory.get(category).intValue(),
+                                              Collectors.reducing(0, (v1, v2) -> v1 > v2 ? v1 : v2)))));
+                    }));
+
   }
 
 
@@ -151,8 +159,10 @@ public class CustomerOrderService {
 
   public Map<String, List<ProductDto>> getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(Set<EGuarantee> guaranteeComponents) {
 
-    return customerOrderRepository.findProductsWithActiveWarrantyAndWithGuaranteeComponents(guaranteeComponents)
-            .stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.groupingBy(ProductDto::getName));
+    return customerOrderRepository.findProductsWithActiveWarranty()
+            .stream().filter(customerOrder -> guaranteeComponents.isEmpty() || customerOrder.getProduct().getGuaranteeComponents().stream().anyMatch(guaranteeComponents::contains))
+            .map(customerOrder -> ModelMapper.mapProductToProductDto(customerOrder.getProduct()))
+            .collect(Collectors.groupingBy(ProductDto::getName));
   }
 
 
@@ -162,25 +172,16 @@ public class CustomerOrderService {
       throw new AppException("getProductsOrderedByCustomerGroupedByProducer - not valid input data");
     }
 
-    return customerOrderRepository.findProductsOrderedByCustomerGroupedByProducer(customerName, customerSurname, countryName)
+    return customerOrderRepository.findProductsOrderedByCustomer(customerName, customerSurname, countryName)
+            .stream().collect(Collectors.groupingBy(customerOrder -> customerOrder.getProduct().getProducer(),
+                    Collectors.mapping(CustomerOrder::getProduct, Collectors.toList())))
             .entrySet().stream().collect(Collectors.toMap(
                     e -> ModelMapper.mapProducerToProducerDto(e.getKey()),
                     e -> e.getValue().stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.toList())));
   }
 
-  /*done*/
+
   public Map<CustomerDto, Long> getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim() {
-
-    return customerOrderRepository
-            .findCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim()
-            .entrySet().stream()
-            .collect(Collectors.toMap(
-                    e -> ModelMapper.mapCustomerToCustomerDto(e.getKey()),
-                    Map.Entry::getValue));
-  }
-
-
-  public Map<CustomerDto, Long> getCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim2() {
 
     List<CustomerOrderDto> allCustomerOrders = getAllCustomerOrders();
 
@@ -196,13 +197,10 @@ public class CustomerOrderService {
 
   }
 
-
-  /*done*/
   public void deleteAllCustomerOrders() {
     customerOrderRepository.deleteAll();
   }
 
-  /*done*/
   public List<CustomerOrderDto> getAllCustomerOrders() {
 
     return customerOrderRepository.findAll()

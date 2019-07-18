@@ -13,12 +13,9 @@ import static util.others.UserDataUtils.*;
 import static util.others.UserDataUtils.getString;
 import static util.others.UserDataUtils.printMessage;
 
-public class StockUtil {
+public interface StockUtil {
 
-  private StockUtil() {
-  }
-
-  public static StockDto createStockDtoDetailFromUserInput() {
+  static StockDto createStockDtoDetailFromUserInput() {
 
     return StockDto.builder()
             .productDto(ProductDto.builder()
@@ -34,9 +31,9 @@ public class StockUtil {
             .build();
   }
 
-  public static StockDto getStockDtoIfValid(StockDto stockDto) {
+  static StockDto getStockDtoIfValid(StockDto stockDto) {
 
-    if (stockDto== null) {
+    if (stockDto == null) {
       throw new AppException("Stock is null");
     }
     var stockDtoValidator = new StockDtoValidator();
