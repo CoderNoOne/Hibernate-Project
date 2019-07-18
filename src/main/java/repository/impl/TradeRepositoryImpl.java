@@ -13,9 +13,6 @@ public class TradeRepositoryImpl extends AbstractCrudRepository<Trade, Long> imp
 
   @Override
   public Optional<Trade> findByName(String name) {
-//    if (name == null) {
-//      throw new AppException("Trade name is null");
-//    }
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
@@ -41,9 +38,7 @@ public class TradeRepositoryImpl extends AbstractCrudRepository<Trade, Long> imp
         entityManager.close();
       }
     }
-
     return item;
-
   }
 }
 

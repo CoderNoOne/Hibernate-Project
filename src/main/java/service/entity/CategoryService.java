@@ -14,7 +14,6 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
 
-
   public CategoryService() {
     this.categoryRepository = new CategoryRepositoryImpl();
   }
@@ -39,16 +38,19 @@ public class CategoryService {
 
   Optional<CategoryDto> getCategoryByName(String name) {
 
+    if (name == null || name.equals("")) {
+      throw new AppException("Category name is null/undefined");
+    }
     return categoryRepository.findCategoryByName(name)
             .map(ModelMapper::mapCategoryToCategoryDto);
   }
 
-
   private boolean isCategoryUniqueByName(String name) {
 
-    if (name == null) {
-      throw new AppException("Category name is null");
+    if (name == null || name.equals("")) {
+      throw new AppException("Category name is null/undefined");
     }
+
     return getCategoryByName(name).isEmpty();
   }
 
@@ -66,6 +68,4 @@ public class CategoryService {
             .map(ModelMapper::mapCategoryToCategoryDto)
             .collect(Collectors.toList());
   }
-
-
 }

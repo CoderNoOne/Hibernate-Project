@@ -21,9 +21,12 @@ public interface CustomerOrderRepository extends CrudRepository<CustomerOrder, L
 
   Map<Producer, List<Product>> findProductsOrderedByCustomerGroupedByProducer(String customerName, String customerSurname, String countryName);
 
+  List<CustomerOrder> findProductsOrderedByCustomerGroupedByProducer2(String customerName, String customerSurname, String countryName);
+
   Map<Customer, Long> findCustomersWhoBoughtAtLeastOneProductProducedInHisNationalCountryAndThenFindNumberOfProductsProducedInDifferentCountryAndBoughtByHim();
 
   Map<Product, Integer> findNumberOfProductsOrders(List<Product> productList);
+
 
   List<CustomerOrder> findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount);
 }

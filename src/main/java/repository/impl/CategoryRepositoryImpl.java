@@ -2,6 +2,7 @@ package repository.impl;
 
 import domain.Category;
 import exception.AppException;
+import lombok.extern.slf4j.Slf4j;
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.CategoryRepository;
 
@@ -10,6 +11,7 @@ import javax.persistence.EntityTransaction;
 import java.util.Arrays;
 import java.util.Optional;
 
+@Slf4j
 public class CategoryRepositoryImpl extends AbstractCrudRepository<Category, Long> implements CategoryRepository {
 
   @Override
@@ -35,8 +37,8 @@ public class CategoryRepositoryImpl extends AbstractCrudRepository<Category, Lon
               .findFirst();
       tx.commit();
     } catch (Exception e) {
-      System.out.println(e.getMessage());
-      System.out.println(Arrays.toString(e.getStackTrace()));
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
       if (tx != null) {
         tx.rollback();
       }

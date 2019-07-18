@@ -33,18 +33,23 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
+
     try {
+
       tx.begin();
       item = Optional.ofNullable(entityManager.merge(t));
       tx.commit();
+
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
+
       if (tx != null) {
         tx.rollback();
       }
       throw new AppException(entityType.getSimpleName() + ";add or update - exception");
     } finally {
+
       if (entityManager != null) {
         entityManager.close();
       }

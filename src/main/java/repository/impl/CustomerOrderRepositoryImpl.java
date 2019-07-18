@@ -41,7 +41,7 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
                       Function.identity(),
                       customer -> (Long) resultList.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
                               .filter(customerOrder -> customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrder::getQuantity).count()),
-                      map -> map.entrySet().stream().filter(e ->  e.getValue() >= 1).map(Map.Entry::getKey).collect(Collectors.toMap(
+                      map -> map.entrySet().stream().filter(e -> e.getValue() >= 1).map(Map.Entry::getKey).collect(Collectors.toMap(
                               Function.identity(),
                               customer -> (Long) resultList.stream().filter(customerOrder -> customerOrder.getCustomer().equals(customer))
                                       .filter(customerOrder -> !customerOrder.getProduct().getProducer().getCountry().equals(customer.getCountry())).map(CustomerOrder::getQuantity).count()))));
@@ -96,8 +96,42 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
     }
 
     return resultMap;
+  }
 
+  @Override
+  public List<CustomerOrder> findProductsOrderedByCustomerGroupedByProducer2(String customerName, String customerSurname, String countryName) {
 
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    List<CustomerOrder> resultList = new ArrayList<>();
+
+    try {
+      tx.begin();
+
+      resultList = entityManager
+              .createQuery("select e from " + entityType.getSimpleName() + " as e where e.customer.name = :customerName " +
+                      "and e.customer.country.name = :countryName and e.customer.surname = :customerSurname", entityType)
+              .setParameter("customerName", customerName)
+              .setParameter("customerSurname", customerSurname)
+              .setParameter("countryName", countryName)
+              .getResultList();
+
+      tx.commit();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      log.error(Arrays.toString(e.getStackTrace()));
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find products ordered by customer grouped by producer - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+
+    return resultList;
   }
 
   @Override
