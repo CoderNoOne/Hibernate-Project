@@ -3,6 +3,7 @@ package validator.impl;
 import dto.CategoryDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -12,6 +13,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@Tag("Validators")
 @DisplayName("Test cases for categoryDtoValidator")
 class CategoryDtoValidatorTest {
 

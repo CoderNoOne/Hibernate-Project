@@ -5,6 +5,7 @@ import dto.ProducerDto;
 import dto.TradeDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -15,6 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("Validators")
 @DisplayName("Test cases for producerDto")
 class ProducerDtoValidatorTest {
 

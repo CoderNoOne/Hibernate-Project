@@ -6,6 +6,7 @@ import domain.enums.EGuarantee;
 import domain.enums.Epayment;
 import dto.*;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+@Tag("Mapper")
 @DisplayName("Test cases for ModelMapper")
 class ModelMapperTest {
 

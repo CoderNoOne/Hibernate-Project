@@ -5,6 +5,7 @@ import dto.*;
 import org.hibernate.cache.spi.access.CollectionDataAccess;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("Validators")
 @DisplayName("Test cases for ProductDtoValidator")
 class ProductDtoValidatorTest {
 

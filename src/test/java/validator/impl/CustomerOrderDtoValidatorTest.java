@@ -6,6 +6,7 @@ import domain.enums.Epayment;
 import dto.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -18,7 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-
+@Tag("Validators")
 @DisplayName("Test cases for customerOrderDtoValidator")
 class CustomerOrderDtoValidatorTest {
 

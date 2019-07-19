@@ -4,6 +4,7 @@ import dto.CountryDto;
 import dto.CustomerDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -15,6 +16,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("Validators")
 @DisplayName("Test cases for customerDto")
 class CustomerDtoValidatorTest {
 
@@ -213,11 +215,14 @@ class CustomerDtoValidatorTest {
 
   @Test
   @DisplayName("All customerDto fields are not valid")
-  void test8(){
+  void test8() {
 
     //given
     Map<String, String> expectedErrors = Map.of(
-
+            "Customer age", "Customer age should be greater than or equal to 18",
+            "Customer name", "Customer name should contains only capital letters and space between letters",
+            "Country name", "Country name should contain only capital letters and optionally a single whitespace between them",
+            "Customer surname", "Customer surname should contains only capital letters and space between letters"
     );
 
     CustomerDto customerDto = CustomerDto.builder()

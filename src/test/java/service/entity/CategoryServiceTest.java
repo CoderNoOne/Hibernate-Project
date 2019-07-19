@@ -4,9 +4,11 @@ import domain.*;
 import domain.enums.EGuarantee;
 import dto.CategoryDto;
 import exception.AppException;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,17 +17,18 @@ import org.mockito.quality.Strictness;
 import repository.abstract_repository.entity.CategoryRepository;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+@Tag("Services")
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Test cases for CategoryService")
@@ -181,6 +184,50 @@ class CategoryServiceTest {
     assertThat(allCategories.get(0).getName(), equalTo("COMPUTERS"));
     assertThat(allCategories.get(0).getId(), is(1L));
 
+  }
+
+  @ParameterizedTest
+  @MethodSource("getNotValidCategoryName")
+  @DisplayName("delete category by name with null or empty name should throw an exception with appropriate message")
+  void test8(String name) {
+
+    //given
+    String expectedExceptionMessage = "Category name is null/ undefined: " + name;
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> categoryService.deleteCategoryByName(name));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+
+  }
+
+  @TestFactory
+  @DisplayName("delete category by name with valid name should not throw an exception")
+  Collection<DynamicTest> test9() {
+
+    return new Random().ints(10, 1, 11).boxed()
+            .map(num -> {
+              String generatedName = getRandomStringWithUpperCaseLetters(num);
+              return DynamicTest.dynamicTest(generatedName, () -> assertDoesNotThrow(() -> categoryService.deleteCategoryByName(generatedName)));
+            })
+            .collect(Collectors.toList());
+  }
+
+  private static List<String> getNotValidCategoryName() {
+    return Arrays.asList(
+            null,
+            ""
+    );
+  }
+
+  private String getRandomStringWithUpperCaseLetters(int letterNumber) {
+
+    String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    return IntStream.rangeClosed(1, letterNumber)
+            .mapToObj(num -> letters.charAt((int) (Math.random() * letters.length())))
+            .map(String::valueOf)
+            .collect(Collectors.joining());
   }
 
 }
