@@ -3,7 +3,13 @@ package service.entity;
 import dto.*;
 import exception.AppException;
 import mapper.*;
+import repository.abstract_repository.entity.CountryRepository;
+import repository.abstract_repository.entity.ProductRepository;
+import repository.abstract_repository.entity.ShopRepository;
 import repository.abstract_repository.entity.StockRepository;
+import repository.impl.CountryRepositoryImpl;
+import repository.impl.ProductRepositoryImpl;
+import repository.impl.ShopRepositoryImpl;
 import repository.impl.StockRepositoryImpl;
 
 import java.util.List;
@@ -21,23 +27,24 @@ import static util.update.UpdateStockUtil.getUpdatedStock;
 public class StockService {
 
   private final StockRepository stockRepository;
-  private final ShopService shopService;
-  private final ProductService productService;
-  private final CountryService countryService;
+
+  private final CountryRepository countryRepository;
+  private final ProductRepository productRepository;
+  private final ShopRepository shopRepository;
 
 
   public StockService() {
     this.stockRepository = new StockRepositoryImpl();
-    this.shopService = new ShopService();
-    this.productService = new ProductService();
-    this.countryService = new CountryService();
+    this.shopRepository = new ShopRepositoryImpl();
+    this.productRepository = new ProductRepositoryImpl();
+    this.countryRepository = new CountryRepositoryImpl();
   }
 
-  public StockService(StockRepository stockRepository, ShopService shopService, ProductService productService, CountryService countryService) {
+  public StockService(StockRepository stockRepository, ShopRepository shopRepository, ProductRepository productRepository, CountryRepository countryRepository) {
     this.stockRepository = stockRepository;
-    this.shopService = shopService;
-    this.productService = productService;
-    this.countryService = countryService;
+    this.shopRepository = shopRepository;
+    this.productRepository = productRepository;
+    this.countryRepository = countryRepository;
   }
 
 
@@ -47,6 +54,11 @@ public class StockService {
   }
 
   public void addStockToDbFromUserInput(StockDto stockDto) {
+
+    if (stockDto == null) {
+      throw new AppException("StockDto object is null");
+    }
+
     if (!isStockUniqueByShopAndProduct(stockDto.getShopDto(), stockDto.getProductDto())) {
       var stockFromDb = getStockByShopAndProduct(stockDto.getShopDto(), stockDto.getProductDto()).orElseThrow(() -> new AppException("Stock doesn't exist in db"));
       stockFromDb.setQuantity(getStockQuantity(stockFromDb) + stockDto.getQuantity());
@@ -61,16 +73,36 @@ public class StockService {
     return StockDto.builder()
             .id(stockDto.getId())
             .quantity(stockDto.getQuantity())
-            .shopDto(shopService.getShopFromDbIfExists(stockDto.getShopDto()))
-            .productDto(productService.getProductFromDbIfExists(stockDto.getProductDto()))
+            .shopDto(shopRepository.findShopByNameAndCountry(
+                    stockDto.getShopDto().getName(),
+                    stockDto.getShopDto().getCountryDto().getName())
+                    .map(ModelMapper::mapShopToShopDto)
+                    .orElse(stockDto.getShopDto()))
+            .productDto(productRepository.findByNameAndCategoryAndProducer(
+                    stockDto.getProductDto().getName(),
+                    ModelMapper.mapCategoryDtoToCategory(stockDto.getProductDto().getCategoryDto()),
+                    ModelMapper.mapProducerDtoToProducer(stockDto.getProductDto().getProducerDto()))
+                    .map(ModelMapper::mapProductToProductDto)
+                    .orElse(stockDto.getProductDto()))
             .build();
-
   }
 
 
   public StockDto specifyShop(StockDto stockDto) {
 
-    var shopsByName = shopService.getShopsByName(stockDto.getShopDto().getName());
+    if (stockDto == null) {
+      throw new AppException("StockDto object is null");
+    }
+
+    if (stockDto.getShopDto() == null || stockDto.getShopDto().getName() == null) {
+      throw new AppException("Shop is null/undefinied: " + stockDto.getShopDto());
+    }
+
+    var shopsByName = shopRepository.findShopListByName(stockDto.getShopDto().getName())
+            .stream()
+            .map(ModelMapper::mapShopToShopDto)
+            .collect(Collectors.toList());
+
 
     var shopDto = !shopsByName.isEmpty() ?
             chooseAvailableShop(shopsByName) : setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(preciseShopDtoDetails(stockDto)));
@@ -82,10 +114,20 @@ public class StockService {
 
   private ShopDto setShopComponentsFromDbIfTheyExist(ShopDto shopDto) {
 
+    if (shopDto == null) {
+      throw new AppException("ShopDto is null");
+    }
+
+    if (shopDto.getCountryDto() == null) {
+      throw new AppException("Shop country is null");
+    }
+
     return ShopDto.builder()
             .id(shopDto.getId())
             .name(shopDto.getName())
-            .countryDto(countryService.getCountryFromDbIfExists(shopDto.getCountryDto()))
+            .countryDto(countryRepository.findCountryByName(shopDto.getCountryDto().getName())
+                    .map(ModelMapper::mapCountryToCountryDto)
+                    .orElse(shopDto.getCountryDto()))
             .build();
   }
 
@@ -159,11 +201,13 @@ public class StockService {
 
   public StockDto specifyProduct(StockDto stockDto) {
 
-    var productList = productService.getProductsByNameAndCategory(stockDto.getProductDto().getName(),
-            stockDto.getProductDto().getCategoryDto());
+    var productList = productRepository.findProductsByNameAndCategory(stockDto.getProductDto().getName(), ModelMapper.mapCategoryDtoToCategory(stockDto.getProductDto().getCategoryDto()))
+            .stream()
+            .map(ModelMapper::mapProductToProductDto)
+            .collect(Collectors.toList());
 
-    var productDto = !productList.isEmpty() ? chooseAvailableProduct(productList) : productService.setProductComponentsFromDbIfTheyExist(
-            getProductIfValid(preciseProductDtoDetails(stockDto)));
+
+    var productDto = !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductIfValid(preciseProductDtoDetails(stockDto));
 
     stockDto.setProductDto(productDto);
 

@@ -5,14 +5,19 @@ import dto.ProducerDto;
 import dto.TradeDto;
 import exception.AppException;
 import mapper.ModelMapper;
+import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.ProducerRepository;
+import repository.abstract_repository.entity.TradeRepository;
+import repository.impl.CountryRepositoryImpl;
 import repository.impl.ProducerRepositoryImpl;
+import repository.impl.TradeRepositoryImpl;
 
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static util.entity_utils.ProducerUtil.createProducerDtoFromUserInput;
 import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
@@ -21,20 +26,20 @@ import static util.update.UpdateProducerUtil.getUpdatedProducerDto;
 public class ProducerService {
 
   private final ProducerRepository producerRepository;
-  private final TradeService tradeService;
-  private final CountryService countryService;
 
+  private final TradeRepository tradeRepository;
+  private final CountryRepository countryRepository;
 
   public ProducerService() {
     this.producerRepository = new ProducerRepositoryImpl();
-    this.tradeService = new TradeService();
-    this.countryService = new CountryService();
+    this.tradeRepository = new TradeRepositoryImpl();
+    this.countryRepository = new CountryRepositoryImpl();
   }
 
-  public ProducerService(ProducerRepository producerRepository, TradeService tradeService, CountryService countryService) {
+  public ProducerService(ProducerRepository producerRepository, TradeRepository tradeRepository, CountryRepository countryRepository) {
     this.producerRepository = producerRepository;
-    this.tradeService = tradeService;
-    this.countryService = countryService;
+    this.tradeRepository = tradeRepository;
+    this.countryRepository = countryRepository;
   }
 
   public Optional<ProducerDto> addProducerToDb(ProducerDto producerDto) {
@@ -49,8 +54,12 @@ public class ProducerService {
     return ProducerDto.builder()
             .id(producerDto.getId())
             .name(producerDto.getName())
-            .trade(tradeService.getTradeFromDbIfExists(producerDto.getTrade()))
-            .country(countryService.getCountryFromDbIfExists(producerDto.getCountry()))
+            .trade(tradeRepository.findTradeByName(producerDto.getTrade().getName())
+                    .map(ModelMapper::mapTradeToTradeDto)
+                    .orElse(producerDto.getTrade()))
+            .country(countryRepository.findCountryByName(producerDto.getCountry().getName())
+                    .map(ModelMapper::mapCountryToCountryDto)
+                    .orElse(producerDto.getCountry()))
             .build();
   }
 

@@ -1,6 +1,5 @@
 package service.entity;
 
-import domain.Shop;
 import dto.CountryDto;
 import dto.ShopDto;
 import exception.AppException;
@@ -13,7 +12,6 @@ import repository.impl.ShopRepositoryImpl;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static util.entity_utils.ShopUtil.getShopDtoIfValid;
@@ -25,18 +23,15 @@ public class ShopService {
 
   private final ShopRepository shopRepository;
 
-  //  private final CountryService countryService;
   private final CountryRepository countryRepository;
 
   public ShopService() {
     this.shopRepository = new ShopRepositoryImpl();
     this.countryRepository = new CountryRepositoryImpl();
-//    this.countryService = new CountryService();
   }
 
-  public ShopService(ShopRepository shopRepository, /*CountryService countryService*/ CountryRepository countryRepository) {
+  public ShopService(ShopRepository shopRepository, CountryRepository countryRepository) {
     this.shopRepository = shopRepository;
-//    this.countryService = countryService;
     this.countryRepository = countryRepository;
   }
 
@@ -84,7 +79,7 @@ public class ShopService {
 
   private Optional<ShopDto> getShopDtoByNameAndCountry(String name, String countryName) {
 
-    if(name == null || countryName == null){
+    if (name == null || countryName == null) {
       throw new AppException(String.format("Shop name or/and countryName is null: Shop name:%sCountry name: %s", name, countryName));
     }
     return shopRepository.findShopByNameAndCountry(name, countryName)

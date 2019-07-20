@@ -4,7 +4,9 @@ import dto.CountryDto;
 import dto.CustomerDto;
 import exception.AppException;
 import mapper.ModelMapper;
+import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.CustomerRepository;
+import repository.impl.CountryRepositoryImpl;
 import repository.impl.CustomerRepositoryImpl;
 
 
@@ -21,17 +23,16 @@ import static util.update.UpdateCustomerUtil.getUpdatedCustomerDto;
 public class CustomerService {
 
   private final CustomerRepository customerRepository;
-  private final CountryService countryService;
-
+  private final CountryRepository countryRepository;
 
   public CustomerService() {
     this.customerRepository = new CustomerRepositoryImpl();
-    this.countryService = new CountryService();
+    this.countryRepository = new CountryRepositoryImpl();
   }
 
-  public CustomerService(CustomerRepository customerRepository, CountryService countryService) {
+  public CustomerService(CustomerRepository customerRepository, CountryRepository countryRepository) {
     this.customerRepository = customerRepository;
-    this.countryService = countryService;
+    this.countryRepository = countryRepository;
 
   }
 
@@ -48,7 +49,9 @@ public class CustomerService {
             .name(customerDto.getName())
             .surname(customerDto.getSurname())
             .age(customerDto.getAge())
-            .countryDto(countryService.getCountryFromDbIfExists(customerDto.getCountryDto()))
+            .countryDto(countryRepository.findCountryByName(customerDto.getName())
+                    .map(ModelMapper::mapCountryToCountryDto).orElse(customerDto.getCountryDto()))
+//            .countryDto(countryService.getCountryFromDbIfExists(customerDto.getCountryDto()))
             .build();
   }
 
@@ -120,9 +123,5 @@ public class CustomerService {
                       throw new AppException("There is no customer with that id: " + customerId + " in DB");
                     });
 
-  }
-
-  CustomerDto getCustomerDtoFromDbIfExists(CustomerDto customerDto) {
-    return getCustomerByNameAndSurnameAndCountry(customerDto.getName(), customerDto.getSurname(), customerDto.getCountryDto()).orElse(customerDto);
   }
 }
