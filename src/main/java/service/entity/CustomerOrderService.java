@@ -54,7 +54,7 @@ public class CustomerOrderService {
   }
 
   private CustomerOrderDto setCustomerOrderComponentsFromDbIfTheyExist(CustomerOrderDto customerOrder) {
-// TODO: 2019-07-20
+
     return CustomerOrderDto.builder()
             .id(customerOrder.getId())
             .payment(paymentRepository.findPaymentByEPayment(customerOrder.getPayment().getEpayment()).map(ModelMapper::mapPaymentToPaymentDto).orElse(customerOrder.getPayment()))

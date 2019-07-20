@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static util.entity_utils.ProducerUtil.createProducerDtoFromUserInput;
 import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
 import static util.others.UserDataUtils.getInt;
 import static util.others.UserDataUtils.printCollectionWithNumeration;
@@ -109,7 +108,7 @@ public class ProducerService {
   }
 
   private Optional<ProducerDto> getProducerDtoById(long producerId) {
-    return producerRepository.findShopById(producerId)
+    return producerRepository.findById(producerId)
             .map(ModelMapper::mapProducerToProducerDto);
   }
 

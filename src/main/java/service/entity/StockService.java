@@ -248,17 +248,14 @@ public class StockService {
             .map(ModelMapper::mapProductToProductDto)
             .collect(Collectors.toList());
 
-
-    var productDto = !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductIfValid(preciseProductDtoDetails(stockDto));
-
-    stockDto.setProductDto(productDto);
+    stockDto.setProductDto( !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductIfValid(preciseProductDtoDetails(stockDto)));
 
     return stockDto;
   }
 
 
   private Optional<StockDto> getStockById(long stockId) {
-    return stockRepository.findShopById(stockId)
+    return stockRepository.findById(stockId)
             .map(ModelMapper::mapStockToStockDto);
   }
 

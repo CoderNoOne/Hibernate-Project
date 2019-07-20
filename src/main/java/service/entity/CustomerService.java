@@ -49,7 +49,7 @@ public class CustomerService {
             .name(customerDto.getName())
             .surname(customerDto.getSurname())
             .age(customerDto.getAge())
-            .countryDto(countryRepository.findCountryByName(customerDto.getName())
+            .countryDto(countryRepository.findCountryByName(customerDto.getCountryDto().getName())
                     .map(ModelMapper::mapCountryToCountryDto).orElse(customerDto.getCountryDto()))
             .build();
   }
@@ -103,7 +103,7 @@ public class CustomerService {
       throw new AppException("getCustomerById method - Customer id is null");
     }
 
-    return customerRepository.findShopById(customerId)
+    return customerRepository.findById(customerId)
             .map(ModelMapper::mapCustomerToCustomerDto);
   }
 

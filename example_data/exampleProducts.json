@@ -13,7 +13,13 @@
       "trade": {
         "name": "ELECTRONICS"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "DESK",
+      "MONEY",
+      "SERVICE",
+      "EXCHANGE"
+    ]
   },
   {
     "name": "MELON",
@@ -29,7 +35,11 @@
       "trade": {
         "name": "FOOD"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "MONEY",
+      "EXCHANGE"
+    ]
   },
   {
     "name": "PC",
@@ -45,7 +55,13 @@
       "trade": {
         "name": "ELECTRONICS"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "DESK",
+      "MONEY",
+      "SERVICE",
+      "EXCHANGE"
+    ]
   },
   {
     "name": "PHONE",
@@ -61,7 +77,12 @@
       "trade": {
         "name": "ELECTRONICS"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "DESK",
+      "EXCHANGE",
+      "SERVICE"
+    ]
   },
   {
     "name": "KEYBOARD",
@@ -77,7 +98,11 @@
       "trade": {
         "name": "ELECTRONICS"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "DESK",
+      "SERVICE"
+    ]
   },
   {
     "name": "DESK",
@@ -93,7 +118,11 @@
       "trade": {
         "name": "HOUSEHOLD"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "EXCHANGE",
+      "SERVICE"
+    ]
   },
   {
     "name": "BEER",
@@ -109,7 +138,10 @@
       "trade": {
         "name": "FOOD"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "MONEY"
+    ]
   },
   {
     "name": "CAR",
@@ -125,7 +157,12 @@
       "trade": {
         "name": "AUTOMOTIVE"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "DESK",
+      "MONEY",
+      "SERVICE"
+    ]
   },
   {
     "name": "GUN",
@@ -141,7 +178,10 @@
       "trade": {
         "name": "ENTERTAINMENT"
       }
-    }
+    },
+    "guaranteeComponents": [
+      "SERVICE"
+    ]
   }
 ]
 

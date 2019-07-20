@@ -1,6 +1,7 @@
 package repository.impl;
 
 import domain.Country;
+import domain.Customer;
 import exception.AppException;
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.CountryRepository;
@@ -19,9 +20,22 @@ public class CountryRepositoryImpl extends AbstractCrudRepository<Country, Long>
     EntityTransaction tx = entityManager.getTransaction();
 
     findCountryByName(name).ifPresentOrElse(country -> {
-      tx.begin();
-      entityManager.remove(entityManager.merge(country));
-      tx.commit();
+
+      try {
+        tx.begin();
+        entityManager.remove(entityManager.merge(country));
+        tx.commit();
+      } catch (Exception e) {
+
+        if (tx != null) {
+          tx.rollback();
+        }
+        throw new AppException("find country by name - exception");
+      } finally {
+        if (entityManager != null) {
+          entityManager.close();
+        }
+      }
     }, () -> {
       throw new AppException("Customer you wanted to delete: " + name + " doesnt exist in DB");
     });

@@ -116,7 +116,7 @@ public class ShopService {
       throw new AppException("ShopId is null");
     }
 
-    return shopRepository.findShopById(shopId)
+    return shopRepository.findById(shopId)
             .map(ModelMapper::mapShopToShopDto);
   }
 

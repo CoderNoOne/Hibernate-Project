@@ -314,7 +314,7 @@ class Menu {
   private void executeOption7() {
 
     try {
-      var customerOrder = getCustomerOrderIfValid(customerOrderService.specifyCustomerDetail(customerOrderService.specifyOrderedProductDetail(createCustomerOrderDtoFromUserInput())));
+      var customerOrder = getCustomerOrderIfValid(customerOrderService.specifyOrderedProductDetail(customerOrderService.specifyCustomerDetail((createCustomerOrderDtoFromUserInput()))));
       stockService.decreaseStockQuantityIfValid(customerOrderService.specifyShopDetailForCustomerOrder(customerOrder), customerOrder);
       customerOrderService.addCustomerOrderToDbFromUserInput(customerOrder);
     } catch (Exception e) {

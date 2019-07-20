@@ -190,7 +190,7 @@ class ShopServiceTest {
 
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.findShopById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
+    given(shopRepository.findById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
             .willReturn(Optional.of(
                     shop
             ));
@@ -226,7 +226,7 @@ class ShopServiceTest {
 
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.findShopById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
+    given(shopRepository.findById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
             .willReturn(Optional.of(
                     shop
             ));
@@ -263,7 +263,7 @@ class ShopServiceTest {
 
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.findShopById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
+    given(shopRepository.findById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
             .willReturn(Optional.of(
                     shop
             ));
