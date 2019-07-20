@@ -106,7 +106,7 @@ public class ProducerService {
   }
 
   private Optional<ProducerDto> getProducerDtoById(long producerId) {
-    return producerRepository.findById(producerId)
+    return producerRepository.findShopById(producerId)
             .map(ModelMapper::mapProducerToProducerDto);
   }
 

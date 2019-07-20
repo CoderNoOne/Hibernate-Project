@@ -6,7 +6,9 @@ import mapper.ModelMapper;
 import repository.abstract_repository.entity.TradeRepository;
 import repository.impl.TradeRepositoryImpl;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TradeService {
 
@@ -21,23 +23,40 @@ public class TradeService {
   }
 
   private Optional<TradeDto> addTradeToDb(TradeDto tradeDto) {
+
+    if (tradeDto == null) {
+      throw new AppException("TradeDto object is null");
+    }
     return tradeRepository.addOrUpdate(ModelMapper.mapTradeDtoToTrade(tradeDto))
             .map(ModelMapper::mapTradeToTradeDto);
   }
 
   public void addTradeToDbFromUserInput(TradeDto tradeDto) {
+
+    if (tradeDto == null) {
+      throw new AppException("TradeDto object is null");
+    }
+
     if (isTradeUniqueByName(tradeDto.getName())) {
       addTradeToDb(tradeDto);
     } else {
-      throw new AppException("Couldn't add a trade to db - trade's not unique by name");
+      throw new AppException("Couldn't add a trade to db - trade's not unique by name: " + tradeDto.getName());
     }
   }
 
   private boolean isTradeUniqueByName(String name) {
+
+    if (name == null || name.equals("")) {
+      throw new AppException(String.format("Trade name is undefined/null: %s", name));
+    }
     return getTradeByName(name).isEmpty();
   }
 
   private Optional<TradeDto> getTradeByName(String name) {
+
+    if (name == null || name.equals("")) {
+      throw new AppException(String.format("Trade name is undefined/null: %s", name));
+    }
     return tradeRepository.findTradeByName(name)
             .map(ModelMapper::mapTradeToTradeDto);
   }
@@ -47,6 +66,10 @@ public class TradeService {
   }
 
   TradeDto getTradeFromDbIfExists(TradeDto tradeDto) {
+
+    if (tradeDto == null) {
+      throw new AppException("TradeDto object is null");
+    }
     return getTradeByName(tradeDto.getName())
             .orElse(tradeDto);
   }
@@ -57,5 +80,14 @@ public class TradeService {
       throw new AppException("Trade name is null/ undefined: " + name);
     }
     tradeRepository.deleteTradeByName(name);
+  }
+
+  public List<TradeDto> getAllTrades(){
+
+    return tradeRepository
+            .findAll()
+            .stream()
+            .map(ModelMapper::mapTradeToTradeDto)
+            .collect(Collectors.toList());
   }
 }

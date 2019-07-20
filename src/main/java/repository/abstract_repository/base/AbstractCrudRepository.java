@@ -88,7 +88,7 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
   }
 
   @Override
-  public Optional<T> findById(Id id) {
+  public Optional<T> findShopById(Id id) {
 
     if (id == null) {
       throw new AppException(entityType.getSimpleName() + ";find by id - id is null");

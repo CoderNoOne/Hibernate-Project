@@ -113,7 +113,7 @@ public class ProductService {
   }
 
   private Optional<ProductDto> getProductDtoById(Long id) {
-    return productRepository.findById(id)
+    return productRepository.findShopById(id)
             .map(ModelMapper::mapProductToProductDto);
 
   }

@@ -13,7 +13,6 @@ public class PaymentService {
 
   private final PaymentRepository paymentRepository;
 
-
   public PaymentService() {
     this.paymentRepository = new PaymentRepositoryImpl();
   }
@@ -37,13 +36,13 @@ public class PaymentService {
     }
   }
 
-  public Optional<PaymentDto> getPaymentByEpayment(Epayment epayment) {
+  private Optional<PaymentDto> getPaymentByEpayment(Epayment epayment) {
     return paymentRepository.findPaymentByEPayment(epayment)
             .map(ModelMapper::mapPaymentToPaymentDto);
   }
 
 
-  public PaymentDto getPaymentFromDbIfExists(PaymentDto paymentDto) {
+  PaymentDto getPaymentFromDbIfExists(PaymentDto paymentDto) {
     return getPaymentByEpayment(paymentDto.getEpayment())
             .orElse(paymentDto);
   }

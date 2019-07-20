@@ -36,6 +36,20 @@ public final class UserDataUtils {
     return Integer.parseInt(text);
   }
 
+  public static long getLong(String message) {
+
+    if (message == null) {
+      throw new AppException("GET LONG - MESSAGE IS NULL");
+    }
+    printMessage(message);
+
+    String text = sc.nextLine();
+    if (!text.matches("[\\d]+")) {
+      throw new AppException(("LONG VALUE IS NOT CORRECT: " + text));
+    }
+    return Long.parseLong(text);
+  }
+
   public static String getString(String inputMessage) {
     if (Objects.isNull(inputMessage)) {
       throw new AppException("GET STRING - MESSAGE IS NULL");

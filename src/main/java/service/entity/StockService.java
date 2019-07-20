@@ -42,7 +42,6 @@ public class StockService {
 
 
   private Optional<StockDto> addStockToDb(StockDto stockDto) {
-    System.out.println("STOCKDTO IN ADDSTOCKTODB METHOD: " + stockDto);
     return stockRepository.addOrUpdate(ModelMapper.mapStockDtoToStock(stockDto))
             .map(ModelMapper::mapStockToStockDto);
   }
@@ -53,7 +52,7 @@ public class StockService {
       stockFromDb.setQuantity(getStockQuantity(stockFromDb) + stockDto.getQuantity());
       stockDto = stockFromDb;
     }
-    System.out.println("STOCKDTO: " + stockDto);
+
     addStockToDb(setStockDtoComponentsFromDbIfTheyExist(stockDto));
   }
 
@@ -173,7 +172,7 @@ public class StockService {
 
 
   private Optional<StockDto> getStockById(long stockId) {
-    return stockRepository.findById(stockId)
+    return stockRepository.findShopById(stockId)
             .map(ModelMapper::mapStockToStockDto);
   }
 

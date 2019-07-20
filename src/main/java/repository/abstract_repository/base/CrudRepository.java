@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface CrudRepository<T, ID> {
   Optional<T> addOrUpdate(T t);
 
-  Optional<T> findById(ID id);
+  Optional<T> findShopById(ID id);
 
   List<T> findAll();
 

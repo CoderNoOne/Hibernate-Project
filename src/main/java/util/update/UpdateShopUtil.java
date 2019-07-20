@@ -24,7 +24,7 @@ public interface UpdateShopUtil {
 
       switch (shopProperty) {
         case NAME -> {
-          String updatedName = getString("Type customer new name");
+          String updatedName = getString("Type shop new name");
           shopFields.remove(ShopField.NAME);
           shopDto.setName(updatedName);
         }

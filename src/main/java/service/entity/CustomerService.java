@@ -101,7 +101,7 @@ public class CustomerService {
       throw new AppException("getCustomerById method - Customer id is null");
     }
 
-    return customerRepository.findById(customerId)
+    return customerRepository.findShopById(customerId)
             .map(ModelMapper::mapCustomerToCustomerDto);
   }
 
