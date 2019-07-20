@@ -24,6 +24,7 @@ public class DataService {
   private final ProductService productService = new ProductService();
   private final StockService stockService = new StockService();
   private final CustomerOrderService customerOrderService = new CustomerOrderService();
+  private final PaymentService paymentService = new PaymentService();
   private final ErrorService errorService = new ErrorService();
 
   public void deleteAllContent() {
@@ -31,6 +32,7 @@ public class DataService {
     try {
 
       customerOrderService.deleteAllCustomerOrders();
+      paymentService.deleteAllPayment();
       stockService.deleteAllStocks();
       productService.deleteAllGuaranteeComponents();
       productService.deleteAllProducts();
@@ -50,13 +52,13 @@ public class DataService {
 
   public void init() {
 
-    initCountries("./example_data/exampleCountries.json");
+//    initCountries("./example_data/exampleCountries.json");
     initCustomers("./example_data/exampleCustomers.json");
-    initCategories("./example_data/exampleCategories.json");
-    initTrades("./example_data/exampleTrades.json");
-    initShops("./example_data/exampleShops.json");
-    initProducers("./example_data/exampleProducers.json");
-    initProducts("./example_data/exampleProducts.json");
+//    initCategories("./example_data/exampleCategories.json");
+//    initTrades("./example_data/exampleTrades.json");
+//    initShops("./example_data/exampleShops.json");
+//    initProducers("./example_data/exampleProducers.json");
+//    initProducts("./example_data/exampleProducts.json");
 
   }
 

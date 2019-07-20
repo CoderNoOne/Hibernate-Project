@@ -51,5 +51,8 @@ public class PaymentService {
     return getPaymentByEpayment(paymentDto.getEpayment()).isEmpty();
   }
 
+  public void deleteAllPayment(){
+    paymentRepository.deleteAll();
+  }
 
 }

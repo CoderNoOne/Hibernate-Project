@@ -43,8 +43,9 @@ public class ShopService {
     return ShopDto.builder()
             .id(shopDto.getId())
             .name(shopDto.getName())
-            .countryDto(countryRepository.findCountryByName(shopDto.getCountryDto().getName()).map(ModelMapper::mapCountryToCountryDto).orElse(shopDto.getCountryDto()))
-//            .countryDto(countryService.getCountryFromDbIfExists(shopDto.getCountryDto()))
+            .countryDto(countryRepository.findCountryByName(shopDto.getCountryDto().getName())
+                    .map(ModelMapper::mapCountryToCountryDto)
+                    .orElse(shopDto.getCountryDto()))
             .build();
   }
 

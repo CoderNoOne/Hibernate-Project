@@ -63,12 +63,6 @@ public class ProducerService {
             .build();
   }
 
-  public ProducerDto getProducerFromDbIfExists(ProducerDto producerDto) {
-    return getProducerDtoByNameAndTradeAndCountry(
-            producerDto.getName(), producerDto.getTrade(),
-            producerDto.getCountry()).orElse(producerDto);
-  }
-
   public void addProducerToDbFromUserInput(ProducerDto producerDto) {
     if (!isProducerUniqueByNameAndTradeAndCountry(producerDto.getName(), producerDto.getTrade(), producerDto.getCountry())) {
       throw new AppException("Couldn't add new producer to db - producer's not unique by name, trade and country");

@@ -5,12 +5,8 @@ import mapper.ModelMapper;
 import dto.CategoryDto;
 import dto.ProductDto;
 import exception.AppException;
-import repository.abstract_repository.entity.CategoryRepository;
-import repository.abstract_repository.entity.ProducerRepository;
-import repository.abstract_repository.entity.ProductRepository;
-import repository.impl.CategoryRepositoryImpl;
-import repository.impl.ProducerRepositoryImpl;
-import repository.impl.ProductRepositoryImpl;
+import repository.abstract_repository.entity.*;
+import repository.impl.*;
 
 import java.util.List;
 import java.util.Map;
@@ -28,17 +24,23 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
   private final ProducerRepository producerRepository;
+  private final TradeRepository tradeRepository;
+  private final CountryRepository countryRepository;
 
   public ProductService() {
     this.productRepository = new ProductRepositoryImpl();
     this.categoryRepository = new CategoryRepositoryImpl();
     this.producerRepository = new ProducerRepositoryImpl();
+    this.tradeRepository = new TradeRepositoryImpl();
+    this.countryRepository = new CountryRepositoryImpl();
   }
 
-  public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProducerRepository producerRepository) {
+  public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProducerRepository producerRepository, TradeRepository tradeRepository, CountryRepository countryRepository) {
     this.productRepository = productRepository;
     this.producerRepository = producerRepository;
     this.categoryRepository = categoryRepository;
+    this.tradeRepository = tradeRepository;
+    this.countryRepository = countryRepository;
   }
 
 
@@ -59,13 +61,28 @@ public class ProductService {
                     .map(ModelMapper::mapCategoryToCategoryDto)
                     .orElse(productDto.getCategoryDto()))
             .guaranteeComponents(productDto.getGuaranteeComponents())
-            .producerDto(producerRepository.findByNameAndTradeAndCountry(
-                    productDto.getProducerDto().getName(),
-                    ModelMapper.mapTradeDtoToTrade(productDto.getProducerDto().getTrade()),
-                    ModelMapper.mapCountryDtoToCountry(productDto.getProducerDto().getCountry()))
-                    .map(ModelMapper::mapProducerToProducerDto).orElse(productDto.getProducerDto()))
+            .producerDto(setProducerComponents(
+                    producerRepository.findByNameAndTradeAndCountry(
+                            productDto.getProducerDto().getName(),
+                            ModelMapper.mapTradeDtoToTrade(productDto.getProducerDto().getTrade()),
+                            ModelMapper.mapCountryDtoToCountry(productDto.getProducerDto().getCountry()))
+                            .map(ModelMapper::mapProducerToProducerDto).orElse(productDto.getProducerDto())))
             .build();
 
+  }
+
+  private ProducerDto setProducerComponents(ProducerDto producerDto) {
+
+    return ProducerDto.builder()
+            .id(producerDto.getId())
+            .name(producerDto.getName())
+            .trade(tradeRepository.findTradeByName(producerDto.getTrade().getName())
+                    .map(ModelMapper::mapTradeToTradeDto)
+                    .orElse(producerDto.getTrade()))
+            .country(countryRepository.findCountryByName(producerDto.getCountry().getName())
+                    .map(ModelMapper::mapCountryToCountryDto)
+                    .orElse(producerDto.getCountry()))
+            .build();
   }
 
   public void addProductToDbFromUserInput(ProductDto productDto) {

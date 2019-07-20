@@ -51,7 +51,6 @@ public class CustomerService {
             .age(customerDto.getAge())
             .countryDto(countryRepository.findCountryByName(customerDto.getName())
                     .map(ModelMapper::mapCountryToCountryDto).orElse(customerDto.getCountryDto()))
-//            .countryDto(countryService.getCountryFromDbIfExists(customerDto.getCountryDto()))
             .build();
   }
 

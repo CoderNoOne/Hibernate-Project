@@ -3,14 +3,8 @@ package service.entity;
 import dto.*;
 import exception.AppException;
 import mapper.*;
-import repository.abstract_repository.entity.CountryRepository;
-import repository.abstract_repository.entity.ProductRepository;
-import repository.abstract_repository.entity.ShopRepository;
-import repository.abstract_repository.entity.StockRepository;
-import repository.impl.CountryRepositoryImpl;
-import repository.impl.ProductRepositoryImpl;
-import repository.impl.ShopRepositoryImpl;
-import repository.impl.StockRepositoryImpl;
+import repository.abstract_repository.entity.*;
+import repository.impl.*;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +25,9 @@ public class StockService {
   private final CountryRepository countryRepository;
   private final ProductRepository productRepository;
   private final ShopRepository shopRepository;
+  private final CategoryRepository categoryRepository;
+  private final ProducerRepository producerRepository;
+  private final TradeRepository tradeRepository;
 
 
   public StockService() {
@@ -38,13 +35,19 @@ public class StockService {
     this.shopRepository = new ShopRepositoryImpl();
     this.productRepository = new ProductRepositoryImpl();
     this.countryRepository = new CountryRepositoryImpl();
+    this.categoryRepository = new CategoryRepositoryImpl();
+    this.producerRepository = new ProducerRepositoryImpl();
+    this.tradeRepository = new TradeRepositoryImpl();
   }
 
-  public StockService(StockRepository stockRepository, ShopRepository shopRepository, ProductRepository productRepository, CountryRepository countryRepository) {
+  public StockService(StockRepository stockRepository, ShopRepository shopRepository, ProductRepository productRepository, CountryRepository countryRepository, CategoryRepository categoryRepository, ProducerRepository producerRepository, TradeRepository tradeRepository) {
     this.stockRepository = stockRepository;
     this.shopRepository = shopRepository;
     this.productRepository = productRepository;
     this.countryRepository = countryRepository;
+    this.categoryRepository = categoryRepository;
+    this.producerRepository = producerRepository;
+    this.tradeRepository = tradeRepository;
   }
 
 
@@ -73,17 +76,56 @@ public class StockService {
     return StockDto.builder()
             .id(stockDto.getId())
             .quantity(stockDto.getQuantity())
-            .shopDto(shopRepository.findShopByNameAndCountry(
+            .shopDto(setShopComponentFromDb(shopRepository.findShopByNameAndCountry(
                     stockDto.getShopDto().getName(),
                     stockDto.getShopDto().getCountryDto().getName())
                     .map(ModelMapper::mapShopToShopDto)
-                    .orElse(stockDto.getShopDto()))
-            .productDto(productRepository.findByNameAndCategoryAndProducer(
+                    .orElse(stockDto.getShopDto())))
+            .productDto(setProductComponentFromDb(productRepository.findByNameAndCategoryAndProducer(
                     stockDto.getProductDto().getName(),
                     ModelMapper.mapCategoryDtoToCategory(stockDto.getProductDto().getCategoryDto()),
                     ModelMapper.mapProducerDtoToProducer(stockDto.getProductDto().getProducerDto()))
                     .map(ModelMapper::mapProductToProductDto)
-                    .orElse(stockDto.getProductDto()))
+                    .orElse(stockDto.getProductDto())))
+            .build();
+  }
+
+  private ProductDto setProductComponentFromDb(ProductDto productDto) {
+
+    return ProductDto.builder()
+            .id(productDto.getId())
+            .name(productDto.getName())
+            .guaranteeComponents(productDto.getGuaranteeComponents())
+            .price(productDto.getPrice())
+            .producerDto(setProducerComponent(producerRepository.findByNameAndTradeAndCountry(productDto.getProducerDto().getName(),
+                    ModelMapper.mapTradeDtoToTrade(productDto.getProducerDto().getTrade()),
+                    ModelMapper.mapCountryDtoToCountry(productDto.getProducerDto().getCountry()))
+                    .map(ModelMapper::mapProducerToProducerDto)
+                    .orElse(productDto.getProducerDto())))
+            .categoryDto(categoryRepository.findCategoryByName(productDto.getCategoryDto().getName())
+                    .map(ModelMapper::mapCategoryToCategoryDto).orElse(productDto.getCategoryDto()))
+            .build();
+  }
+
+  private ProducerDto setProducerComponent(ProducerDto producerDto) {
+    return ProducerDto.builder()
+            .id(producerDto.getId())
+            .name(producerDto.getName())
+            .country(countryRepository.findCountryByName(producerDto.getCountry().getName())
+                    .map(ModelMapper::mapCountryToCountryDto)
+                    .orElse(producerDto.getCountry()))
+            .trade(tradeRepository.findTradeByName(producerDto.getTrade().getName())
+                    .map(ModelMapper::mapTradeToTradeDto)
+                    .orElse(producerDto.getTrade()))
+            .build();
+  }
+
+  private ShopDto setShopComponentFromDb(ShopDto shopDto) {
+    return ShopDto.builder()
+            .id(shopDto.getId())
+            .name(shopDto.getName())
+            .countryDto(countryRepository.findCountryByName(shopDto.getCountryDto().getName())
+                    .map(ModelMapper::mapCountryToCountryDto).orElse(shopDto.getCountryDto()))
             .build();
   }
 
