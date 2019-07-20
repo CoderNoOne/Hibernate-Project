@@ -1,6 +1,5 @@
 package service.entity;
 
-import domain.Country;
 import dto.CountryDto;
 import exception.AppException;
 import mapper.ModelMapper;

@@ -2,12 +2,13 @@ package service.entity;
 
 
 import domain.CustomerOrder;
+import domain.Stock;
 import domain.enums.EGuarantee;
 import dto.*;
 import exception.AppException;
 import mapper.*;
-import repository.abstract_repository.entity.CustomerOrderRepository;
-import repository.impl.CustomerOrderRepositoryImpl;
+import repository.abstract_repository.entity.*;
+import repository.impl.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,26 +22,28 @@ import static util.entity_utils.ShopUtil.chooseAvailableShop;
 public class CustomerOrderService {
 
   private final CustomerOrderRepository customerOrderRepository;
-  private final StockService stockService;
-  private final CustomerService customerService;
-  private final ProductService productService;
-  private final PaymentService paymentService;
+
+  private final StockRepository stockRepository;
+  private final CustomerRepository customerRepository;
+  private final ProductRepository productRepository;
+  private final PaymentRepository paymentRepository;
 
   public CustomerOrderService() {
     this.customerOrderRepository = new CustomerOrderRepositoryImpl();
-    this.stockService = new StockService();
-    this.customerService = new CustomerService();
-    this.productService = new ProductService();
-    this.paymentService = new PaymentService();
 
+    this.stockRepository = new StockRepositoryImpl();
+    this.customerRepository = new CustomerRepositoryImpl();
+    this.productRepository = new ProductRepositoryImpl();
+    this.paymentRepository = new PaymentRepositoryImpl();
   }
 
-  public CustomerOrderService(CustomerOrderRepository customerOrderRepository, StockService stockService, CustomerService customerService, ProductService productService, PaymentService paymentService) {
+  public CustomerOrderService(CustomerOrderRepository customerOrderRepository, StockRepository stockRepository, CustomerRepository customerRepository, ProductRepository productRepository, PaymentRepository paymentRepository) {
+
     this.customerOrderRepository = customerOrderRepository;
-    this.customerService = customerService;
-    this.stockService = stockService;
-    this.productService = productService;
-    this.paymentService = paymentService;
+    this.customerRepository = customerRepository;
+    this.productRepository = productRepository;
+    this.paymentRepository = paymentRepository;
+    this.stockRepository = stockRepository;
   }
 
   private Optional<CustomerOrderDto> addCustomerOrderToDb(CustomerOrderDto customerOrderDto) {
@@ -48,19 +51,23 @@ public class CustomerOrderService {
             .addOrUpdate(ModelMapper.mapCustomerOrderDtoToCustomerOrder(customerOrderDto))
             .map(ModelMapper::mapCustomerOrderToCustomerOrderDto);
 
-
   }
 
   private CustomerOrderDto setCustomerOrderComponentsFromDbIfTheyExist(CustomerOrderDto customerOrder) {
 
     return CustomerOrderDto.builder()
             .id(customerOrder.getId())
-            .payment(paymentService.getPaymentFromDbIfExists(customerOrder.getPayment()))
+            .payment(paymentRepository.findPaymentByEPayment(customerOrder.getPayment().getEpayment()).map(ModelMapper::mapPaymentToPaymentDto).orElse(customerOrder.getPayment()))
             .discount(customerOrder.getDiscount())
             .date(customerOrder.getDate())
             .quantity(customerOrder.getQuantity())
-            .product(productService.getProductFromDbIfExists(customerOrder.getProduct()))
-            .customer(customerService.getCustomerDtoFromDbIfExists(customerOrder.getCustomer()))
+            .product(productRepository.findByNameAndCategoryAndProducer(customerOrder.getProduct().getName(),
+                    ModelMapper.mapCategoryDtoToCategory(customerOrder.getProduct().getCategoryDto()),
+                    ModelMapper.mapProducerDtoToProducer(customerOrder.getProduct().getProducerDto()))
+                    .map(ModelMapper::mapProductToProductDto).orElse(customerOrder.getProduct()))
+            .customer(customerRepository.findByNameAndSurnameAndCountry(customerOrder.getCustomer().getName(),
+                    customerOrder.getCustomer().getSurname(), ModelMapper.mapCountryDtoToCountry(customerOrder.getCustomer().getCountryDto()))
+                    .map(ModelMapper::mapCustomerToCustomerDto).orElse(customerOrder.getCustomer()))
             .build();
   }
 
@@ -86,14 +93,15 @@ public class CustomerOrderService {
                                               quantity -> quantity.intValue() == theHighestQuantityOrderInEachCategory.get(category).intValue(),
                                               Collectors.reducing(0, (v1, v2) -> v1 > v2 ? v1 : v2)))));
                     }));
-
   }
 
 
   public CustomerOrderDto specifyOrderedProductDetail(CustomerOrderDto customerOrderFromUserInput) {
 
-    var productsByNameAndCategory = productService.getProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(),
-            customerOrderFromUserInput.getProduct().getCategoryDto());
+    var productsByNameAndCategory = productRepository.findProductsByNameAndCategory(customerOrderFromUserInput.getProduct().getName(), ModelMapper.mapCategoryDtoToCategory(customerOrderFromUserInput.getProduct().getCategoryDto()))
+            .stream()
+            .map(ModelMapper::mapProductToProductDto)
+            .collect(Collectors.toList());
 
     if (!productsByNameAndCategory.isEmpty()) {
       customerOrderFromUserInput.setProduct(chooseAvailableProduct(productsByNameAndCategory));
@@ -118,8 +126,8 @@ public class CustomerOrderService {
     var customerSurname = customerOrder.getCustomer().getSurname();
     var customerCountry = customerOrder.getCustomer().getCountryDto();
 
-    customerService.getCustomerByNameAndSurnameAndCountry(customerName,
-            customerSurname, customerCountry)
+    customerRepository.findByNameAndSurnameAndCountry(customerName, customerSurname, ModelMapper.mapCountryDtoToCountry(customerCountry))
+            .map(ModelMapper::mapCustomerToCustomerDto)
             .ifPresentOrElse(
                     customerOrder::setCustomer,
                     () -> {
@@ -132,7 +140,13 @@ public class CustomerOrderService {
 
   public Map<ShopDto, Integer> specifyShopDetailForCustomerOrder(CustomerOrderDto customerOrderDto) {
 
-    Map<ShopDto, Integer> shopMap = stockService.getShopListWithProductInStock(customerOrderDto.getProduct());
+    Map<ShopDto, Integer> shopMap = stockRepository.findShopsWithProductInStock(ModelMapper.mapProductDtoToProduct(customerOrderDto.getProduct()))
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(
+                    e -> ModelMapper.mapShopToShopDto(e.getKey()),
+                    Map.Entry::getValue
+            ));
 
     if (!shopMap.isEmpty()) {
       var shop = chooseAvailableShop(new ArrayList<>(shopMap.keySet()));
