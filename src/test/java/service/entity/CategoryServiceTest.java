@@ -30,7 +30,7 @@ import static org.mockito.BDDMockito.*;
 
 @Tag("Services")
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@MockitoSettings(strictness = Strictness.STRICT_STUBS)
 @DisplayName("Test cases for CategoryService")
 class CategoryServiceTest {
 

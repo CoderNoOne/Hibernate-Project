@@ -12,6 +12,19 @@ import static util.others.UserDataUtils.*;
 
 public interface ProducerUtil {
 
+  static ProducerDto getProducerDtoToUpdate(Long id) {
+
+    return ProducerDto.builder()
+            .id(id)
+            .name(getString("Do you want to update producer name? (y/n)")
+                    .equalsIgnoreCase("y") ? getString("Specify new producer name") : null)
+            .country(getString("Do you want to update producer country name? (y/n)")
+                    .equalsIgnoreCase("y") ? CountryDto.builder()
+                    .name(getString("Specify new country name")).build() : null)
+            .build();
+
+  }
+
   static ProducerDto createProducerDtoFromUserInput() {
 
     return ProducerDto.builder()

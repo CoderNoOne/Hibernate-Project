@@ -1,5 +1,6 @@
 package main;
 
+import com.sun.xml.bind.v2.TODO;
 import configuration.DbConnection;
 import domain.enums.EGuarantee;
 import dto.*;
@@ -8,10 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import service.entity.*;
 import util.others.UserDataUtils;
 
+
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+
 
 import static helper.enums.ErrorMessage.*;
 import static helper.enums.TableNames.*;
@@ -19,14 +22,12 @@ import static repository.impl.CustomerOrderRepositoryImpl.GUARANTEE_PERIOD_IN_YE
 import static util.entity_utils.CategoryUtil.*;
 import static util.entity_utils.CountryUtil.*;
 import static util.entity_utils.CustomerUtil.*;
-import static util.entity_utils.ProducerUtil.createProducerDtoFromUserInput;
-import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
 import static util.entity_utils.CustomerOrderUtil.*;
 import static util.entity_utils.CustomerOrderUtil.getCustomerOrderIfValid;
+import static util.entity_utils.ProducerUtil.*;
 import static util.entity_utils.ProductUtil.*;
 import static util.entity_utils.ShopUtil.*;
-import static util.entity_utils.StockUtil.createStockDtoDetailFromUserInput;
-import static util.entity_utils.StockUtil.getStockDtoIfValid;
+import static util.entity_utils.StockUtil.*;
 import static util.entity_utils.TradeUtil.*;
 import static util.others.UserDataUtils.*;
 
@@ -157,7 +158,11 @@ class Menu {
 
   private void executeOption20() {
     try {
-      stockService.updateStock();
+
+      stockService.getAllStocks()
+              .forEach(stockDto -> printMessage(String.format("%d : %s", stockDto.getId(), stockDto)));
+
+      stockService.updateStock(getStockDtoToUpdate(getLong("Choose stock id you want to update")));
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -168,7 +173,12 @@ class Menu {
   private void executeOption19() {
 
     try {
-      producerService.updateProducer();
+
+      producerService.getAllProducers()
+              .forEach(producerDto -> printMessage(String.format("%d : %s", producerDto.getId(), producerDto)));
+
+      producerService.updateProducer(getProducerDtoToUpdate(getLong("Choose producer id you want to update")));
+
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -178,8 +188,14 @@ class Menu {
 
 
   private void executeOption18() {
+
     try {
-      productService.updateProduct();
+
+      productService.getAllProducts()
+              .forEach(productDto -> printMessage(String.format("%d : %s", productDto.getId(), productDto)));
+
+      productService.updateProduct(getProductDtoToUpdate(getLong("Choose product id you want to update")));
+
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -189,8 +205,14 @@ class Menu {
 
 
   private void executeOption17() {
+
     try {
-      shopService.updateShop();
+      shopService.getAllShops()
+              .forEach(shopDto -> printMessage(String.format("%d: %s", shopDto.getId(), shopDto)));
+
+      ShopDto shopDtoFromDb = shopService.chooseShopToUpdate(getLong("Choose shop id you want to update"));
+      shopService.update(shopDtoFromDb, getUpdatedFields());
+
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -199,8 +221,14 @@ class Menu {
   }
 
   private void executeOption16() {
+
     try {
-      customerService.updateCustomer();
+
+      customerService.getAllCustomers()
+              .forEach(customerDto -> printMessage(customerDto.getId() + " : " + customerDto));
+
+      customerService.updateCustomer(getCustomerDtoToUpdate(getLong("Choose customer id you want to update")));
+
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -342,7 +370,7 @@ class Menu {
   private void executeOption5() {
 
     try {
-      var product = getProductIfValid(createProductDtoFromUserInput());
+      var product = getProductDtoIfValid(createProductDtoFromUserInput());
       productService.addProductToDbFromUserInput(product);
 
     } catch (Exception e) {
@@ -484,14 +512,14 @@ class Menu {
     }
   }
 
-  private void executeOption27(){
+  private void executeOption27() {
 
-    try{
+    try {
 
       var shopDtp = getShopDtoIfValid(specifyShopDtoDetailToDelete());
       shopService.deleteShopDto(shopDtp);
 
-    }catch (Exception e){
+    } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
       throw new AppException(String.format("%s;%s: %s", SHOP, ERROR_DURING_DELETION, e.getMessage()));

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @Tag("Services")
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@MockitoSettings(strictness = Strictness.STRICT_STUBS)
 @DisplayName("Test cases for CountryService")
 class CountryServiceTest {
 
@@ -84,9 +84,6 @@ class CountryServiceTest {
 
     AppException appException1 = new AppException("Country is not unique by name: " + country.getName());
 
-    given(countryRepository.addOrUpdate(country))
-            .willReturn(Optional.of(country));
-
     given(countryRepository.findCountryByName(country.getName())).willThrow(appException1);
 
     //when
@@ -126,8 +123,6 @@ class CountryServiceTest {
     CountryDto countryDto = CountryDto.builder()
             .name(null)
             .build();
-
-    given(countryRepository.findCountryByName(countryDto.getName())).willThrow(appException1);
 
     //when
     //then

@@ -4,16 +4,51 @@ import dto.CountryDto;
 import dto.ShopDto;
 import dto.StockDto;
 import exception.AppException;
+import util.update.enums.ShopField;
 import validator.impl.ShopDtoValidator;
 
 
+import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static util.others.UserDataUtils.*;
 
 public interface ShopUtil {
 
+
+  static Map<ShopField, String> getUpdatedFields() {
+
+    List<ShopField> shopFields = Arrays.stream(ShopField.values()).collect(Collectors.toList());
+    Map<ShopField, String> fieldsToUpdate = new EnumMap<>(ShopField.class);
+
+    int shopFieldNumber;
+
+    do {
+
+      do {
+        printCollectionWithNumeration(shopFields);
+        shopFieldNumber = getInt("Choose what shop property you want to updateProduct");
+      } while (!(shopFieldNumber >= 1 && shopFieldNumber <= shopFields.size()));
+
+      switch (shopFields.get(shopFieldNumber - 1)) {
+
+        case NAME -> {
+          fieldsToUpdate.put(ShopField.NAME, getString("Type shop new name"));
+          shopFields.remove(ShopField.NAME);
+        }
+        case COUNTRY -> {
+          shopFields.remove(ShopField.COUNTRY);
+          fieldsToUpdate.put(ShopField.COUNTRY, getString("Type shop new country"));
+        }
+      }
+
+    } while (!shopFields.isEmpty() && getString("Do you want to updateProduct other shop property? (Y/N)").equalsIgnoreCase("Y"));
+
+    return fieldsToUpdate;
+  }
 
   static ShopDto createShopDtoFromUserInput() {
 

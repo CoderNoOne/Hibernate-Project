@@ -3,7 +3,6 @@ package repository.impl;
 import domain.Country;
 import domain.Customer;
 import exception.AppException;
-
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.CustomerRepository;
 
@@ -14,7 +13,7 @@ import java.util.Optional;
 
 public class CustomerRepositoryImpl extends AbstractCrudRepository<Customer, Long> implements CustomerRepository {
 
-
+  
   @Override
   public void deleteCustomer(Customer customerToDelete) {
 

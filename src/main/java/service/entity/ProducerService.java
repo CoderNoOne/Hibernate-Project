@@ -1,5 +1,6 @@
 package service.entity;
 
+import domain.Producer;
 import dto.CountryDto;
 import dto.ProducerDto;
 import dto.TradeDto;
@@ -12,15 +13,11 @@ import repository.impl.CountryRepositoryImpl;
 import repository.impl.ProducerRepositoryImpl;
 import repository.impl.TradeRepositoryImpl;
 
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
-import static util.others.UserDataUtils.getInt;
-import static util.others.UserDataUtils.printCollectionWithNumeration;
-import static util.update.UpdateProducerUtil.getUpdatedProducerDto;
 
 public class ProducerService {
 
@@ -91,20 +88,28 @@ public class ProducerService {
     producerRepository.deleteAll();
   }
 
-  public void updateProducer() {
+  public Optional<ProducerDto> updateProducer(ProducerDto producerDtoToUpdate) {
 
-    printCollectionWithNumeration(getAllProducers());
-    long producerId = getInt("Choose producer id you want to update");
+    Long id = producerDtoToUpdate.getId();
 
-    getProducerDtoById(producerId)
-            .ifPresentOrElse(producerDto ->
-                            producerRepository
-                                    .addOrUpdate(ModelMapper
-                                            .mapProducerDtoToProducer(setProducerComponentsFromDbIfTheyExist(getProducerDtoIfValid(getUpdatedProducerDto(producerDto)))))
-                                    .map(ModelMapper::mapProducerToProducerDto),
-                    () -> {
-                      throw new AppException("There is no producer with that id: " + producerId + " in DB");
-                    });
+    if (id == null) {
+      throw new AppException("Producer id is null");
+    }
+
+    Producer producerFromDb = producerRepository.findById(id)
+            .orElseThrow(() -> new AppException("Producer with id: " + id + " doesn't exist in DB yet"));
+
+    ProducerDto producerToUpdate = ProducerDto.builder()
+            .id(id)
+            .name(producerDtoToUpdate.getName() != null ? producerDtoToUpdate.getName() : producerFromDb.getName())
+            .country(producerDtoToUpdate.getCountry() != null ? producerDtoToUpdate.getCountry() : ModelMapper.mapCountryToCountryDto(producerFromDb.getCountry()))
+            .trade(ModelMapper.mapTradeToTradeDto(producerFromDb.getTrade()))
+            .build();
+
+    return producerRepository
+            .addOrUpdate(ModelMapper.mapProducerDtoToProducer(getProducerDtoIfValid(setProducerComponentsFromDbIfTheyExist(producerToUpdate))))
+            .map(ModelMapper::mapProducerToProducerDto);
+
   }
 
   private Optional<ProducerDto> getProducerDtoById(long producerId) {
@@ -112,7 +117,7 @@ public class ProducerService {
             .map(ModelMapper::mapProducerToProducerDto);
   }
 
-  private List<ProducerDto> getAllProducers() {
+  public List<ProducerDto> getAllProducers() {
     return producerRepository.findAll()
             .stream()
             .map(ModelMapper::mapProducerToProducerDto)

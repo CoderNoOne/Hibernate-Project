@@ -12,6 +12,23 @@ import static util.others.UserDataUtils.*;
 
 public interface CustomerUtil {
 
+  static CustomerDto getCustomerDtoToUpdate(Long id) {
+
+    return CustomerDto.builder()
+            .id(id)
+            .name(getString("Do you want to updateProduct customer name? (y/n)")
+                    .equalsIgnoreCase("Y") ? getString("Specify customer new name") : null)
+            .surname(getString("Do you want to updateProduct customer surname? (y/n)")
+                    .equalsIgnoreCase("Y") ? getString("Specify customer new surname") : null)
+            .age(getString("Do you want to updateProduct customer age?(y/n)")
+                    .equalsIgnoreCase("Y") ? getInt("Specify user new age") : null)
+            .countryDto(getString("Do you want to updateProduct customer country name? (y/n)").equalsIgnoreCase("Y") ? CountryDto.builder()
+                    .name(getString("Specify new customer's country name")).build() : null)
+            .build();
+
+  }
+
+
   static CustomerDto specifyCustomerDtoDetailToDelete() {
 
     printMessage("\nInput customer's information you want to delete\n");

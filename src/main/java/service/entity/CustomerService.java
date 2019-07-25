@@ -1,5 +1,6 @@
 package service.entity;
 
+import domain.Customer;
 import dto.CountryDto;
 import dto.CustomerDto;
 import exception.AppException;
@@ -9,15 +10,11 @@ import repository.abstract_repository.entity.CustomerRepository;
 import repository.impl.CountryRepositoryImpl;
 import repository.impl.CustomerRepositoryImpl;
 
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static util.entity_utils.CustomerUtil.getCustomerDtoIfValid;
-import static util.others.UserDataUtils.getInt;
-import static util.others.UserDataUtils.printCollectionWithNumeration;
-import static util.update.UpdateCustomerUtil.getUpdatedCustomerDto;
 
 
 public class CustomerService {
@@ -90,14 +87,14 @@ public class CustomerService {
     customerRepository.deleteCustomer(ModelMapper.mapCustomerDtoToCustomer(customerDto));
   }
 
-  private List<CustomerDto> getAllCustomers() {
+  public List<CustomerDto> getAllCustomers() {
     return customerRepository.findAll()
             .stream()
             .map(ModelMapper::mapCustomerToCustomerDto)
             .collect(Collectors.toList());
   }
 
-  private Optional<CustomerDto> getCustomerById(Long customerId) {
+  public Optional<CustomerDto> getCustomerById(Long customerId) {
 
     if (customerId == null) {
       throw new AppException("getCustomerById method - Customer id is null");
@@ -107,20 +104,28 @@ public class CustomerService {
             .map(ModelMapper::mapCustomerToCustomerDto);
   }
 
-  public void updateCustomer() {
-    printCollectionWithNumeration(getAllCustomers());
-    long customerId = getInt("Choose customer id you want to update");
 
-    getCustomerById(customerId)
-            .ifPresentOrElse(customerDto ->
-                            customerRepository
-                                    .addOrUpdate(ModelMapper
-                                            .mapCustomerDtoToCustomer(
-                                                    setCustomerComponentsFromDbIfTheyExist(
-                                                            getCustomerDtoIfValid(getUpdatedCustomerDto(customerDto))))),
-                    () -> {
-                      throw new AppException("There is no customer with that id: " + customerId + " in DB");
-                    });
+  public Optional<CustomerDto> updateCustomer(CustomerDto customerDtoToUpdate) {
 
+    Long id = customerDtoToUpdate.getId();
+
+    if (id == null) {
+      throw new AppException("Customer id is null");
+    }
+
+    Customer customerFromDb = customerRepository.findById(id)
+            .orElseThrow(() -> new AppException("Customer with id: " + id + " doesn't exist in DB yet"));
+
+    CustomerDto customerToUpdate = CustomerDto.builder()
+            .id(id)
+            .age(customerDtoToUpdate.getAge() != null ? customerDtoToUpdate.getAge() : customerFromDb.getAge())
+            .name(customerDtoToUpdate.getName() != null ? customerDtoToUpdate.getName() : customerFromDb.getName())
+            .surname(customerDtoToUpdate.getSurname() != null ? customerDtoToUpdate.getSurname() : customerFromDb.getSurname())
+            .countryDto(customerDtoToUpdate.getCountryDto() != null ? customerDtoToUpdate.getCountryDto() : ModelMapper.mapCountryToCountryDto(customerFromDb.getCountry()))
+            .build();
+
+    return customerRepository
+            .addOrUpdate(ModelMapper.mapCustomerDtoToCustomer(getCustomerDtoIfValid(setCustomerComponentsFromDbIfTheyExist(customerToUpdate))))
+            .map(ModelMapper::mapCustomerToCustomerDto);
   }
 }

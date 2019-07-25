@@ -1,7 +1,6 @@
 package repository.abstract_repository.entity;
 
 import domain.Shop;
-import dto.ShopDto;
 import repository.abstract_repository.base.CrudRepository;
 
 import java.util.List;
@@ -13,5 +12,5 @@ public interface ShopRepository extends CrudRepository<Shop, Long> {
 
   List<Shop> findShopListByName(String name);
 
-  void deleteShopDto(ShopDto shopDtp);
+  void deleteShop(Shop shop);
 }

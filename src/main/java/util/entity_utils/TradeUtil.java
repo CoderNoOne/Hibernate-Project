@@ -1,6 +1,5 @@
 package util.entity_utils;
 
-import domain.Trade;
 import dto.TradeDto;
 import exception.AppException;
 import validator.impl.TradeDtoValidator;

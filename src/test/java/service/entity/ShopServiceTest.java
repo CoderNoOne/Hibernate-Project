@@ -6,9 +6,7 @@ import dto.CountryDto;
 import dto.ShopDto;
 import exception.AppException;
 import mapper.ModelMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -18,10 +16,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.ShopRepository;
+import util.update.enums.ShopField;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -33,11 +30,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@MockitoSettings(strictness = Strictness.STRICT_STUBS)
 @Tag("Services")
 @DisplayName("Test cases for ShopService")
 class ShopServiceTest {
@@ -50,8 +46,6 @@ class ShopServiceTest {
 
   @InjectMocks
   private ShopService shopService;
-
-  private static int counter;
 
   @Test
   @DisplayName("addShop to Db with null argument should throw an exception with appropriate message")
@@ -172,119 +166,314 @@ class ShopServiceTest {
     then(shopRepository).should(times(1)).findShopByNameAndCountry(shopDto.getName(), shopDto.getCountryDto().getName());
   }
 
+
   @Test
-  @DisplayName("update shop with valid arguments should not throw an exception. Updated Name should be properly set")
+  @DisplayName("updateProduct shop name and country name")
   void test7() {
 
     //given
-    String input = String.join(System.lineSeparator(), "5", "NAME", "BIEDRONKA", "n");
-    System.setIn(new ByteArrayInputStream(input.getBytes()));
-
-    Shop shop = Shop.builder()
-            .id(5L)
+    ShopDto shopDtoToUpdate = ShopDto.builder()
+            .id(1L)
             .name("MINIMAL")
+            .countryDto(CountryDto.builder()
+                    .id(1L)
+                    .name("GERMANY")
+                    .build())
+            .build();
+
+    Map<ShopField, String> shopNewPropertyValues = Map.of(
+            ShopField.NAME, "BIEDRONKA",
+            ShopField.COUNTRY, "POLAND");
+
+
+    Shop updatedShop = Shop.builder()
+            .id(1L)
+            .name("BIEDRONKA")
             .country(Country.builder()
+                    .id(1L)
                     .name("POLAND")
                     .build())
             .build();
 
+
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.findById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
-            .willReturn(Optional.of(
-                    shop
-            ));
+    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+            .willReturn(Optional.of(updatedShop));
+
+    given(countryRepository.findCountryByName("POLAND")).willReturn(Optional.of(Country.builder()
+            .id(1L)
+            .name("POLAND")
+            .build()));
 
 
     //when
     //then
-    assertDoesNotThrow(shopService::updateShop);
+    assertDoesNotThrow(() -> {
+      Optional<ShopDto> actualUpdatedShop = shopService.update(shopDtoToUpdate, shopNewPropertyValues);
+      assertAll(
+              () -> assertThat(actualUpdatedShop, is(equalTo(Optional.of(updatedShop).map(ModelMapper::mapShopToShopDto)))),
+              () -> assertThat(argumentCaptor.getValue(), is(equalTo(updatedShop))),
+              () -> assertThat(actualUpdatedShop.isPresent(), is(true)),
+              () -> assertThat(actualUpdatedShop.get().getName(), is(equalTo("BIEDRONKA"))),
+              () -> assertThat(actualUpdatedShop.get().getCountryDto().getName(), is(equalTo("POLAND")))
 
-    then(shopRepository).should(times(1)).addOrUpdate(argumentCaptor.capture());
+      );
+    }, "Shop properties (name and country name) should be properly updated");
 
-    assertAll("Updated shop properties should be changed, not updated ones should remain constant",
-            () -> assertThat(argumentCaptor.getValue().getName(), is(equalTo("BIEDRONKA"))),
-            () -> assertThat(argumentCaptor.getValue().getCountry().getName(), is(equalTo("POLAND")))
-    );
+    then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
+    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
   }
 
   @Test
-  @DisplayName("update shop with valid arguments should not throw an exception. Updated Country should be properly set")
+  @DisplayName("updateProduct shop name")
   void test8() {
 
     //given
-    String input = String.join(System.lineSeparator(), "2", "COUNTRY", "GERMANY", "n");
-    System.setIn(new ByteArrayInputStream(input.getBytes()));
-
-    Shop shop = Shop.builder()
-            .name("REEBOK")
-            .id(5L)
-            .country(Country.builder()
-                    .name("POLAND")
+    ShopDto shopDtoToUpdate = ShopDto.builder()
+            .id(1L)
+            .name("MINIMAL")
+            .countryDto(CountryDto.builder()
+                    .id(1L)
+                    .name("GERMANY")
                     .build())
             .build();
 
+    Map<ShopField, String> shopNewPropertyValues = Map.of(
+            ShopField.NAME, "BIEDRONKA"
+    );
+
+
+    Shop updatedShop = Shop.builder()
+            .id(1L)
+            .name("BIEDRONKA")
+            .country(Country.builder()
+                    .id(1L)
+                    .name("GERMANY")
+                    .build())
+            .build();
+
+
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.findById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
-            .willReturn(Optional.of(
-                    shop
-            ));
+    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+            .willReturn(Optional.of(updatedShop));
 
+    given(countryRepository.findCountryByName("GERMANY")).willReturn(Optional.empty());
 
     //when
     //then
-    assertDoesNotThrow(shopService::updateShop);
+    assertDoesNotThrow(() -> {
+      Optional<ShopDto> actualUpdatedShop = shopService.update(shopDtoToUpdate, shopNewPropertyValues);
+      assertAll(
+              () -> assertThat(actualUpdatedShop, is(equalTo(Optional.of(updatedShop).map(ModelMapper::mapShopToShopDto)))),
+              () -> assertThat(argumentCaptor.getValue(), is(equalTo(updatedShop))),
+              () -> assertThat(actualUpdatedShop.isPresent(), is(true)),
+              () -> assertThat(actualUpdatedShop.get().getName(), is(equalTo("BIEDRONKA"))),
+              () -> assertThat(actualUpdatedShop.get().getCountryDto().getName(), is(equalTo("GERMANY")))
 
-    then(shopRepository).should(times(1)).addOrUpdate(argumentCaptor.capture());
+      );
+    }, "Shop properties (name) should be properly updated, country name should remain constant");
 
-    assertAll("Updated shop properties should be changed, not updated ones should remain constant",
-            () -> assertThat(argumentCaptor.getValue().getName(), is(equalTo("REEBOK"))),
-            () -> assertThat(argumentCaptor.getValue().getCountry().getName(), is(equalTo("GERMANY")))
-    );
+    then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
+    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
+
 
   }
 
   @Test
-  @DisplayName("Update shop with valid arguments should not throw an exception. Updated Country and Shop Name shoould be properly ")
+  @DisplayName("updateProduct shop country name")
   void test9() {
 
     //given
-    String input = String.join(System.lineSeparator(), "7", "COUNTRY", "GERMANY", "y", "NAME", "ADDIBAS", "n");
-    System.setIn(new ByteArrayInputStream(input.getBytes()));
+    ShopDto shopDtoToUpdate = ShopDto.builder()
+            .id(1L)
+            .name("MINIMAL")
+            .countryDto(CountryDto.builder()
+                    .id(1L)
+                    .name("GERMANY")
+                    .build())
+            .build();
 
-    Shop shop = Shop.builder()
-            .name("REEBOK")
-            .id(5L)
+    Map<ShopField, String> shopNewPropertyValues = Map.of(
+            ShopField.COUNTRY, "POLAND"
+    );
+
+
+    Shop updatedShop = Shop.builder()
+            .id(1L)
+            .name("MINIMAL")
             .country(Country.builder()
+                    .id(2L)
                     .name("POLAND")
                     .build())
             .build();
 
+
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.findById(argThat(num -> num == Long.parseLong(input.split("[\\s]")[0]))))
-            .willReturn(Optional.of(
-                    shop
-            ));
+    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+            .willReturn(Optional.of(updatedShop));
 
+    given(countryRepository.findCountryByName("POLAND")).willReturn(Optional.of(Country.builder().id(2L).name("POLAND").build()));
 
     //when
     //then
-    assertDoesNotThrow(shopService::updateShop);
+    assertDoesNotThrow(() -> {
+      Optional<ShopDto> actualUpdatedShop = shopService.update(shopDtoToUpdate, shopNewPropertyValues);
+      assertAll(
+              () -> assertThat(actualUpdatedShop, is(equalTo(Optional.of(updatedShop).map(ModelMapper::mapShopToShopDto)))),
+              () -> assertThat(argumentCaptor.getValue(), is(equalTo(updatedShop))),
+              () -> assertThat(actualUpdatedShop.isPresent(), is(true)),
+              () -> assertThat(actualUpdatedShop.get().getName(), is(equalTo("MINIMAL"))),
+              () -> assertThat(actualUpdatedShop.get().getCountryDto().getName(), is(equalTo("POLAND")))
 
-    then(shopRepository).should(times(1)).addOrUpdate(argumentCaptor.capture());
+      );
+    }, "Shop properties (name) should be properly updated, country name should remain constant");
 
-    assertAll("Updated shop properties - country and name should be changed",
-            () -> assertThat(argumentCaptor.getValue().getName(), is(equalTo("ADDIBAS"))),
-            () -> assertThat(argumentCaptor.getValue().getCountry().getName(), is(equalTo("GERMANY")))
+    then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
+    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
+
+  }
+
+  @Test
+  @DisplayName("updateProduct nothing")
+  void test10() {
+
+    //given
+    ShopDto shopDtoToUpdate = ShopDto.builder()
+            .id(1L)
+            .name("MINIMAL")
+            .countryDto(CountryDto.builder()
+                    .id(1L)
+                    .name("GERMANY")
+                    .build())
+            .build();
+
+    Map<ShopField, String> shopNewPropertyValues = Collections.emptyMap();
+
+    Shop updatedShop = Shop.builder()
+            .id(1L)
+            .name("MINIMAL")
+            .country(Country.builder()
+                    .id(1L)
+                    .name("GERMANY")
+                    .build())
+            .build();
+
+
+    ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
+
+    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+            .willReturn(Optional.of(updatedShop));
+
+    given(countryRepository.findCountryByName("GERMANY")).willReturn(Optional.of(Country.builder().id(1L).name("GERMANY").build()));
+
+    //when
+    //then
+    assertDoesNotThrow(() -> {
+      Optional<ShopDto> actualUpdatedShop = shopService.update(shopDtoToUpdate, shopNewPropertyValues);
+      assertAll(
+              () -> assertThat(actualUpdatedShop, is(equalTo(Optional.of(updatedShop).map(ModelMapper::mapShopToShopDto)))),
+              () -> assertThat(argumentCaptor.getValue(), is(equalTo(updatedShop))),
+              () -> assertThat(actualUpdatedShop.isPresent(), is(true)),
+              () -> assertThat(actualUpdatedShop.get().getName(), is(equalTo("MINIMAL"))),
+              () -> assertThat(actualUpdatedShop.get().getCountryDto().getName(), is(equalTo("GERMANY")))
+
+      );
+    }, "Shop properties (name) should be properly updated, country name should remain constant");
+
+    then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
+    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
+  }
+
+  @Test
+  @DisplayName("updateProduct method - bad input arguments")
+  void test14() {
+
+    //given
+    ShopDto shopDtoToUpdate = null;
+    Map<ShopField, String> shopNewPropertyValues = null;
+    String expectedExceptionMessage = String.format("Shop updateProduct method: inputs arguments are wrong (shopToUpdate: %s, shopNewPropertyValues: %s)", shopDtoToUpdate, shopNewPropertyValues);
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> shopService.update(shopDtoToUpdate, shopNewPropertyValues));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(countryRepository).should(never()).findCountryByName(any());
+    then(shopRepository).should(never()).addOrUpdate(any());
+
+  }
+
+  @Test
+  @DisplayName("updateProduct method - shopDto's ID is null")
+  void test15() {
+
+    //given
+    ShopDto shopDtoToUpdate = ShopDto.builder()
+            .name("WALLMART")
+            .build();
+
+    Map<ShopField, String> shopNewPropertyValues = Map.of(
+            ShopField.NAME, "MART"
     );
+    String expectedExceptionMessage = "You cannot updateProduct a not persisted entity!";
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> shopService.update(shopDtoToUpdate, shopNewPropertyValues));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(countryRepository).should(never()).findCountryByName(any());
+    then(shopRepository).should(never()).addOrUpdate(any());
+
+  }
+
+  @Test
+  @DisplayName("chooseShopToUpdate null shop id")
+  void test16() {
+
+    //given
+    Long shopId = null;
+    String expectedExceptionMessage = "Wrong argument - shopId is null";
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> shopService.chooseShopToUpdate(shopId));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(shopRepository).should(never()).findById(anyLong());
+
+  }
+
+  @Test
+  @DisplayName("chooseShopToUpdate")
+  void test17() {
+
+    //given
+    ArgumentCaptor<Long> argumentCaptor = ArgumentCaptor.forClass(Long.class);
+    Optional<Shop> expectedShop = Optional.of(Shop.builder()
+            .id(5L)
+            .name("WALLMART")
+            .country(Country.builder()
+                    .id(1L)
+                    .name("USA")
+                    .build())
+            .build());
+
+    given(shopRepository.findById(argumentCaptor.capture())).willReturn(expectedShop);
+
+    //when
+    //then
+    assertDoesNotThrow(() -> {
+      ShopDto actualShopDto = shopService.chooseShopToUpdate(5L);
+      assertThat(actualShopDto, is(equalTo(expectedShop.map(ModelMapper::mapShopToShopDto).get())));
+    });
+    then(shopRepository).should(times(1)).findById(5L);
 
   }
 
   @Test
   @DisplayName("delete shop with null argument - shopDto should throw an exception with appropriate message")
-  void test10() {
+  void test11() {
 
     //given
     ShopDto shopDto = null;
@@ -294,12 +483,12 @@ class ShopServiceTest {
     //then
     AppException appException = assertThrows(AppException.class, () -> shopService.deleteShopDto(shopDto));
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
-    then(shopRepository).should(never()).deleteShopDto(shopDto);
+    then(shopRepository).should(never()).deleteShop(ModelMapper.mapShopDtoToShop(shopDto));
   }
 
   @Test
   @DisplayName("delete shop with non null value should not throw an exception")
-  void test11() {
+  void test12() {
 
     //given
     ShopDto shopDto = ShopDto.builder()
@@ -314,12 +503,12 @@ class ShopServiceTest {
     //when
     //then
     assertDoesNotThrow(() -> shopService.deleteShopDto(shopDto));
-    then(shopRepository).should(times(1)).deleteShopDto(shopDto);
+    then(shopRepository).should(times(1)).deleteShop(ModelMapper.mapShopDtoToShop(shopDto));
   }
 
   @Test
   @DisplayName("get all shops")
-  void test12() {
+  void test13() {
 
     //given
     List<Shop> returnShopList = List.of(

@@ -15,6 +15,20 @@ import static util.others.UserDataUtils.*;
 
 public interface ProductUtil {
 
+
+  static ProductDto getProductDtoToUpdate(Long id) {
+
+    return ProductDto.builder()
+            .id(id)
+            .name(getString("Do you want to update product name? (y/n)")
+                    .equalsIgnoreCase("Y") ? getString("Specify new product name") : null)
+            .price(getString("Do you want to update product price (y/n)")
+                    .equalsIgnoreCase("y") ? getBigDecimal("Specify product new price") : null)
+            .guaranteeComponents(getString("Do you want to update product guarantee components? (y/n)")
+                    .equalsIgnoreCase("y") ? createGuaranteeComponentsFromUserInput() : null)
+            .build();
+  }
+
   static ProductDto createProductDtoFromUserInput() {
 
     return ProductDto.builder()
@@ -36,7 +50,7 @@ public interface ProductUtil {
             .build();
   }
 
-  static ProductDto getProductIfValid(ProductDto product) {
+  static ProductDto getProductDtoIfValid(ProductDto product) {
 
     var productValidator = new ProductDtoValidator();
     var errorsMap = productValidator.validate(product);
@@ -77,7 +91,7 @@ public interface ProductUtil {
     while (getString("Do you want to add guarantee component? (Y/N)").equalsIgnoreCase("Y")) {
 
       printCollectionWithNumeration(Arrays.asList(EGuarantee.values()));
-      var eGuarantee = UserDataUtils.getInt("Choose what eguarantee you want to update. Choose number");
+      var eGuarantee = UserDataUtils.getInt("Choose what eguarantee you want to add. Choose number");
 
       switch (eGuarantee) {
         case 1 -> guaranteeListInput.add(EGuarantee.HELP_DESK);

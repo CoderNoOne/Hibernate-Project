@@ -1,5 +1,7 @@
 package service.entity;
 
+import com.sun.xml.bind.v2.TODO;
+import domain.Product;
 import dto.ProducerDto;
 import mapper.ModelMapper;
 import dto.CategoryDto;
@@ -11,13 +13,11 @@ import repository.impl.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
 
-import static util.entity_utils.ProductUtil.getProductIfValid;
-import static util.others.UserDataUtils.getInt;
-import static util.others.UserDataUtils.printCollectionWithNumeration;
-import static util.update.UpdateProductUtil.getUpdatedProduct;
+import static util.entity_utils.ProductUtil.getProductDtoIfValid;
 
 public class ProductService {
 
@@ -86,6 +86,7 @@ public class ProductService {
   }
 
   public void addProductToDbFromUserInput(ProductDto productDto) {
+
     if (!isProductUniqueByNameAndCategoryAndProducer(productDto.getName(), productDto.getCategoryDto(), productDto.getProducerDto())) {
       throw new AppException(String.format("Couldn't add new product to db - product: %s is not unique by name and category and producer", productDto));
     }
@@ -110,7 +111,7 @@ public class ProductService {
     productRepository.deleteAll();
   }
 
-  private List<ProductDto> getAllProducts() {
+  public List<ProductDto> getAllProducts() {
     return productRepository.findAll()
             .stream()
             .map(ModelMapper::mapProductToProductDto)
@@ -123,20 +124,28 @@ public class ProductService {
 
   }
 
-  public void updateProduct() {
+  public Optional<ProductDto> updateProduct(ProductDto productDtoToUpdate) {
+    if (productDtoToUpdate.getId() == null) {
+      throw new AppException("Customer id is null");
+    }
 
-    printCollectionWithNumeration(getAllProducts());
-    long productId = getInt("Choose product id you want to update");
+    Product productFromDb = productRepository.findById(productDtoToUpdate.getId())
+            .orElseThrow(() -> new AppException("Product with id: " + productDtoToUpdate.getId() + " doesn't exist in DB yet"));
 
-    getProductDtoById(productId)
-            .ifPresentOrElse(productDto ->
-                            productRepository
-                                    .addOrUpdate(ModelMapper.mapProductDtoToProduct(setProductComponentsFromDbIfTheyExist(getProductIfValid(getUpdatedProduct(productDto)))))
-                                    .map(ModelMapper::mapProductToProductDto),
-                    () -> {
-                      throw new AppException("There is no product with that id: " + productId + " in DB");
-                    });
+    ProductDto productToUpdate = ProductDto.builder()
+            .id(productDtoToUpdate.getId())
+            .name(productDtoToUpdate.getName() != null ? productDtoToUpdate.getName() : productFromDb.getName())
+            .price(productDtoToUpdate.getPrice() != null ? productDtoToUpdate.getPrice() : productFromDb.getPrice())
+            .producerDto(ModelMapper.mapProducerToProducerDto(productFromDb.getProducer()))
+            .categoryDto(ModelMapper.mapCategoryToCategoryDto(productFromDb.getCategory()))
+            .guaranteeComponents(productDtoToUpdate.getGuaranteeComponents() != null ? productDtoToUpdate.getGuaranteeComponents() : productFromDb.getGuaranteeComponents())
+            .build();
+
+    return productRepository
+            .addOrUpdate(ModelMapper.mapProductDtoToProduct(getProductDtoIfValid(setProductComponentsFromDbIfTheyExist((productToUpdate)))))
+            .map(ModelMapper::mapProductToProductDto);
   }
+
 
   public void deleteAllGuaranteeComponents() {
     productRepository.deleteAllGuaranteeComponents();

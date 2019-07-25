@@ -26,10 +26,10 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
   public Optional<T> addOrUpdate(T t) {
 
     if (t == null) {
-      throw new AppException(entityType.getSimpleName() + ";add or update - object is null");
+      throw new AppException(entityType.getSimpleName() + ";add or updateProduct - object is null");
     }
 
-    Optional<T> item = Optional.empty();
+    Optional<T> item ;
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
@@ -47,7 +47,7 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException(entityType.getSimpleName() + ";add or update - exception");
+      throw new AppException(entityType.getSimpleName() + ";add or updateProduct - exception");
     } finally {
 
       if (entityManager != null) {

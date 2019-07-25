@@ -51,7 +51,7 @@ public final class UserDataUtils {
   }
 
   public static String getString(String inputMessage) {
-    if (Objects.isNull(inputMessage)) {
+    if (inputMessage == null) {
       throw new AppException("GET STRING - MESSAGE IS NULL");
     }
 

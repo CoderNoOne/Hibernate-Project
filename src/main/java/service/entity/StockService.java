@@ -1,8 +1,9 @@
 package service.entity;
 
+import domain.Stock;
 import dto.*;
 import exception.AppException;
-import mapper.*;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.*;
 import repository.impl.*;
 
@@ -14,9 +15,6 @@ import java.util.stream.Collectors;
 import static util.entity_utils.ProductUtil.*;
 import static util.entity_utils.ShopUtil.*;
 import static util.entity_utils.StockUtil.getStockDtoIfValid;
-import static util.others.UserDataUtils.getInt;
-import static util.others.UserDataUtils.printCollectionWithNumeration;
-import static util.update.UpdateStockUtil.getUpdatedStock;
 
 public class StockService {
 
@@ -225,19 +223,27 @@ public class StockService {
             .map(ModelMapper::mapProducerToProducerDto).collect(Collectors.toList());
   }
 
-  public void updateStock() {
-    printCollectionWithNumeration(getAllStocks());
+  public Optional<StockDto> updateStock(StockDto stockDtoToUpdate) {
 
-    long stockId = getInt("Choose stock id you want to update");
+    Long id = stockDtoToUpdate.getId();
 
-    getStockById(stockId)
-            .ifPresentOrElse(stockDto ->
-                            stockRepository
-                                    .addOrUpdate(ModelMapper
-                                            .mapStockDtoToStock(setStockDtoComponentsFromDbIfTheyExist(getStockDtoIfValid(getUpdatedStock(stockDto))))),
-                    () -> {
-                      throw new AppException("There is no stock with that id: " + stockId + " in DB");
-                    });
+    if (id == null) {
+      throw new AppException("Stock id is null");
+    }
+
+    Stock stockFromDb = stockRepository.findById(id)
+            .orElseThrow(() -> new AppException("Stock with id: " + id + " doesn't exist in DB yet"));
+
+    StockDto stockToUpdate = StockDto.builder()
+            .id(id)
+            .quantity(stockDtoToUpdate.getQuantity() != null ? stockDtoToUpdate.getQuantity() : stockFromDb.getQuantity())
+            .productDto(ModelMapper.mapProductToProductDto(stockFromDb.getProduct()))
+            .shopDto(ModelMapper.mapShopToShopDto(stockFromDb.getShop()))
+            .build();
+
+    return stockRepository
+            .addOrUpdate(ModelMapper.mapStockDtoToStock(getStockDtoIfValid(setStockDtoComponentsFromDbIfTheyExist(stockToUpdate))))
+            .map(ModelMapper::mapStockToStockDto);
 
   }
 
@@ -248,7 +254,7 @@ public class StockService {
             .map(ModelMapper::mapProductToProductDto)
             .collect(Collectors.toList());
 
-    stockDto.setProductDto( !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductIfValid(preciseProductDtoDetails(stockDto)));
+    stockDto.setProductDto( !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductDtoIfValid(preciseProductDtoDetails(stockDto)));
 
     return stockDto;
   }
@@ -259,7 +265,7 @@ public class StockService {
             .map(ModelMapper::mapStockToStockDto);
   }
 
-  private List<StockDto> getAllStocks() {
+  public List<StockDto> getAllStocks() {
 
     return stockRepository.findAll()
             .stream()

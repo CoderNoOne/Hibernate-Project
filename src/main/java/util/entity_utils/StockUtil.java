@@ -15,6 +15,16 @@ import static util.others.UserDataUtils.printMessage;
 
 public interface StockUtil {
 
+  static StockDto getStockDtoToUpdate(Long id) {
+
+    return StockDto.builder()
+            .id(id)
+            .quantity(getString("Do you want to update quantity? (y/n)")
+                    .equalsIgnoreCase("y") ? getInt("Specify new quantity") : null)
+            .build();
+
+  }
+
   static StockDto createStockDtoDetailFromUserInput() {
 
     return StockDto.builder()

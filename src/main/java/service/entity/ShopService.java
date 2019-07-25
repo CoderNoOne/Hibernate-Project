@@ -1,5 +1,6 @@
 package service.entity;
 
+import domain.Shop;
 import dto.CountryDto;
 import dto.ShopDto;
 import exception.AppException;
@@ -8,15 +9,17 @@ import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.ShopRepository;
 import repository.impl.CountryRepositoryImpl;
 import repository.impl.ShopRepositoryImpl;
+import util.update.enums.ShopField;
 
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static util.entity_utils.ShopUtil.getShopDtoIfValid;
+import static util.entity_utils.ShopUtil.preciseShopDtoDetails;
 import static util.others.UserDataUtils.*;
-import static util.update.UpdateShopUtil.getUpdatedShop;
 
 
 public class ShopService {
@@ -110,7 +113,7 @@ public class ShopService {
             .collect(Collectors.toList());
   }
 
-  private Optional<ShopDto> getShopById(Long shopId) {
+  public Optional<ShopDto> getShopById(Long shopId) {
 
     if (shopId == null) {
       throw new AppException("ShopId is null");
@@ -120,31 +123,48 @@ public class ShopService {
             .map(ModelMapper::mapShopToShopDto);
   }
 
-  public void updateShop() {
-
-    printCollectionWithNumeration(getAllShops());
-
-    long shopId = getInt("Choose shop id you want to update");
-
-    getShopById(shopId)
-            .ifPresentOrElse(shopDto ->
-                            shopRepository
-                                    .addOrUpdate(ModelMapper
-                                            .mapShopDtoToShop(setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(getUpdatedShop(shopDto))))),
-                    () -> {
-                      throw new AppException("There is no shop with that id: " + shopId + " in DB");
-                    });
-  }
-
-  public void deleteShopDto(ShopDto shopDtp) {
-    if (shopDtp == null) {
+  public void deleteShopDto(ShopDto shopDto) {
+    if (shopDto == null) {
       throw new AppException("Shop is null/ undefined");
     }
-    shopRepository.deleteShopDto(shopDtp);
+    shopRepository.deleteShop(ModelMapper.mapShopDtoToShop(shopDto));
   }
 
   public void deleteAllShops() {
     shopRepository.deleteAll();
+  }
+
+  public Optional<ShopDto> update(ShopDto shopToUpdate, Map<ShopField, String> shopNewPropertyValues) {
+
+    if (shopToUpdate == null || shopNewPropertyValues == null) {
+      throw new AppException(String.format("Shop updateProduct method: inputs arguments are wrong (shopToUpdate: %s, shopNewPropertyValues: %s)", shopToUpdate, shopNewPropertyValues));
+    }
+
+    if (shopToUpdate.getId() == null) {
+      throw new AppException("You cannot updateProduct a not persisted entity!");
+    }
+    shopNewPropertyValues.forEach((shopProperty, newValue) -> {
+
+      switch (shopProperty) {
+        case NAME -> shopToUpdate.setName(newValue);
+        case COUNTRY -> shopToUpdate.setCountryDto(CountryDto.builder()
+                .name(newValue)
+                .build());
+      }
+    });
+
+    return shopRepository.addOrUpdate(ModelMapper.mapShopDtoToShop(setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(shopToUpdate))))
+            .map(ModelMapper::mapShopToShopDto);
+
+  }
+
+  public ShopDto chooseShopToUpdate(Long shopId) {
+
+    if (shopId == null) {
+      throw new AppException("Wrong argument - shopId is null");
+    }
+    return getShopById(shopId)
+            .orElseThrow(() -> new AppException("There is no shop with that id: " + shopId + " in DB"));
   }
 }
 

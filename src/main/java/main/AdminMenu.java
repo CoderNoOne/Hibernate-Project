@@ -1,6 +1,5 @@
 package main;
 
-import domain.Error;
 import dto.ErrorDto;
 import exception.AppException;
 import lombok.extern.slf4j.Slf4j;
