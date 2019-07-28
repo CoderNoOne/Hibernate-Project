@@ -32,12 +32,6 @@ public class ProducerService {
     this.tradeRepository = new TradeRepositoryImpl();
     this.countryRepository = new CountryRepositoryImpl();
   }
-//
-//  public ProducerService(ProducerRepository producerRepository, TradeRepository tradeRepository, CountryRepository countryRepository) {
-//    this.producerRepository = producerRepository;
-//    this.tradeRepository = tradeRepository;
-//    this.countryRepository = countryRepository;
-//  }
 
   public Optional<ProducerDto> addProducerToDb(ProducerDto producerDto) {
     return producerRepository

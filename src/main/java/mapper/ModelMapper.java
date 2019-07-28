@@ -149,7 +149,7 @@ public interface ModelMapper {
             .categoryDto(mapCategoryToCategoryDto(product.getCategory()))
             .producerDto(mapProducerToProducerDto(product.getProducer()))
             /*guaranteeComponents list has to be recollect (if not, strange behaviour happens when comparison between productDto objects is performed*/
-            .guaranteeComponents(product.getGuaranteeComponents().stream().collect(Collectors.toList()))
+            .guaranteeComponents(product.getGuaranteeComponents() != null ? product.getGuaranteeComponents().stream().collect(Collectors.toList()) : null)
             .build() : null;
   }
 

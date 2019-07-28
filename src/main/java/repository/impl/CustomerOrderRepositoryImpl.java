@@ -17,11 +17,6 @@ public class CustomerOrderRepositoryImpl extends AbstractCrudRepository<Customer
 
   public static final int GUARANTEE_PERIOD_IN_YEARS = 2;
 
-
-  public void add(Customer customer){
-
-  }
-
   @Override
   public List<CustomerOrder> findProductsOrderedByCustomer(String customerName, String customerSurname, String countryName) {
 

@@ -326,7 +326,7 @@ class Menu {
       maxAge = getInt("Input customer max age");
     } while (minAge > maxAge);
 
-    printCollectionWithNumeration(customerOrderService.getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinSpecifiedRangeAndSortedByPriceDescOrder(countryName, minAge, maxAge));
+    printCollectionWithNumeration(customerOrderService.getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinRangeAndSortedByPriceDescOrder(countryName, minAge, maxAge));
   }
 
   private void executeOption8() {
@@ -373,7 +373,7 @@ class Menu {
     return resultMap;
   }
 
-  private void decreaseStockQuantityForChoosenProductAndShop(CustomerOrderDto customerOrderDto, Map <ProductDto, Set<ShopDto>> resultMap){
+  private void decreaseStockQuantityForChosenProductAndShop(CustomerOrderDto customerOrderDto, Map <ProductDto, Set<ShopDto>> resultMap){
     ProductDto productDto = chooseAvailableProduct(resultMap.keySet());
     ShopDto shopDto = chooseAvailableShop(resultMap.get(productDto));
     stockService.decreaseStockQuantity(shopDto, productDto, customerOrderDto.getQuantity());
@@ -389,7 +389,7 @@ class Menu {
       List<ProductDto> products = getProductList(customerOrderDto);
       Map<ProductDto, Set<ShopDto>> resultMap = getShopsWithProductsInStockWithQuantityGreaterThanOrEqual(products, customerOrderDto.getQuantity());
 
-      decreaseStockQuantityForChoosenProductAndShop(customerOrderDto, resultMap);
+      decreaseStockQuantityForChosenProductAndShop(customerOrderDto, resultMap);
       customerOrderService.addCustomerOrderToDbFromUserInput(getCustomerOrderIfValid(customerOrderDto));
 
     } catch (Exception e) {
