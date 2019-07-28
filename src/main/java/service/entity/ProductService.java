@@ -150,4 +150,22 @@ public class ProductService {
   public void deleteAllGuaranteeComponents() {
     productRepository.deleteAllGuaranteeComponents();
   }
+
+  public List<ProductDto> getProductsByNameAndCategory(String name, CategoryDto categoryDto){
+
+    if(name == null){
+      throw new AppException("Product name is null");
+    }
+
+    if(categoryDto == null){
+      throw new AppException("CategoryDto object is null");
+    }
+
+    return productRepository
+            .findProductsByNameAndCategory(name, ModelMapper.mapCategoryDtoToCategory(categoryDto))
+            .stream()
+            .map(ModelMapper::mapProductToProductDto)
+            .collect(Collectors.toList());
+
+  }
 }

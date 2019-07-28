@@ -6,7 +6,7 @@ import repository.abstract_repository.base.CrudRepository;
 
 import java.util.Optional;
 
-public interface PaymentRepository extends CrudRepository <Payment, Long> {
+public interface PaymentRepository extends CrudRepository<Payment, Long> {
 
   Optional<Payment> findPaymentByEPayment(Epayment epayment);
 }

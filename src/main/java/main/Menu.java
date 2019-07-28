@@ -1,6 +1,5 @@
 package main;
 
-import com.sun.xml.bind.v2.TODO;
 import configuration.DbConnection;
 import domain.enums.EGuarantee;
 import dto.*;
@@ -239,9 +238,11 @@ class Menu {
   private void executeOption15() {
 
     try {
-      CustomerDto customerDto = specifyCustomerDtoDetailToDelete();
-      customerService.deleteCustomer(customerDto);
+
+      customerService.deleteCustomer(specifyCustomerDtoDetailToDelete());
+
     } catch (Exception e) {
+
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
       throw new AppException(String.format("%s;%s: %s", CUSTOMER, ERROR_DURING_DELETION, e.getMessage()));
@@ -283,7 +284,7 @@ class Menu {
     Set<EGuarantee> guaranteeSet = new HashSet<>();
     List<EGuarantee> values = new ArrayList<>(List.of(EGuarantee.values()));
 
-    while (getString("Do you want to add searching by components?(Y/N)").equalsIgnoreCase("Y")) {
+    while (getString("Do you want to add components?(Y/N)").equalsIgnoreCase("Y")) {
       int warrantyElementId;
       do {
         printCollectionWithNumeration(values);
@@ -300,7 +301,6 @@ class Menu {
               printCollectionWithNumeration(productList);
             });
   }
-
 
   private void executeOption10() {
 
@@ -339,12 +339,59 @@ class Menu {
   }
 
 
+  private CustomerOrderDto getCustomerOrderDto() {
+    CustomerOrderDto customerOrderDto = createCustomerOrderDtoFromUserInput();
+
+    CustomerDto customer = customerOrderDto.getCustomer();
+
+    customerOrderDto.setCustomer(customerService.getCustomerByNameAndSurnameAndCountry(customer.getName(), customer.getSurname(),
+            customer.getCountryDto()).orElseThrow(() -> new AppException(String.format("There is no customer in a db with: name: %s surname: %s country: %s",
+            customer.getName(), customer.getSurname(), customer.getCountryDto().getName()))));
+
+    return customerOrderDto;
+  }
+
+  private List<ProductDto> getProductList(CustomerOrderDto customerOrderDto) {
+
+    List<ProductDto> products = productService.getProductsByNameAndCategory(
+            customerOrderDto.getProduct().getName(), customerOrderDto.getProduct().getCategoryDto());
+
+    if (products.isEmpty()) {
+      throw new AppException(String.format("There are no products with name: %s and category: %s", customerOrderDto.getProduct().getName(), customerOrderDto.getProduct().getName()));
+    }
+    return products;
+  }
+
+  private Map <ProductDto, Set<ShopDto>> getShopsWithProductsInStockWithQuantityGreaterThanOrEqual(List <ProductDto> products, Integer minQuantity){
+
+    Map<ProductDto, Set<ShopDto>> resultMap = stockService.getProductDtoAndShopWithQuantityInStockMoreThan(products, minQuantity);
+
+    if (resultMap.isEmpty()) {
+      throw new AppException("There're not not enough products in any shop");
+    }
+
+    return resultMap;
+  }
+
+  private void decreaseStockQuantityForChoosenProductAndShop(CustomerOrderDto customerOrderDto, Map <ProductDto, Set<ShopDto>> resultMap){
+    ProductDto productDto = chooseAvailableProduct(resultMap.keySet());
+    ShopDto shopDto = chooseAvailableShop(resultMap.get(productDto));
+    stockService.decreaseStockQuantity(shopDto, productDto, customerOrderDto.getQuantity());
+    customerOrderDto.setProduct(productDto);
+  }
+
+
   private void executeOption7() {
 
     try {
-      var customerOrder = getCustomerOrderIfValid(customerOrderService.specifyOrderedProductDetail(customerOrderService.specifyCustomerDetail((createCustomerOrderDtoFromUserInput()))));
-      stockService.decreaseStockQuantityIfValid(customerOrderService.specifyShopDetailForCustomerOrder(customerOrder), customerOrder);
-      customerOrderService.addCustomerOrderToDbFromUserInput(customerOrder);
+
+      CustomerOrderDto customerOrderDto = getCustomerOrderDto();
+      List<ProductDto> products = getProductList(customerOrderDto);
+      Map<ProductDto, Set<ShopDto>> resultMap = getShopsWithProductsInStockWithQuantityGreaterThanOrEqual(products, customerOrderDto.getQuantity());
+
+      decreaseStockQuantityForChoosenProductAndShop(customerOrderDto, resultMap);
+      customerOrderService.addCustomerOrderToDbFromUserInput(getCustomerOrderIfValid(customerOrderDto));
+
     } catch (Exception e) {
       log.info(e.getMessage());
       log.error(Arrays.toString(e.getStackTrace()));
@@ -352,12 +399,19 @@ class Menu {
     }
   }
 
+
   private void executeOption6() {
 
     try {
 
-      stockService
-              .addStockToDbFromUserInput(getStockDtoIfValid(stockService.specifyShop(stockService.specifyProduct(createStockDtoDetailFromUserInput()))));
+      StockDto stockDto = createStockDtoDetailFromUserInput();
+
+      stockDto.setShopDto(specifyShop(stockDto.getShopDto().getName(), shopService.getShopsByName(stockDto.getShopDto().getName())));
+
+      stockDto.setProductDto(specifyProductForStock(stockDto.getProductDto(),
+              productService.getProductsByNameAndCategory(stockDto.getProductDto().getName(), stockDto.getProductDto().getCategoryDto())));
+
+      stockService.addStockToDbFromUserInput(getStockDtoIfValid(stockDto));
 
     } catch (Exception e) {
       log.info(e.getMessage());

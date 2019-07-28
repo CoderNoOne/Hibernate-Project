@@ -13,7 +13,6 @@ import java.util.Optional;
 
 public class CustomerRepositoryImpl extends AbstractCrudRepository<Customer, Long> implements CustomerRepository {
 
-  
   @Override
   public void deleteCustomer(Customer customerToDelete) {
 

@@ -13,5 +13,6 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
 
   Map<Shop, Integer> findShopsWithProductInStock(Product product);
 
-  List<Producer> findProducersWithTradeAndNumberOfProducedProductsGreaterThan(String tradeName, Integer minAmountOfProducts);
+  List<Stock> findStocksWithProducerTradeName(String tradeName) ;
+
 }

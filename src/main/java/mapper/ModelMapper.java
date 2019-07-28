@@ -4,6 +4,8 @@ import domain.*;
 import domain.Error;
 import dto.*;
 
+import java.util.stream.Collectors;
+
 public interface ModelMapper {
 
   static Error mapErrorDtoToError(ErrorDto errorDto) {
@@ -126,7 +128,6 @@ public interface ModelMapper {
             .build() : null;
   }
 
-  /*---------------------------------------------*/
   static Product mapProductDtoToProduct(ProductDto productDto) {
 
     return productDto != null ? Product.builder()
@@ -147,7 +148,8 @@ public interface ModelMapper {
             .price(product.getPrice())
             .categoryDto(mapCategoryToCategoryDto(product.getCategory()))
             .producerDto(mapProducerToProducerDto(product.getProducer()))
-            .guaranteeComponents(product.getGuaranteeComponents())
+            /*guaranteeComponents list has to be recollect (if not, strange behaviour happens when comparison between productDto objects is performed*/
+            .guaranteeComponents(product.getGuaranteeComponents().stream().collect(Collectors.toList()))
             .build() : null;
   }
 

@@ -8,6 +8,7 @@ import validator.impl.ProductDtoValidator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,12 @@ import static util.others.UserDataUtils.*;
 
 public interface ProductUtil {
 
+
+  static ProductDto specifyProductForStock(ProductDto productDto, List<ProductDto> productsList) {
+
+    return (!productsList.isEmpty() ?
+            chooseAvailableProduct(productsList) : getProductDtoIfValid(preciseProductDtoDetails(productDto)));
+  }
 
   static ProductDto getProductDtoToUpdate(Long id) {
 
@@ -62,14 +69,14 @@ public interface ProductUtil {
     return product;
   }
 
-  static ProductDto preciseProductDtoDetails(StockDto stockDto) {
+  static ProductDto preciseProductDtoDetails(ProductDto productDto) {
 
     printMessage(String.format("Any product with specified name:%s and category: %s  exists in a DB. You need to specify product details: "
-            , stockDto.getProductDto().getName(), stockDto.getProductDto().getCategoryDto().getName()));
+            , productDto.getName(), productDto.getCategoryDto().getName()));
 
     return ProductDto.builder()
-            .name(stockDto.getProductDto().getName())
-            .categoryDto(stockDto.getProductDto().getCategoryDto())
+            .name(productDto.getName())
+            .categoryDto(productDto.getCategoryDto())
             .price(getBigDecimal("Input product price"))
             .guaranteeComponents(createGuaranteeComponentsFromUserInput())
             .producerDto(ProducerDto.builder()
@@ -104,19 +111,21 @@ public interface ProductUtil {
     return guaranteeListInput;
   }
 
-  static ProductDto chooseAvailableProduct(List<ProductDto> productList) {
 
-    if (productList.isEmpty()) {
+  static ProductDto chooseAvailableProduct(Collection<ProductDto> products) {
+
+    if (products.isEmpty()) {
       throw new AppException("There are no products who meet specified criteria");
     }
 
+    List<ProductDto> productLists = new ArrayList<>(products);
     int productNumber;
     do {
-      printCollectionWithNumeration(productList.stream().map(ProductDto::getName).collect(Collectors.toList()));
+      printCollectionWithNumeration(productLists.stream().map(ProductDto::getName).collect(Collectors.toList()));
       productNumber = getInt("Choose product by number");
-    } while (!(productNumber >= 1 && productNumber <= productList.size()));
+    } while (!(productNumber >= 1 && productNumber <= productLists.size()));
 
-    return productList.get(productNumber - 1);
+    return productLists.get(productNumber - 1);
   }
 
 }

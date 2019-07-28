@@ -5,6 +5,7 @@ import dto.CountryDto;
 import dto.ProducerDto;
 import dto.TradeDto;
 import exception.AppException;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.ProducerRepository;
@@ -19,10 +20,10 @@ import java.util.stream.Collectors;
 
 import static util.entity_utils.ProducerUtil.getProducerDtoIfValid;
 
+@RequiredArgsConstructor
 public class ProducerService {
 
   private final ProducerRepository producerRepository;
-
   private final TradeRepository tradeRepository;
   private final CountryRepository countryRepository;
 
@@ -31,12 +32,12 @@ public class ProducerService {
     this.tradeRepository = new TradeRepositoryImpl();
     this.countryRepository = new CountryRepositoryImpl();
   }
-
-  public ProducerService(ProducerRepository producerRepository, TradeRepository tradeRepository, CountryRepository countryRepository) {
-    this.producerRepository = producerRepository;
-    this.tradeRepository = tradeRepository;
-    this.countryRepository = countryRepository;
-  }
+//
+//  public ProducerService(ProducerRepository producerRepository, TradeRepository tradeRepository, CountryRepository countryRepository) {
+//    this.producerRepository = producerRepository;
+//    this.tradeRepository = tradeRepository;
+//    this.countryRepository = countryRepository;
+//  }
 
   public Optional<ProducerDto> addProducerToDb(ProducerDto producerDto) {
     return producerRepository
@@ -45,7 +46,7 @@ public class ProducerService {
   }
 
 
-  public ProducerDto setProducerComponentsFromDbIfTheyExist(ProducerDto producerDto) {
+  private ProducerDto setProducerComponentsFromDbIfTheyExist(ProducerDto producerDto) {
 
     return ProducerDto.builder()
             .id(producerDto.getId())
@@ -110,11 +111,6 @@ public class ProducerService {
             .addOrUpdate(ModelMapper.mapProducerDtoToProducer(getProducerDtoIfValid(setProducerComponentsFromDbIfTheyExist(producerToUpdate))))
             .map(ModelMapper::mapProducerToProducerDto);
 
-  }
-
-  private Optional<ProducerDto> getProducerDtoById(long producerId) {
-    return producerRepository.findById(producerId)
-            .map(ModelMapper::mapProducerToProducerDto);
   }
 
   public List<ProducerDto> getAllProducers() {

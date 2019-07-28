@@ -9,10 +9,46 @@ import repository.abstract_repository.entity.ProducerRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class ProducerRepositoryImpl extends AbstractCrudRepository<Producer, Long> implements ProducerRepository {
+
+  @Override
+  public List<Producer> findProducersWithTrade(String tradeName) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+    List<Producer> producerList = new ArrayList<>();
+
+    try {
+
+      tx.begin();
+
+      entityManager.createQuery("select e from " + entityType.getSimpleName() + " as e", entityType)
+              /*+ " as e where e.trade.name = :tradeName")
+              .setParameter("tradeName", tradeName)*/
+              .getResultList();
+
+      tx.commit();
+
+    } catch (Exception e) {
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("find producers with trade and number of produced products - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+    return producerList;
+
+
+  }
 
   @Override
   public Optional<Producer> findByNameAndTradeAndCountry(String name, Trade trade, Country country) {

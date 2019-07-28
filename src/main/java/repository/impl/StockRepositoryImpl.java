@@ -13,35 +13,31 @@ import java.util.stream.Collectors;
 public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> implements StockRepository {
 
   @Override
-  public List<Producer> findProducersWithTradeAndNumberOfProducedProductsGreaterThan(String tradeName, Integer minAmountOfProducts) {
+  public List<Stock> findStocksWithProducerTradeName(String tradeName) {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
 
-    List<Producer> producerList = new ArrayList<>();
+    List<Stock> stockList = new ArrayList<>();
     try {
       tx.begin();
 
-      producerList =
-              entityManager.createQuery("select e from " + entityType.getSimpleName() + " as e where e.product.producer.trade.name = :tradeName", entityType)
-                      .setParameter("tradeName", tradeName)
-                      .getResultStream().collect(Collectors.collectingAndThen(
-                      Collectors.groupingBy(stock -> stock.getProduct().getProducer(), Collectors.summingInt(Stock::getQuantity)),
-                      map -> map.entrySet().stream().filter(e -> e.getValue() > minAmountOfProducts).map(Map.Entry::getKey)
-                              .collect(Collectors.toList())));
+      stockList = entityManager.createQuery("select e from " + entityType.getSimpleName() + " as e where e.product.producer.trade.name = :tradeName", entityType)
+              .setParameter("tradeName", tradeName)
+              .getResultList();
 
       tx.commit();
     } catch (Exception e) {
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException("find trade by name - exception");
+      throw new AppException("find stocks with producer's trade name - exception");
     } finally {
       if (entityManager != null) {
         entityManager.close();
       }
     }
-    return producerList;
+    return stockList;
   }
 
   @Override
@@ -57,9 +53,7 @@ public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> imp
       resultantMap = entityManager
               .createQuery("from " + entityType.getSimpleName(), entityType)
               .getResultStream()
-              .filter(stock -> stock.getProduct().getName().equals(product.getName()) /*&&
-                      stock.getProduct().getCategory().equals(product.getCategory()) &&
-                      stock.getProduct().getProducer().equals(product.getProducer())*/)
+              .filter(stock -> stock.getProduct().getName().equals(product.getName()))
               .map(Stock::getShop)
               .distinct()
               .collect(Collectors.toMap(

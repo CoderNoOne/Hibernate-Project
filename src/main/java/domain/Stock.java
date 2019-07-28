@@ -14,7 +14,6 @@ import javax.persistence.*;
 @Builder
 public class Stock {
 
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

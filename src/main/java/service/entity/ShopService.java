@@ -90,7 +90,7 @@ public class ShopService {
             .map(ModelMapper::mapShopToShopDto);
   }
 
-  List<ShopDto> getShopsByName(String name) {
+  public List<ShopDto> getShopsByName(String name) {
     return shopRepository.findShopListByName(name)
             .stream()
             .map(ModelMapper::mapShopToShopDto)

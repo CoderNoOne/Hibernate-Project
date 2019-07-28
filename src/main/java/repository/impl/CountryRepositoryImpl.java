@@ -1,14 +1,15 @@
 package repository.impl;
 
 import domain.Country;
-import domain.Customer;
 import exception.AppException;
+import lombok.extern.slf4j.Slf4j;
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.CountryRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import java.util.Optional;
+
 
 public class CountryRepositoryImpl extends AbstractCrudRepository<Country, Long> implements CountryRepository {
 

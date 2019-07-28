@@ -1,10 +1,7 @@
 package dto;
 
 import domain.enums.EGuarantee;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,6 +19,8 @@ public class ProductDto {
   private BigDecimal price;
   private CategoryDto categoryDto;
   private ProducerDto producerDto;
+
+//  @EqualsAndHashCode.Exclude
   private List<EGuarantee> guaranteeComponents = new ArrayList<>();
 
 }

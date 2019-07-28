@@ -15,8 +15,8 @@
       }
     },
     "guaranteeComponents": [
-      "DESK",
-      "MONEY",
+      "HELP_DESK",
+      "MONEY_BACK",
       "SERVICE",
       "EXCHANGE"
     ]
@@ -37,7 +37,7 @@
       }
     },
     "guaranteeComponents": [
-      "MONEY",
+      "MONEY_BACK",
       "EXCHANGE"
     ]
   },
@@ -57,8 +57,8 @@
       }
     },
     "guaranteeComponents": [
-      "DESK",
-      "MONEY",
+      "HELP_DESK",
+      "MONEY_BACK",
       "SERVICE",
       "EXCHANGE"
     ]
@@ -79,7 +79,7 @@
       }
     },
     "guaranteeComponents": [
-      "DESK",
+      "MONEY_BACK",
       "EXCHANGE",
       "SERVICE"
     ]
@@ -100,7 +100,7 @@
       }
     },
     "guaranteeComponents": [
-      "DESK",
+      "HELP_DESK",
       "SERVICE"
     ]
   },
@@ -140,7 +140,7 @@
       }
     },
     "guaranteeComponents": [
-      "MONEY"
+      "MONEY_BACK"
     ]
   },
   {
@@ -159,8 +159,8 @@
       }
     },
     "guaranteeComponents": [
-      "DESK",
-      "MONEY",
+      "HELP_DESK",
+      "MONEY_BACK",
       "SERVICE"
     ]
   },

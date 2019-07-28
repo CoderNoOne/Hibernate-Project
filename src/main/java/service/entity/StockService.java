@@ -1,7 +1,10 @@
 package service.entity;
 
 import domain.Stock;
-import dto.*;
+import dto.ProducerDto;
+import dto.ProductDto;
+import dto.ShopDto;
+import dto.StockDto;
 import exception.AppException;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.*;
@@ -10,10 +13,9 @@ import repository.impl.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static util.entity_utils.ProductUtil.*;
-import static util.entity_utils.ShopUtil.*;
 import static util.entity_utils.StockUtil.getStockDtoIfValid;
 
 public class StockService {
@@ -127,68 +129,17 @@ public class StockService {
             .build();
   }
 
-
-  public StockDto specifyShop(StockDto stockDto) {
-
-    if (stockDto == null) {
-      throw new AppException("StockDto object is null");
-    }
-
-    if (stockDto.getShopDto() == null || stockDto.getShopDto().getName() == null) {
-      throw new AppException("Shop is null/undefinied: " + stockDto.getShopDto());
-    }
-
-    var shopsByName = shopRepository.findShopListByName(stockDto.getShopDto().getName())
-            .stream()
-            .map(ModelMapper::mapShopToShopDto)
-            .collect(Collectors.toList());
-
-
-    var shopDto = !shopsByName.isEmpty() ?
-            chooseAvailableShop(shopsByName) : setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(preciseShopDtoDetails(stockDto)));
-
-    stockDto.setShopDto(shopDto);
-    return stockDto;
-
-  }
-
-  private ShopDto setShopComponentsFromDbIfTheyExist(ShopDto shopDto) {
-
-    if (shopDto == null) {
-      throw new AppException("ShopDto is null");
-    }
-
-    if (shopDto.getCountryDto() == null) {
-      throw new AppException("Shop country is null");
-    }
-
-    return ShopDto.builder()
-            .id(shopDto.getId())
-            .name(shopDto.getName())
-            .countryDto(countryRepository.findCountryByName(shopDto.getCountryDto().getName())
-                    .map(ModelMapper::mapCountryToCountryDto)
-                    .orElse(shopDto.getCountryDto()))
-            .build();
-  }
-
   private boolean isStockUniqueByShopAndProduct(ShopDto shopDto, ProductDto productDto) {
     return stockRepository.findStockByShopAndProduct(ModelMapper.mapShopDtoToShop(shopDto), ModelMapper.mapProductDtoToProduct(productDto)).isEmpty();
   }
 
-  public void decreaseStockQuantityIfValid(Map<ShopDto, Integer> map, CustomerOrderDto customerOrder) {
+  public void decreaseStockQuantity(ShopDto shopDto, ProductDto productDto, Integer quantity) {
 
-    getStockByShopAndProduct(map.keySet().iterator().next(), customerOrder.getProduct())
-            .ifPresentOrElse(stockDto -> {
-              if (stockDto.getQuantity() >= customerOrder.getQuantity()) {
-                decreaseStockQuantityBySpecifiedAmount(stockDto, customerOrder.getQuantity());
-              } else {
-                throw new AppException(String.format("Not enough products in stock. Customer wants %d but there are only %d products in the stock",
-                        customerOrder.getQuantity(), stockDto.getQuantity()));
-              }
-            }, () -> {
-              throw new AppException(String.format("No stock was found for product: %s and for shop: %s",
-                      customerOrder.getProduct().getName(), map.keySet().iterator().next().getName()));
-            });
+    getStockByShopAndProduct(shopDto, productDto).ifPresent(stockDto -> {
+      stockDto.setQuantity(getStockQuantity(stockDto) - quantity);
+      addStockToDb(stockDto);
+    });
+
   }
 
   private Integer getStockQuantity(StockDto stockDto) {
@@ -202,7 +153,7 @@ public class StockService {
             .map(ModelMapper::mapStockToStockDto);
   }
 
-  Map<ShopDto, Integer> getShopListWithProductInStock(ProductDto productDto) {
+  public Map<ShopDto, Integer> getShopListWithProductInStock(ProductDto productDto) {
     return stockRepository.findShopsWithProductInStock(ModelMapper.mapProductDtoToProduct(productDto))
             .entrySet()
             .stream()
@@ -212,15 +163,22 @@ public class StockService {
             ));
   }
 
-  private void decreaseStockQuantityBySpecifiedAmount(StockDto stockDto, Integer quantity) {
-    stockDto.setQuantity(getStockQuantity(stockDto) - quantity);
-    addStockToDb(stockDto);
-  }
-
   public List<ProducerDto> getProducersWithTradeAndNumberOfProductsProducedGreaterThan(String tradeName, Integer minAmountOfProducts) {
-    return stockRepository
-            .findProducersWithTradeAndNumberOfProducedProductsGreaterThan(tradeName, minAmountOfProducts).stream()
-            .map(ModelMapper::mapProducerToProducerDto).collect(Collectors.toList());
+
+    if (tradeName == null) {
+      throw new AppException("Trade name is null");
+    }
+
+    if (minAmountOfProducts == null) {
+      throw new AppException("Minimum number of products is null");
+    }
+
+    return stockRepository.findStocksWithProducerTradeName(tradeName)
+            .stream().collect(Collectors.collectingAndThen(
+                    Collectors.groupingBy(stock -> stock.getProduct().getProducer(), Collectors.summingInt(Stock::getQuantity)),
+                    map -> map.entrySet().stream().filter(e -> e.getValue() > minAmountOfProducts).map(Map.Entry::getKey)
+                            .map(ModelMapper::mapProducerToProducerDto)
+                            .collect(Collectors.toList())));
   }
 
   public Optional<StockDto> updateStock(StockDto stockDtoToUpdate) {
@@ -247,19 +205,6 @@ public class StockService {
 
   }
 
-  public StockDto specifyProduct(StockDto stockDto) {
-
-    var productList = productRepository.findProductsByNameAndCategory(stockDto.getProductDto().getName(), ModelMapper.mapCategoryDtoToCategory(stockDto.getProductDto().getCategoryDto()))
-            .stream()
-            .map(ModelMapper::mapProductToProductDto)
-            .collect(Collectors.toList());
-
-    stockDto.setProductDto( !productList.isEmpty() ? chooseAvailableProduct(productList) : getProductDtoIfValid(preciseProductDtoDetails(stockDto)));
-
-    return stockDto;
-  }
-
-
   private Optional<StockDto> getStockById(long stockId) {
     return stockRepository.findById(stockId)
             .map(ModelMapper::mapStockToStockDto);
@@ -275,5 +220,24 @@ public class StockService {
 
   public void deleteAllStocks() {
     stockRepository.deleteAll();
+  }
+
+  public Map<ProductDto, Set<ShopDto>> getProductDtoAndShopWithQuantityInStockMoreThan(List<ProductDto> productDtos, Integer quantity) {
+
+    return getAllStocks().stream()
+            .filter(stockDto -> productDtos.contains(stockDto.getProductDto()))
+            .collect(Collectors.collectingAndThen(Collectors.groupingBy(StockDto::getProductDto
+                    , Collectors.collectingAndThen(Collectors.groupingBy(StockDto::getShopDto, Collectors.summingInt(StockDto::getQuantity)),
+                            innerMap -> innerMap.entrySet()
+                                    .stream()
+                                    .filter(innerEntry -> innerEntry.getValue() >= quantity)
+                                    .map(Map.Entry::getKey)
+                                    .collect(Collectors.toSet()))),
+                    map -> map.entrySet()
+                            .stream()
+                            .filter(e -> !e.getValue().isEmpty())
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    Map.Entry::getValue))));
   }
 }

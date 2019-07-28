@@ -69,7 +69,7 @@ public class CustomerService {
 
   }
 
-  Optional<CustomerDto> getCustomerByNameAndSurnameAndCountry(String name, String surname, CountryDto countryDto) {
+  public Optional<CustomerDto> getCustomerByNameAndSurnameAndCountry(String name, String surname, CountryDto countryDto) {
     return customerRepository.findByNameAndSurnameAndCountry(name, surname, ModelMapper.mapCountryDtoToCountry(countryDto))
             .map(ModelMapper::mapCustomerToCustomerDto);
   }
@@ -83,6 +83,7 @@ public class CustomerService {
     if (customerDto == null) {
       throw new AppException("Customer object you wanted to delete is null");
     }
+
 
     customerRepository.deleteCustomer(ModelMapper.mapCustomerDtoToCustomer(customerDto));
   }

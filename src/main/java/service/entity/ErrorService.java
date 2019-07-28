@@ -1,15 +1,17 @@
 package service.entity;
 
 import dto.ErrorDto;
+import exception.AppException;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.ErrorRepository;
 import repository.impl.ErrorRepositoryImpl;
-
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class ErrorService {
 
   private final ErrorRepository errorRepository;
@@ -20,6 +22,9 @@ public class ErrorService {
 
   public Optional<ErrorDto> addErrorToDb(ErrorDto errorDto) {
 
+    if (errorDto == null) {
+      throw new AppException("ErrorDto object is null");
+    }
     return errorRepository
             .addOrUpdate(ModelMapper.mapErrorDtoToError(errorDto))
             .map(ModelMapper::mapErrorToErrorDto);

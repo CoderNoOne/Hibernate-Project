@@ -6,8 +6,11 @@ import domain.Trade;
 
 import repository.abstract_repository.base.CrudRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ProducerRepository extends CrudRepository<Producer, Long> {
   Optional<Producer> findByNameAndTradeAndCountry(String name, Trade trade, Country country);
+
+  List<Producer> findProducersWithTrade(String tradeName);
 }

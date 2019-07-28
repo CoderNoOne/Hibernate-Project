@@ -8,8 +8,6 @@ import validator.impl.CustomerOrderDtoValidator;
 import java.util.stream.Collectors;
 
 import static util.others.UserDataUtils.*;
-import static util.others.UserDataUtils.getLocalDate;
-import static util.others.UserDataUtils.printMessage;
 
 public interface CustomerOrderUtil {
 

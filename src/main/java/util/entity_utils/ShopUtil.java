@@ -1,6 +1,7 @@
 package util.entity_utils;
 
 import dto.CountryDto;
+import dto.ProductDto;
 import dto.ShopDto;
 import dto.StockDto;
 import exception.AppException;
@@ -8,16 +9,12 @@ import util.update.enums.ShopField;
 import validator.impl.ShopDtoValidator;
 
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static util.others.UserDataUtils.*;
 
 public interface ShopUtil {
-
 
   static Map<ShopField, String> getUpdatedFields() {
 
@@ -60,15 +57,23 @@ public interface ShopUtil {
             .build();
   }
 
-  static ShopDto preciseShopDtoDetails(StockDto stockDto) {
+
+  static ShopDto specifyShop(String shopName, List<ShopDto> shopList) {
+
+    return (!shopList.isEmpty() ?
+            chooseAvailableShop(shopList) : getShopDtoIfValid(preciseShopDtoDetails(shopName)));
+  }
+
+
+  static ShopDto preciseShopDtoDetails(String shopName) {
 
     printMessage(String.format("Any shop with specified name:%s exists in a DB. You need to specify more shop details: "
-            , stockDto.getShopDto().getName()));
+            , shopName));
 
     return ShopDto.builder()
-            .name(stockDto.getShopDto().getName())
+            .name(shopName)
             .countryDto(CountryDto.builder()
-                    .name(getString("Input shop country"))
+                    .name(getString("Specify shop country"))
                     .build())
             .build();
   }
@@ -85,11 +90,13 @@ public interface ShopUtil {
     return shopDto;
   }
 
-  static ShopDto chooseAvailableShop(List<ShopDto> shopList) {
+  static ShopDto chooseAvailableShop(Collection<ShopDto> shops) {
 
-    if (shopList.isEmpty()) {
+    if (shops.isEmpty()) {
       throw new AppException("There are no shops which meet specified criteria");
     }
+
+    ArrayList<ShopDto> shopList = new ArrayList<>(shops);
     int shopNumber;
     do {
       printCollectionWithNumeration(shopList.stream().map(ShopDto::getName).collect(Collectors.toList()));

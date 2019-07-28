@@ -58,7 +58,7 @@ public class ProductDtoValidator extends AbstractValidator<ProductDto> {
   }
 
   private boolean areGuaranteeComponentsValid(ProductDto productDto) {
-    return productDto.getGuaranteeComponents() != null && productDto.getGuaranteeComponents().stream().allMatch(new HashSet<>()::add);
+    return productDto.getGuaranteeComponents() == null || productDto.getGuaranteeComponents().stream().allMatch(new HashSet<>()::add);
   }
 
   private CategoryDtoValidator getCategoryDtoValidator(ProductDto productDto) {
