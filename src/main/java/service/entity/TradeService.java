@@ -2,6 +2,7 @@ package service.entity;
 
 import dto.TradeDto;
 import exception.AppException;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.TradeRepository;
 import repository.impl.TradeRepositoryImpl;
@@ -10,16 +11,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class TradeService {
 
   private final TradeRepository tradeRepository;
 
   public TradeService() {
     this.tradeRepository = new TradeRepositoryImpl();
-  }
-
-  public TradeService(TradeRepository tradeRepository) {
-    this.tradeRepository = tradeRepository;
   }
 
   private Optional<TradeDto> addTradeToDb(TradeDto tradeDto) {
@@ -82,7 +80,7 @@ public class TradeService {
     tradeRepository.deleteTradeByName(name);
   }
 
-  public List<TradeDto> getAllTrades(){
+  public List<TradeDto> getAllTrades() {
 
     return tradeRepository
             .findAll()

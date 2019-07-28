@@ -1,24 +1,23 @@
 package service.entity;
 
-import com.sun.xml.bind.v2.TODO;
 import domain.Product;
-import dto.ProducerDto;
-import mapper.ModelMapper;
 import dto.CategoryDto;
+import dto.ProducerDto;
 import dto.ProductDto;
 import exception.AppException;
+import lombok.RequiredArgsConstructor;
+import mapper.ModelMapper;
 import repository.abstract_repository.entity.*;
 import repository.impl.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
-
 
 import static util.entity_utils.ProductUtil.getProductDtoIfValid;
 
+@RequiredArgsConstructor
 public class ProductService {
 
   private final ProductRepository productRepository;
@@ -34,15 +33,6 @@ public class ProductService {
     this.tradeRepository = new TradeRepositoryImpl();
     this.countryRepository = new CountryRepositoryImpl();
   }
-
-  public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProducerRepository producerRepository, TradeRepository tradeRepository, CountryRepository countryRepository) {
-    this.productRepository = productRepository;
-    this.producerRepository = producerRepository;
-    this.categoryRepository = categoryRepository;
-    this.tradeRepository = tradeRepository;
-    this.countryRepository = countryRepository;
-  }
-
 
   private Optional<ProductDto> addProductToDb(ProductDto productDto) {
     return productRepository
@@ -151,13 +141,13 @@ public class ProductService {
     productRepository.deleteAllGuaranteeComponents();
   }
 
-  public List<ProductDto> getProductsByNameAndCategory(String name, CategoryDto categoryDto){
+  public List<ProductDto> getProductsByNameAndCategory(String name, CategoryDto categoryDto) {
 
-    if(name == null){
+    if (name == null) {
       throw new AppException("Product name is null");
     }
 
-    if(categoryDto == null){
+    if (categoryDto == null) {
       throw new AppException("CategoryDto object is null");
     }
 

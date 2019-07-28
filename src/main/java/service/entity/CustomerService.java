@@ -4,6 +4,7 @@ import domain.Customer;
 import dto.CountryDto;
 import dto.CustomerDto;
 import exception.AppException;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.CustomerRepository;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 import static util.entity_utils.CustomerUtil.getCustomerDtoIfValid;
 
-
+@RequiredArgsConstructor
 public class CustomerService {
 
   private final CustomerRepository customerRepository;
@@ -25,12 +26,6 @@ public class CustomerService {
   public CustomerService() {
     this.customerRepository = new CustomerRepositoryImpl();
     this.countryRepository = new CountryRepositoryImpl();
-  }
-
-  public CustomerService(CustomerRepository customerRepository, CountryRepository countryRepository) {
-    this.customerRepository = customerRepository;
-    this.countryRepository = countryRepository;
-
   }
 
   public Optional<CustomerDto> addCustomerToDb(CustomerDto customerDto) {

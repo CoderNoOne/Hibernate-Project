@@ -1,9 +1,9 @@
 package service.entity;
 
-import domain.Shop;
 import dto.CountryDto;
 import dto.ShopDto;
 import exception.AppException;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.abstract_repository.entity.ShopRepository;
@@ -11,17 +11,14 @@ import repository.impl.CountryRepositoryImpl;
 import repository.impl.ShopRepositoryImpl;
 import util.update.enums.ShopField;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static util.entity_utils.ShopUtil.getShopDtoIfValid;
-import static util.entity_utils.ShopUtil.preciseShopDtoDetails;
-import static util.others.UserDataUtils.*;
 
-
+@RequiredArgsConstructor
 public class ShopService {
 
   private final ShopRepository shopRepository;
@@ -31,11 +28,6 @@ public class ShopService {
   public ShopService() {
     this.shopRepository = new ShopRepositoryImpl();
     this.countryRepository = new CountryRepositoryImpl();
-  }
-
-  public ShopService(ShopRepository shopRepository, CountryRepository countryRepository) {
-    this.shopRepository = shopRepository;
-    this.countryRepository = countryRepository;
   }
 
   private ShopDto setShopComponentsFromDbIfTheyExist(ShopDto shopDto) {

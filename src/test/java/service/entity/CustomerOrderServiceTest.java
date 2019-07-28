@@ -1,11 +1,9 @@
 package service.entity;
 
 import domain.*;
+import domain.enums.EGuarantee;
 import domain.enums.Epayment;
-import dto.CountryDto;
-import dto.CustomerDto;
-import dto.CustomerOrderDto;
-import dto.ProductDto;
+import dto.*;
 import exception.AppException;
 import mapper.ModelMapper;
 import org.hamcrest.Matchers;
@@ -22,9 +20,8 @@ import org.mockito.quality.Strictness;
 import repository.abstract_repository.entity.CustomerOrderRepository;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -230,17 +227,20 @@ class CustomerOrderServiceTest {
     ArgumentCaptor<Integer> maxAgeCaptor = ArgumentCaptor.forClass(Integer.class);
 
     List<Product> repositoryMethodResultList = List.of(
+
             Product.builder()
                     .id(1L)
-                    .price(new BigDecimal("300"))
-                    .name("PRODUCT ONE")
+                    .price(new BigDecimal("20"))
+                    .name("PRODUCT TWO")
                     .build(),
 
             Product.builder()
                     .id(2L)
-                    .price(new BigDecimal("20"))
-                    .name("PRODUCT TWO")
+                    .price(new BigDecimal("300"))
+                    .name("PRODUCT ONE")
                     .build()
+
+
     );
     given(customerOrderRepository.findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange(countryNameCaptor.capture(), minAgeCaptor.capture(), maxAgeCaptor.capture()))
             .willReturn(repositoryMethodResultList);
@@ -249,11 +249,180 @@ class CustomerOrderServiceTest {
     //then
     assertDoesNotThrow(() -> {
       List<ProductDto> actualProductDtoList = customerOrderService.getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinRangeAndSortedByPriceDescOrder(countryName, minAge, maxAge);
-      assertThat(actualProductDtoList,is(equalTo(repositoryMethodResultList.stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.toList()))));
+      assertThat(actualProductDtoList, is(equalTo(repositoryMethodResultList.stream().map(ModelMapper::mapProductToProductDto).sorted(Comparator.comparing(ProductDto::getPrice).reversed()).collect(Collectors.toList()))));
+      assertThat(actualProductDtoList.get(0).getPrice(), is(equalTo(new BigDecimal("300"))));
+      assertThat(actualProductDtoList.get(1).getPrice(), is(equalTo(new BigDecimal("20"))));
     });
 
     then(customerOrderRepository).should(times(1)).findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange("USA", 20, 300);
   }
 
-  
+
+  @Test
+  @DisplayName("getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory: argument object is null. Method should throw an exception")
+  void test8() {
+
+    //given
+    String expectedExceptionMessage = "guaranteeComponents collection object is null";
+    Set<EGuarantee> guaranteeComponents = null;
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> customerOrderService.getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(null));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(customerOrderRepository).should(never()).findProductsWithActiveWarranty();
+  }
+
+  @Test
+  @DisplayName("getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory: valid argument - exception shouldn't be thrown")
+  void test9() {
+
+    //given
+    Set<EGuarantee> guaranteeComponents = Set.of(EGuarantee.SERVICE, EGuarantee.HELP_DESK);
+    Map<String, List<ProductDto>> expectedResult = Map.of(
+
+            "CATEGORY ONE", List.of(
+                    ProductDto.builder()
+                            .id(1L)
+                            .name("PRODUCT ONE")
+                            .categoryDto(CategoryDto.builder()
+                                    .name("CATEGORY ONE")
+                                    .build())
+                            .guaranteeComponents(List.of(
+                                    EGuarantee.SERVICE
+                            ))
+                            .build()),
+
+            "CATEGORY TWO", List.of(ProductDto.builder()
+                    .id(2L)
+                    .name("PRODUCT TWO")
+                    .categoryDto(CategoryDto.builder()
+                            .name("CATEGORY TWO")
+                            .build())
+                    .guaranteeComponents(List.of(
+                            EGuarantee.HELP_DESK
+                    ))
+                    .build()),
+
+            "CATEGORY THREE", List.of(
+                    ProductDto.builder()
+                            .name("PRODUCT THREE")
+                            .id(3L)
+                            .categoryDto(CategoryDto.builder()
+                                    .name("CATEGORY THREE")
+                                    .build())
+                            .guaranteeComponents(List.of(EGuarantee.HELP_DESK))
+                            .build(),
+
+                    ProductDto.builder()
+                            .name("PRODUCT FOUR")
+                            .categoryDto(CategoryDto.builder()
+                                    .name("CATEGORY THREE")
+                                    .build())
+                            .id(4L)
+                            .guaranteeComponents(List.of(
+                                    EGuarantee.HELP_DESK, EGuarantee.EXCHANGE, EGuarantee.MONEY_BACK))
+                            .build())
+
+    );
+
+    List<CustomerOrder> mockResult = List.of(
+
+            CustomerOrder.builder()
+                    .id(1L)
+                    .product(Product.builder()
+                            .name("PRODUCT THREE")
+                            .category(Category.builder().name("CATEGORY THREE").build())
+                            .id(3L)
+                            .guaranteeComponents(List.of(
+                                    EGuarantee.HELP_DESK
+                            ))
+                            .build()
+                    )
+                    .build(),
+
+            CustomerOrder.builder()
+                    .id(2L)
+                    .product(Product.builder()
+                            .name("PRODUCT FIVE")
+                            .category(Category.builder().name("CATEGORY FIVE").build())
+                            .id(5L)
+                            .guaranteeComponents(List.of(
+                                    EGuarantee.EXCHANGE
+                            ))
+                            .build()
+                    )
+                    .build(),
+
+            CustomerOrder.builder()
+                    .id(3L)
+                    .product(Product.builder()
+                            .name("PRODUCT ONE")
+                            .category(Category.builder().name("CATEGORY ONE").build())
+                            .id(1L)
+                            .guaranteeComponents(List.of(
+                                    EGuarantee.SERVICE))
+                            .build())
+                    .build(),
+
+            CustomerOrder.builder()
+                    .id(4L)
+                    .product(Product.builder()
+                            .id(2L)
+                            .name("PRODUCT TWO")
+                            .category(Category.builder().name("CATEGORY TWO").build())
+                            .guaranteeComponents(List.of(
+                                    EGuarantee.HELP_DESK))
+                            .build())
+                    .build(),
+
+            CustomerOrder.builder()
+                    .id(5L)
+                    .product(Product.builder()
+                            .id(4L)
+                            .name("PRODUCT FOUR")
+                            .category(Category.builder().name("CATEGORY THREE").build())
+                            .guaranteeComponents(List.of(
+                                    EGuarantee.HELP_DESK, EGuarantee.EXCHANGE, EGuarantee.MONEY_BACK))
+                            .build())
+                    .build()
+
+    );
+
+
+    given(customerOrderRepository.findProductsWithActiveWarranty())
+            .willReturn(mockResult);
+
+    //when
+    //then
+//    assertDoesNotThrow(() -> {
+    Map<String, List<ProductDto>> actualResult = customerOrderService.getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(guaranteeComponents);
+    assertThat(actualResult, is(equalTo(expectedResult)));
+//    });
+    then(customerOrderRepository).should(times(1)).findProductsWithActiveWarranty();
+  }
+
+  @Test
+  @DisplayName("getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan")
+  void test10() {
+
+    //given
+    LocalDate minDate = LocalDate.of(2010, 5, 10);
+    LocalDate maxDate = LocalDate.of(2017, 6, 22);
+    String val;
+    BigDecimal minPriceAfterDiscount = new BigDecimal("1000");
+
+    ArgumentCaptor<LocalDate> minDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<LocalDate> maxDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<BigDecimal> minPriceAfterDiscountCaptor = ArgumentCaptor.forClass(BigDecimal.class);
+// TODO: 2019-07-28
+    given(customerOrderRepository
+            .findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDateCaptor.capture(), maxDateCaptor.capture(), minPriceAfterDiscountCaptor.capture()))
+            .willReturn(List.of(
+
+
+            ));
+    //when
+    //then
+  }
 }

@@ -100,7 +100,9 @@ public class CustomerOrderService {
             .collect(Collectors.toList());
   }
 
-  public List<CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThanSpecified(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
+  // TODO: 2019-07-28 test
+  public List<CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
+
     return customerOrderRepository.
             findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount)
             .stream()
@@ -110,10 +112,15 @@ public class CustomerOrderService {
 
   public Map<String, List<ProductDto>> getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(Set<EGuarantee> guaranteeComponents) {
 
+    if (guaranteeComponents == null) {
+      throw new AppException("guaranteeComponents collection object is null");
+    }
     return customerOrderRepository.findProductsWithActiveWarranty()
-            .stream().filter(customerOrder -> guaranteeComponents.isEmpty() || customerOrder.getProduct().getGuaranteeComponents().stream().anyMatch(guaranteeComponents::contains))
-            .map(customerOrder -> ModelMapper.mapProductToProductDto(customerOrder.getProduct()))
-            .collect(Collectors.groupingBy(ProductDto::getName));
+            .stream()
+            .map(ModelMapper::mapCustomerOrderToCustomerOrderDto)
+            .filter(customerOrder -> guaranteeComponents.isEmpty() || customerOrder.getProduct().getGuaranteeComponents().stream().anyMatch(guaranteeComponents::contains))
+            .map(CustomerOrderDto::getProduct)
+            .collect(Collectors.groupingBy(productDto -> productDto.getCategoryDto().getName()));
   }
 
 

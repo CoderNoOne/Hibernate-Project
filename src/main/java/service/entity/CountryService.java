@@ -2,6 +2,7 @@ package service.entity;
 
 import dto.CountryDto;
 import exception.AppException;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.CountryRepository;
 import repository.impl.CountryRepositoryImpl;
@@ -11,16 +12,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class CountryService {
 
   private final CountryRepository countryRepository;
 
   public CountryService() {
     this.countryRepository = new CountryRepositoryImpl();
-  }
-
-  public CountryService(CountryRepository countryRepository) {
-    this.countryRepository = countryRepository;
   }
 
   public Optional<CountryDto> addCountryToDb(CountryDto countryDto) {

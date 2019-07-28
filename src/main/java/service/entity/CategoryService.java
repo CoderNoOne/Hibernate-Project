@@ -2,6 +2,7 @@ package service.entity;
 
 import dto.CategoryDto;
 import exception.AppException;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.CategoryRepository;
 import repository.impl.CategoryRepositoryImpl;
@@ -10,16 +11,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
 
   public CategoryService() {
     this.categoryRepository = new CategoryRepositoryImpl();
-  }
-
-  public CategoryService(CategoryRepository categoryRepository) {
-    this.categoryRepository = categoryRepository;
   }
 
   public Optional<CategoryDto> addCategoryToDb(CategoryDto categoryDto) {

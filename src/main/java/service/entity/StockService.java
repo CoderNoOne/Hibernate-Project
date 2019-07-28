@@ -6,6 +6,8 @@ import dto.ProductDto;
 import dto.ShopDto;
 import dto.StockDto;
 import exception.AppException;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import mapper.ModelMapper;
 import repository.abstract_repository.entity.*;
 import repository.impl.*;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static util.entity_utils.StockUtil.getStockDtoIfValid;
 
+@RequiredArgsConstructor
 public class StockService {
 
   private final StockRepository stockRepository;
@@ -39,17 +42,6 @@ public class StockService {
     this.producerRepository = new ProducerRepositoryImpl();
     this.tradeRepository = new TradeRepositoryImpl();
   }
-
-  public StockService(StockRepository stockRepository, ShopRepository shopRepository, ProductRepository productRepository, CountryRepository countryRepository, CategoryRepository categoryRepository, ProducerRepository producerRepository, TradeRepository tradeRepository) {
-    this.stockRepository = stockRepository;
-    this.shopRepository = shopRepository;
-    this.productRepository = productRepository;
-    this.countryRepository = countryRepository;
-    this.categoryRepository = categoryRepository;
-    this.producerRepository = producerRepository;
-    this.tradeRepository = tradeRepository;
-  }
-
 
   private Optional<StockDto> addStockToDb(StockDto stockDto) {
     return stockRepository.addOrUpdate(ModelMapper.mapStockDtoToStock(stockDto))
