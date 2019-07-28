@@ -6,7 +6,6 @@ import dto.CategoryDto;
 import exception.AppException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
@@ -26,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
 
 @Tag("Services")
 @ExtendWith(MockitoExtension.class)
@@ -229,5 +228,4 @@ class CategoryServiceTest {
             .map(String::valueOf)
             .collect(Collectors.joining());
   }
-
 }

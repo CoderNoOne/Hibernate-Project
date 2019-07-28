@@ -1,8 +1,7 @@
 package service.entity;
 
 import domain.*;
-import dto.ProducerDto;
-import dto.StockDto;
+import dto.*;
 import exception.AppException;
 import mapper.ModelMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.STRICT_STUBS)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @Tag("Services")
 @DisplayName("Test cases for StockService")
 class StockServiceTest {
@@ -344,6 +343,190 @@ class StockServiceTest {
       assertThat(actualStockList, is(equalTo(expecetedResultList)));
     });
 
+    then(stockRepository).should(never()).findById(anyLong());
     then(stockRepository).should(times(1)).findAll();
+  }
+
+  @Test
+  @DisplayName("update stock: object stockDto argument is null -> exception should be thrown")
+  void test6() {
+
+    //given
+    StockDto stockDtoToUpdate = null;
+    String expectedExceptionMessage = "StockDto object is null";
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> stockService.updateStock(stockDtoToUpdate));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(stockRepository).should(never()).findById(anyLong());
+    then(stockRepository).should(never()).addOrUpdate(any());
+
+  }
+
+  @Test
+  @DisplayName("update stock: stockDto id is null -> exception should be thrown")
+  void test7() {
+
+    //given
+    StockDto stockDtoToUpdate = StockDto.builder()
+            .quantity(10)
+            .build();
+
+    String expectedExceptionMessage = "Stock id is null - Stock is not in db yet";
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> stockService.updateStock(stockDtoToUpdate));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(stockRepository).should(never()).findById(anyLong());
+    then(stockRepository).should(never()).addOrUpdate(any());
+  }
+
+  @Test
+  @DisplayName("udpate stock stock not yet in DB - exception should be thrownn")
+  void test8() {
+
+    //given
+    StockDto stockDtoToUpdate = StockDto.builder()
+            .id(2L)
+            .quantity(20)
+            .build();
+
+    String expectedExceptionMessage = "Stock with id: " + stockDtoToUpdate.getId() + " doesn't exist in DB yet";
+    given(stockRepository.findById(stockDtoToUpdate.getId())).willReturn(Optional.empty());
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> stockService.updateStock(stockDtoToUpdate));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+
+    then(stockRepository).should(times(1)).findById(stockDtoToUpdate.getId());
+    then(stockRepository).should(never()).addOrUpdate(any());
+  }
+
+  @Test
+  @DisplayName("udpate stock proper arguments")
+  void test9() {
+
+    //given
+    StockDto stockDtoToUpdateArgument = StockDto.builder()
+            .id(2L)
+            .quantity(20)
+            .build();
+
+    Stock stockFromDb = Stock.builder()
+            .id(2L)
+            .quantity(30)
+            .product(Product.builder()
+                    .id(1L)
+                    .name("PRODUCT")
+                    .category(Category.builder()
+                            .id(1L)
+                            .name("CATEGORY")
+                            .build())
+                    .price(new BigDecimal("500"))
+                    .producer(Producer.builder()
+                            .id(10L)
+                            .name("PRODUCER")
+                            .country(Country.builder()
+                                    .name("COUNTRY")
+                                    .build())
+                            .trade(Trade.builder()
+                                    .name("TRADE")
+                                    .build())
+                            .build())
+                    .build())
+            .shop(Shop.builder()
+                    .id(1L)
+                    .name("SHOP")
+                    .country(Country.builder()
+                            .name("COUNTRY")
+                            .build())
+                    .build())
+            .build();
+
+    StockDto stockDto = StockDto.builder()
+            .id(2L)
+            .quantity(20)
+            .productDto(ProductDto.builder()
+                    .id(1L)
+                    .name("PRODUCT")
+                    .categoryDto(CategoryDto.builder()
+                            .id(1L)
+                            .name("CATEGORY")
+                            .build())
+                    .price(new BigDecimal("500"))
+                    .producerDto(ProducerDto.builder()
+                            .id(10L)
+                            .name("PRODUCER")
+                            .country(CountryDto.builder()
+                                    .name("COUNTRY")
+                                    .build())
+                            .trade(TradeDto.builder()
+                                    .name("TRADE")
+                                    .build())
+                            .build())
+                    .build())
+            .shopDto(ShopDto.builder()
+                    .id(1L)
+                    .name("SHOP")
+                    .countryDto(CountryDto.builder()
+                            .name("COUNTRY")
+                            .build())
+                    .build())
+            .build();
+
+    Optional<StockDto> expectedResult = Optional.of(StockDto.builder()
+            .id(2L)
+            .quantity(30)
+            .productDto(ProductDto.builder()
+                    .id(1L)
+                    .name("PRODUCT")
+                    .categoryDto(CategoryDto.builder()
+                            .id(1L)
+                            .name("CATEGORY")
+                            .build())
+                    .price(new BigDecimal("500"))
+                    .producerDto(ProducerDto.builder()
+                            .id(10L)
+                            .name("PRODUCER")
+                            .country(CountryDto.builder()
+                                    .name("COUNTRY")
+                                    .build())
+                            .trade(TradeDto.builder()
+                                    .name("TRADE")
+                                    .build())
+                            .build())
+                    .build())
+            .shopDto(ShopDto.builder()
+                    .id(1L)
+                    .name("SHOP")
+                    .countryDto(CountryDto.builder()
+                            .name("COUNTRY")
+                            .build())
+                    .build())
+            .build());
+
+    given(stockRepository.findById(stockDtoToUpdateArgument.getId())).willReturn(Optional.of(stockFromDb));
+
+    given(stockRepository.addOrUpdate(ModelMapper.mapStockDtoToStock(stockDto)))
+            .willReturn(Optional.of(stockFromDb));
+    //when
+    //then
+
+    assertDoesNotThrow(() -> {
+      Optional<StockDto> actualResult = stockService.updateStock(stockDtoToUpdateArgument);
+      assertThat(actualResult, is(equalTo(expectedResult)));
+    });
+    InOrder inOrder = inOrder(stockRepository);
+    inOrder.verify(stockRepository, times(1)).findById(stockDtoToUpdateArgument.getId());
+    inOrder.verify(stockRepository, times(1)).addOrUpdate(ModelMapper.mapStockDtoToStock(stockDto));
+
+    then(shopRepository).should(times(1)).findShopByNameAndCountry(stockDto.getShopDto().getName(), stockDto.getShopDto().getCountryDto().getName());
+    then(countryRepository).should(times(2)).findCountryByName(stockDto.getShopDto().getCountryDto().getName());
+    then(productRepository).should(times(1)).findByNameAndCategoryAndProducer(stockDto.getProductDto().getName(),
+            ModelMapper.mapCategoryDtoToCategory(stockDto.getProductDto().getCategoryDto()), ModelMapper.mapProducerDtoToProducer(stockDto.getProductDto().getProducerDto()));
+    then(producerRepository).should(times(1)).findByNameAndTradeAndCountry(stockDto.getProductDto().getProducerDto().getName(),
+            ModelMapper.mapTradeDtoToTrade(stockDto.getProductDto().getProducerDto().getTrade()), ModelMapper.mapCountryDtoToCountry(stockDto.getProductDto().getProducerDto().getCountry()));
+    then(categoryRepository).should(times(1)).findCategoryByName(stockDto.getProductDto().getCategoryDto().getName());
+    then(tradeRepository).should(times(1)).findTradeByName(stockDto.getProductDto().getProducerDto().getTrade().getName());
   }
 }
