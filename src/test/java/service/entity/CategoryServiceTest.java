@@ -4,6 +4,7 @@ import domain.*;
 import domain.enums.EGuarantee;
 import dto.CategoryDto;
 import exception.AppException;
+import mapper.ModelMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,7 +26,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 @Tag("Services")
 @ExtendWith(MockitoExtension.class)
@@ -88,6 +94,7 @@ class CategoryServiceTest {
     assertThat(categoryDtoByName.isPresent(), is(true));
     assertThat(categoryDtoByName, equalTo(Optional.of(
             CategoryDto.builder().id(1L).name("COMPUTERS").build())));
+    then(categoryRepository).should(times(1)).findCategoryByName("COMPUTERS");
   }
 
   @Test
@@ -106,6 +113,7 @@ class CategoryServiceTest {
 
     //then
     assertThat(categoryDtoResult, equalTo(Optional.of(CategoryDto.builder().id(1L).name("COMPUTERS").build())));
+    then(categoryRepository).should(times(1)).addOrUpdate(ModelMapper.mapCategoryDtoToCategory(categoryDto));
   }
 
   @Test
@@ -121,6 +129,7 @@ class CategoryServiceTest {
             = assertThrows(AppException.class, () -> categoryService.addCategoryToDb(categoryDto));
 
     assertThat(appException.getMessage(), equalTo("Category is null"));
+    then(categoryRepository).should(never()).addOrUpdate(any());
   }
 
   @Test
@@ -134,6 +143,7 @@ class CategoryServiceTest {
     //then
     AppException appException = assertThrows(AppException.class, () -> categoryService.addCategoryToDb(CategoryDto.builder().id(1L).name("COMPUTERS").build()));
     assertThat(appException.getMessage(), equalTo("Category is not unique by name: " + "COMPUTERS"));
+    then(categoryRepository).should(times(1)).findCategoryByName("COMPUTERS");
   }
 
 
@@ -148,7 +158,8 @@ class CategoryServiceTest {
     CategoryDto categoryDto = categoryService.getCategoryFromDbIfExists(CategoryDto.builder().name("COMPUTERS").build());
 
     //then
-    assertEquals(categoryDto, CategoryDto.builder().id(1L).name("COMPUTERS").build());
+    assertThat(categoryDto, is(equalTo(CategoryDto.builder().id(1L).name("COMPUTERS").build())));
+    then(categoryRepository).should(times(1)).findCategoryByName("COMPUTERS");
   }
 
   @Test
@@ -162,7 +173,22 @@ class CategoryServiceTest {
     CategoryDto categoryDto = categoryService.getCategoryFromDbIfExists(CategoryDto.builder().name("COMPUTERS").build());
 
     //then
-    assertEquals(categoryDto, CategoryDto.builder().name("COMPUTERS").build());
+    assertThat(categoryDto, is(equalTo(CategoryDto.builder().name("COMPUTERS").build())));
+    then(categoryRepository).should(times(1)).findCategoryByName("COMPUTERS");
+  }
+
+  @Test
+  @DisplayName("get category from DB - categoryDto object is null")
+  void test10() {
+
+    //given
+    CategoryDto categoryDto = null;
+    String expectedExceptionMessage = "CategoryDto is null";
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> categoryService.getCategoryFromDbIfExists(categoryDto));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
 
   }
 
@@ -182,6 +208,7 @@ class CategoryServiceTest {
     assertThat(allCategories, hasSize(1));
     assertThat(allCategories.get(0).getName(), equalTo("COMPUTERS"));
     assertThat(allCategories.get(0).getId(), is(1L));
+    then(categoryRepository).should(times(1)).findAll();
 
   }
 
@@ -191,13 +218,13 @@ class CategoryServiceTest {
   void test8(String name) {
 
     //given
-    String expectedExceptionMessage = "Category name is null/ undefined: " + name;
+    String expectedExceptionMessage = String.format("Category name is null/ undefined: %s", name);
 
     //when
     //then
     AppException appException = assertThrows(AppException.class, () -> categoryService.deleteCategoryByName(name));
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
-
+    then(categoryRepository).should(never()).deleteById(anyLong());
   }
 
   @TestFactory

@@ -2,7 +2,6 @@ package validator.impl;
 
 import domain.enums.EGuarantee;
 import dto.*;
-import org.hibernate.cache.spi.access.CollectionDataAccess;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -16,7 +15,6 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("Validators")
 @DisplayName("Test cases for ProductDtoValidator")

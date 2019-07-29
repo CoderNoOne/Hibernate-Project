@@ -111,7 +111,6 @@ class StockDtoValidatorTest {
     Map<String, String> expectedErrors = Map.of(
             "Product name", "Product name should contain only capital letters and optionally a whitespace between letters",
             "Product price", "Product price should be greater than 0",
-            "Guarantee components", "Guarantee components should be unique",
             "Producer object", "Producer object is null",
             "Category object", "Category object is null"
     );

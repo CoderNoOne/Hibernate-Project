@@ -52,6 +52,7 @@ class ErrorServiceTest {
     ErrorDto errorDto = null;
     String expectedExceptionMessage = "ErrorDto object is null";
 
+
     //when
     //then
     AppException appException = assertThrows(AppException.class, () -> errorService.addErrorToDb(errorDto));
@@ -84,7 +85,6 @@ class ErrorServiceTest {
 
     //when
     //then
-
     assertDoesNotThrow(() -> {
       Optional<ErrorDto> actualResult = errorService.addErrorToDb(errorDto);
       assertThat(actualResult, is(equalTo(expectedResult)));
@@ -124,7 +124,7 @@ class ErrorServiceTest {
     //then
     assertDoesNotThrow(() -> {
       List<ErrorDto> actualErrors = errorService.getAllErrors();
-      assertThat(actualErrors,is(equalTo(expectedResult)));
+      assertThat(actualErrors, is(equalTo(expectedResult)));
     });
 
     then(errorRepository).should(times(1)).findAll();

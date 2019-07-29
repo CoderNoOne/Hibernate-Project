@@ -57,6 +57,10 @@ public class CategoryService {
   }
 
   CategoryDto getCategoryFromDbIfExists(CategoryDto categoryDto) {
+
+    if (categoryDto == null) {
+      throw new AppException("CategoryDto is null");
+    }
     return getCategoryByName(categoryDto.getName()).orElse(categoryDto);
   }
 

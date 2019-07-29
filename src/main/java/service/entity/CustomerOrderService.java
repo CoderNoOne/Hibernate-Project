@@ -100,9 +100,15 @@ public class CustomerOrderService {
             .collect(Collectors.toList());
   }
 
-  // TODO: 2019-07-28 test
   public List<CustomerOrderDto> getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan(LocalDate minDate, LocalDate maxDate, BigDecimal minPriceAfterDiscount) {
 
+    if (minDate == null || maxDate == null || minPriceAfterDiscount == null) {
+      throw new AppException(String.format("At least one of the method arguments's not valid: minDate:%s maxDate: %s minPriceAfterDiscount: %s", minDate, maxDate, minPriceAfterDiscount));
+    }
+
+    if (minDate.compareTo(maxDate) > 0) {
+      throw new AppException("minDate: " + minDate + " is after maxDate: " + maxDate);
+    }
     return customerOrderRepository.
             findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount)
             .stream()
@@ -131,11 +137,10 @@ public class CustomerOrderService {
     }
 
     return customerOrderRepository.findProductsOrderedByCustomer(customerName, customerSurname, countryName)
-            .stream().collect(Collectors.groupingBy(customerOrder -> customerOrder.getProduct().getProducer(),
-                    Collectors.mapping(CustomerOrder::getProduct, Collectors.toList())))
-            .entrySet().stream().collect(Collectors.toMap(
-                    e -> ModelMapper.mapProducerToProducerDto(e.getKey()),
-                    e -> e.getValue().stream().map(ModelMapper::mapProductToProductDto).collect(Collectors.toList())));
+            .stream()
+            .map(ModelMapper::mapCustomerOrderToCustomerOrderDto)
+            .collect(Collectors.groupingBy(c ->c.getProduct().getProducerDto(),
+                    Collectors.mapping(CustomerOrderDto::getProduct, Collectors.toList())));
   }
 
 

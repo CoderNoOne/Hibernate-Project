@@ -29,8 +29,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
@@ -163,24 +162,124 @@ class CustomerOrderServiceTest {
 
   }
 
-//  @Test
-//  @DisplayName("getProductsOrderedByCustomerGroupedByProducer - proper argument should not throw an exception")
-//  void test5(){
-//
-//    //given
-//    given(customerOrderRepository.findProductsOrderedByCustomer(isNotNull(), isNotNull(), isNotNull()))
-//            .willReturn(Map.ofEntries(
-//                    Map.entry(ProducerDto.builder().id(1L).name("KOTLIN").trade(TradeDto.builder().id(1L).name("FOOD").build()).build(), );
-//
-//    //when
-//    //then
-//     Assertions.assertDoesNotThrow(() -> customerOrderService.getProductsOrderedByCustomerGroupedByProducer("JOHN", "SMITH", "ENGLAND"));
-//
-//  }
+  @Test
+  @DisplayName("getProductsOrderedByCustomerGroupedByProducer - proper argument should not throw an exception")
+  void test5() {
+
+    // TODO: 2019-07-29
+    //given
+    Customer customer = Customer.builder()
+            .id(1L)
+            .name("JOHN")
+            .surname("SMITH")
+            .age(30)
+            .country(Country.builder()
+                    .id(1L)
+                    .name("USA")
+                    .build())
+            .build();
+    List<CustomerOrder> returnValue = List.of(
+            CustomerOrder.builder()
+                    .id(1L)
+                    .quantity(10)
+                    .customer(Customer.builder()
+                            .id(1L)
+                            .name("JOHN")
+                            .surname("SMITH")
+                            .age(30)
+                            .country(Country.builder()
+                                    .id(1L)
+                                    .name("USA")
+                                    .build())
+                            .build())
+                    .date(LocalDate.of(2020, 10, 20))
+                    .discount(new BigDecimal("0.2"))
+                    .payment(Payment.builder()
+                            .id(1L)
+                            .epayment(Epayment.CARD)
+                            .build())
+                    .product(Product.builder()
+                            .id(1L)
+                            .name("PRODUCT ONE")
+                            .price(new BigDecimal("500"))
+                            .producer(Producer.builder()
+                                    .id(1L)
+                                    .name("PRODUCER ONE")
+                                    .build())
+                            .build())
+                    .build(),
+
+            CustomerOrder.builder()
+                    .id(2L)
+                    .quantity(30)
+                    .customer(customer)
+                    .date(LocalDate.of(2019, 6, 14))
+                    .discount(new BigDecimal("0.1"))
+                    .payment(Payment.builder()
+                            .id(2L)
+                            .epayment(Epayment.CASH)
+                            .build())
+                    .product(Product.builder()
+                            .id(2L)
+                            .name("PRODUCT TWO")
+                            .price(new BigDecimal("800"))
+                            .producer(Producer.builder()
+                                    .id(2L)
+                                    .name("PRODUCER TWO")
+                                    .build())
+                            .build())
+                    .build()
+
+    );
+    given(customerOrderRepository.findProductsOrderedByCustomer(customer.getName(), customer.getSurname(), customer.getCountry().getName()))
+            .willReturn(returnValue);
+
+    Map<ProducerDto, List<ProductDto>> expectedResultMap = Map.of(
+            ProducerDto.builder()
+                    .id(1L)
+                    .name("PRODUCER ONE")
+                    .build(),
+            List.of(
+                    ProductDto.builder()
+                            .id(1L)
+                            .name("PRODUCT ONE")
+                            .price(new BigDecimal("500"))
+                            .producerDto(ProducerDto.builder()
+                                    .id(1L)
+                                    .name("PRODUCER ONE")
+                                    .build())
+                            .build()
+            ),
+            ProducerDto.builder()
+                    .id(2L)
+                    .name("PRODUCER TWO")
+                    .build(),
+            List.of(
+                    ProductDto.builder()
+                            .id(2L)
+                            .name("PRODUCT TWO")
+                            .price(new BigDecimal("800"))
+                            .producerDto(ProducerDto.builder()
+                                    .id(2L)
+                                    .name("PRODUCER TWO")
+                                    .build())
+                            .build()
+            )
+    );
+
+    //when
+    //then
+    assertDoesNotThrow(() -> {
+      Map<ProducerDto, List<ProductDto>> actualResult = customerOrderService.getProductsOrderedByCustomerGroupedByProducer(customer.getName(), customer.getSurname(), customer.getCountry().getName());
+      assertThat(actualResult, is(equalTo(expectedResultMap)));
+    });
+
+    then(customerOrderRepository).should(times(1)).findProductsOrderedByCustomer(customer.getName(), customer.getSurname(), customer.getCountry().getName());
+  }
 
   @Test
   @DisplayName("getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinRangeAndSortedByPriceDescOrder")
-  void test5() {
+  void test6() {
 
     //given
     String countryName = null;
@@ -190,7 +289,6 @@ class CustomerOrderServiceTest {
 
     //when
     //then
-
     AppException appException = assertThrows(AppException.class, () -> customerOrderService.getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinRangeAndSortedByPriceDescOrder(countryName, minAge, maxAge));
     assertThat(appException.getMessage(), Matchers.is(equalTo(expectedExceptionMessage)));
     then(customerOrderRepository).should(never()).findProductsOrderedByCustomersFromCountryAndWithAgeWithinRange(anyString(), anyInt(), anyInt());
@@ -198,7 +296,7 @@ class CustomerOrderServiceTest {
 
   @Test
   @DisplayName("getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinRangeAndSortedByPriceDescOrder: case -> minAge is greater than maxAge")
-  void test6() {
+  void test7() {
 
     //given
     String countryName = "USA";
@@ -215,7 +313,7 @@ class CustomerOrderServiceTest {
 
   @Test
   @DisplayName("getDistinctProductsOrderedByCustomerFromCountryAndWithAgeWithinRangeAndSortedByPriceDescOrder: case -> proper input values")
-  void test7() {
+  void test8() {
 
     //given
     String countryName = "USA";
@@ -260,7 +358,7 @@ class CustomerOrderServiceTest {
 
   @Test
   @DisplayName("getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory: argument object is null. Method should throw an exception")
-  void test8() {
+  void test9() {
 
     //given
     String expectedExceptionMessage = "guaranteeComponents collection object is null";
@@ -275,7 +373,7 @@ class CustomerOrderServiceTest {
 
   @Test
   @DisplayName("getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory: valid argument - exception shouldn't be thrown")
-  void test9() {
+  void test10() {
 
     //given
     Set<EGuarantee> guaranteeComponents = Set.of(EGuarantee.SERVICE, EGuarantee.HELP_DESK);
@@ -395,34 +493,145 @@ class CustomerOrderServiceTest {
 
     //when
     //then
-//    assertDoesNotThrow(() -> {
-    Map<String, List<ProductDto>> actualResult = customerOrderService.getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(guaranteeComponents);
-    assertThat(actualResult, is(equalTo(expectedResult)));
-//    });
+    assertDoesNotThrow(() -> {
+      Map<String, List<ProductDto>> actualResult = customerOrderService.getProductsWithActiveWarrantyAndWithSpecifiedGuaranteeComponentsGroupedByCategory(guaranteeComponents);
+      assertThat(actualResult, is(equalTo(expectedResult)));
+    });
     then(customerOrderRepository).should(times(1)).findProductsWithActiveWarranty();
+  }
+
+
+  @Test
+  @DisplayName("getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan. Not valid arguments. Proper exception should be thrown")
+  void test11() {
+
+    //given
+    LocalDate minDate = null;
+    LocalDate maxDate = null;
+    BigDecimal minPriceAfterDiscount = new BigDecimal("300");
+    String expectedExceptionMessage = String.format("At least one of the method arguments's not valid: minDate:%s maxDate: %s minPriceAfterDiscount: %s", minDate, maxDate, minPriceAfterDiscount);
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> customerOrderService.getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(customerOrderRepository).should(never()).findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount);
+  }
+
+  @Test
+  @DisplayName("getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan: minDate is after maxDate")
+  void test12() {
+
+    //given
+    LocalDate minDate = LocalDate.of(2020, 10, 20);
+    LocalDate maxDate = LocalDate.of(2019, 5, 10);
+
+    BigDecimal minPriceAfterDiscount = new BigDecimal("300");
+    String expectedExceptionMessage = String.format("minDate: " + minDate + " is after maxDate: " + maxDate);
+
+    //when
+    //then
+    AppException appException = assertThrows(AppException.class, () -> customerOrderService.getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount));
+    assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
+    then(customerOrderRepository).should(never()).findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount);
   }
 
   @Test
   @DisplayName("getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan")
-  void test10() {
+  void test13() {
 
     //given
     LocalDate minDate = LocalDate.of(2010, 5, 10);
     LocalDate maxDate = LocalDate.of(2017, 6, 22);
-    String val;
     BigDecimal minPriceAfterDiscount = new BigDecimal("1000");
 
-    ArgumentCaptor<LocalDate> minDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
-    ArgumentCaptor<LocalDate> maxDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
-    ArgumentCaptor<BigDecimal> minPriceAfterDiscountCaptor = ArgumentCaptor.forClass(BigDecimal.class);
-// TODO: 2019-07-28
+
+    List<CustomerOrder> returnValue = List.of(
+            CustomerOrder.builder()
+                    .id(1L)
+                    .quantity(10)
+                    .date(LocalDate.of(2012, 6, 13))
+                    .customer(Customer.builder()
+                            .id(1L)
+                            .name("JOHN")
+                            .surname("STONE")
+                            .age(30)
+                            .country(Country.builder()
+                                    .id(2L)
+                                    .name("USA")
+                                    .build())
+                            .build())
+                    .discount(new BigDecimal(0.1))
+                    .payment(Payment.builder()
+                            .id(1L)
+                            .epayment(Epayment.CARD)
+                            .build())
+                    .product(Product.builder()
+                            .name("PRODUCT ONE")
+                            .id(1L)
+                            .price(new BigDecimal("2000"))
+                            .producer(Producer.builder()
+                                    .id(1L)
+                                    .country(Country.builder()
+                                            .id(1L)
+                                            .name("ENGLAND")
+                                            .build())
+                                    .trade(Trade.builder()
+                                            .id(1L)
+                                            .name("TRADE ONE")
+                                            .build())
+                                    .build())
+                            .build())
+                    .build(),
+
+            CustomerOrder.builder()
+                    .id(2L)
+                    .quantity(35)
+                    .date(LocalDate.of(2015, 2, 16))
+                    .customer(Customer.builder()
+                            .id(3L)
+                            .name("ALICE")
+                            .surname("DRINKWATER")
+                            .age(55)
+                            .country(Country.builder()
+                                    .id(2L)
+                                    .name("USA")
+                                    .build())
+                            .build())
+                    .discount(new BigDecimal(0.3))
+                    .payment(Payment.builder()
+                            .id(2L)
+                            .epayment(Epayment.MONEY_TRANSFER)
+                            .build())
+                    .product(Product.builder()
+                            .name("PRODUCT TWO")
+                            .id(2L)
+                            .price(new BigDecimal("5000"))
+                            .producer(Producer.builder()
+                                    .id(2L)
+                                    .country(Country.builder()
+                                            .id(5L)
+                                            .name("POLAND")
+                                            .build())
+                                    .trade(Trade.builder()
+                                            .id(2L)
+                                            .name("TRADE TWO")
+                                            .build())
+                                    .build())
+                            .build())
+                    .build()
+
+    );
     given(customerOrderRepository
-            .findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDateCaptor.capture(), maxDateCaptor.capture(), minPriceAfterDiscountCaptor.capture()))
-            .willReturn(List.of(
-
-
-            ));
+            .findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount))
+            .willReturn(returnValue);
     //when
     //then
+    assertDoesNotThrow(() -> {
+      List<CustomerOrderDto> actualResult = customerOrderService.getOrdersWithinSpecifiedDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount);
+      assertThat(actualResult, is(equalTo(returnValue.stream().map(ModelMapper::mapCustomerOrderToCustomerOrderDto).collect(Collectors.toList()))));
+    });
+
+    then(customerOrderRepository).should(times(1)).findOrdersOrderedWithinDateRangeAndWithPriceAfterDiscountHigherThan(minDate, maxDate, minPriceAfterDiscount);
   }
 }
