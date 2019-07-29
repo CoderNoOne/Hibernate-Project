@@ -22,7 +22,7 @@ In addition to standard database operations, it's possible to calculate various 
 ***
 ### Main dependencies:
 * [hibernate](https://hibernate.org/) - the most popular JPA implementation
-* [Junit 5](https://junit.org/junit5/docs/current/user-guide/) -
+* [Junit 5](https://junit.org/junit5/docs/current/user-guide/) - one of the most popular unit-testing frameworks in the Java ecosystem
 * [Mockito 3](https://site.mockito.org/) -  JAVA-based library that is used to mock interfaces so that a dummy functionality can be added to a mock interface that can be used in unit testing
 * [Hamcrest](http://hamcrest.org/JavaHamcrest/) - a framework for writing matcher objects allowing 'match' rules to be defined declaratively
 * [lombok](https://projectlombok.org/) - minimized boilerplate code
