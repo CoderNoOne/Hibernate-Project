@@ -4,15 +4,15 @@ import com.google.gson.annotations.SerializedName;
 
 public enum EGuarantee {
 
-//  @SerializedName("DESK")
+  @SerializedName("DESK")
   HELP_DESK,
 
-//  @SerializedName("MONEY")
+  @SerializedName("MONEY")
   MONEY_BACK,
 
-//  @SerializedName("SERVICE")
+  @SerializedName("SERVICE")
   SERVICE,
 
-//  @SerializedName("EXCHANGE")
+  @SerializedName("EXCHANGE")
   EXCHANGE;
 }

@@ -1,7 +1,5 @@
 package validator.impl;
 
-
-import domain.CustomerOrder;
 import dto.CustomerOrderDto;
 import validator.AbstractValidator;
 
@@ -15,7 +13,7 @@ public class CustomerOrderDtoValidator extends AbstractValidator<CustomerOrderDt
   public Map<String, String> validate(CustomerOrderDto customerOrderDto) {
     errors.clear();
     if (customerOrderDto == null) {
-      errors.put("CustomerOrderDto object", "CutomerOrder object is null");
+      errors.put("CustomerOrderDto object", "CustomerOrder object is null");
       return errors;
     }
 

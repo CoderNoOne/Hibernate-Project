@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Payment {
 
   @Id

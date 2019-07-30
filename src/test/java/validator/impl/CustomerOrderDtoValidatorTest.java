@@ -33,7 +33,7 @@ class CustomerOrderDtoValidatorTest {
     //given
     CustomerOrderDto customerOrderDto = null;
     Map<String, String> expectedErros = Map.of(
-            "CustomerOrderDto object", "CutomerOrder object is null");
+            "CustomerOrderDto object", "CustomerOrder object is null");
 
     //when
     //then
