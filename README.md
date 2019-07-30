@@ -5,7 +5,7 @@
 This is a multi layered application that allows you to manage the system of product orders in the chain store. The stores have an assortment of many categories and branches located in different countries. The prodcuts can be ordered by customers from different countries. We assume that the order of the product is synonymous with its purchase. After ordering/purchasing, the product is covered by a two-year warranty under which various warranty services may be provided. 
 
 An error table is attached to the database schema, which stores information about errors that occurred during table management.
-In addition to standard database operations, it is possible to calculate various statistics.
+In addition to standard database operations, it's possible to calculate various statistics.
 
 
 ![Alt text](https://i.imgur.com/plqJMGq.jpg "EER DIAGRAM")
@@ -22,7 +22,9 @@ In addition to standard database operations, it is possible to calculate various
 ***
 ### Main dependencies:
 * [hibernate](https://hibernate.org/) - the most popular JPA implementation
-* [mapstruct](http://mapstruct.org/) - a Java Bean Mapper - used for class conversion between persistence-backed entities and DTOs that go out to the client side.
+* [Junit 5](https://junit.org/junit5/docs/current/user-guide/) - one of the most popular unit-testing frameworks in the Java ecosystem
+* [Mockito 3](https://site.mockito.org/) -  JAVA-based library that is used to mock interfaces so that a dummy functionality can be added to a mock interface that can be used in unit testing
+* [Hamcrest](http://hamcrest.org/JavaHamcrest/) - a framework for writing matcher objects allowing 'match' rules to be defined declaratively
 * [lombok](https://projectlombok.org/) - minimized boilerplate code
 * [gson](https://github.com/google/gson/blob/master/UserGuide.md) - 
 Java-based library to serialize Java objects to JSON and vice versa
