@@ -34,9 +34,22 @@ public class ProducerService {
   }
 
   public Optional<ProducerDto> addProducerToDb(ProducerDto producerDto) {
-    return producerRepository
-            .addOrUpdate(ModelMapper.mapProducerDtoToProducer(producerDto))
-            .map(ModelMapper::mapProducerToProducerDto);
+
+    Producer producer = ModelMapper.mapProducerDtoToProducer(producerDto);
+
+    countryRepository
+            .findCountryByName(producer.getCountry().getName())
+            .ifPresentOrElse(producer::setCountry, () -> countryRepository.add(producer.getCountry()));
+
+    tradeRepository
+            .findTradeByName(producer.getTrade().getName())
+            .ifPresentOrElse(producer::setTrade, () -> tradeRepository.add(producer.getTrade()));
+
+    producerRepository.add(producer);
+
+    System.out.println(producer);
+    return Optional.of(ModelMapper.mapProducerToProducerDto(producer));
+
   }
 
 
@@ -58,7 +71,7 @@ public class ProducerService {
     if (!isProducerUniqueByNameAndTradeAndCountry(producerDto.getName(), producerDto.getTrade(), producerDto.getCountry())) {
       throw new AppException("Couldn't add new producer to db - producer's not unique by name, trade and country");
     }
-    addProducerToDb(setProducerComponentsFromDbIfTheyExist(producerDto));
+    addProducerToDb(/*setProducerComponentsFromDbIfTheyExist*/(producerDto));
   }
 
   private boolean isProducerUniqueByNameAndTradeAndCountry(String name, TradeDto tradeDto, CountryDto countryDto) {
@@ -102,7 +115,7 @@ public class ProducerService {
             .build();
 
     return producerRepository
-            .addOrUpdate(ModelMapper.mapProducerDtoToProducer(getProducerDtoIfValid(setProducerComponentsFromDbIfTheyExist(producerToUpdate))))
+            .add(ModelMapper.mapProducerDtoToProducer(getProducerDtoIfValid(setProducerComponentsFromDbIfTheyExist(producerToUpdate))))
             .map(ModelMapper::mapProducerToProducerDto);
 
   }

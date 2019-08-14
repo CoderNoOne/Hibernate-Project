@@ -29,9 +29,20 @@ public class CustomerService {
   }
 
   public Optional<CustomerDto> addCustomerToDb(CustomerDto customerDto) {
-    return customerRepository
-            .addOrUpdate(ModelMapper.mapCustomerDtoToCustomer(customerDto))
-            .map(ModelMapper::mapCustomerToCustomerDto);
+
+    Customer customer = ModelMapper.mapCustomerDtoToCustomer(customerDto);
+
+    countryRepository
+            .findCountryByName(customerDto.getCountryDto().getName())
+            .ifPresentOrElse(country -> {
+              customer.setCountry(country);
+              customerRepository.add(customer);
+            }, () -> {
+              countryRepository.add(customer.getCountry());
+              customerRepository.add(customer);
+            });
+
+    return Optional.of(ModelMapper.mapCustomerToCustomerDto(customer));
   }
 
   private CustomerDto setCustomerComponentsFromDbIfTheyExist(CustomerDto customerDto) {
@@ -49,7 +60,7 @@ public class CustomerService {
 
   public void addCustomerToDbFromUserInput(CustomerDto customerDto) {
     if (isCustomerUniqueByNameAndSurnameAndCountry(customerDto.getName(), customerDto.getSurname(), customerDto.getCountryDto())) {
-      addCustomerToDb(setCustomerComponentsFromDbIfTheyExist(customerDto));
+      addCustomerToDb(/*setCustomerComponentsFromDbIfTheyExist*/(customerDto));
     } else {
       throw new AppException("Couldn't add customer to db - customer: " + customerDto + "is not unique by name, surname and country");
     }
@@ -121,7 +132,7 @@ public class CustomerService {
             .build();
 
     return customerRepository
-            .addOrUpdate(ModelMapper.mapCustomerDtoToCustomer(getCustomerDtoIfValid(setCustomerComponentsFromDbIfTheyExist(customerToUpdate))))
+            .add(ModelMapper.mapCustomerDtoToCustomer(getCustomerDtoIfValid(setCustomerComponentsFromDbIfTheyExist(customerToUpdate))))
             .map(ModelMapper::mapCustomerToCustomerDto);
   }
 }

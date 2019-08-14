@@ -51,7 +51,7 @@ class CountryServiceTest {
             .name("POLAND")
             .build();
 
-    given(countryRepository.addOrUpdate(ArgumentMatchers.argThat(c -> c.equals(country))))
+    given(countryRepository.add(ArgumentMatchers.argThat(c -> c.equals(country))))
             .willAnswer((Answer<Optional<Country>>) invocationOnMock -> Optional.of(Country.builder()
                     .id(invocationOnMock.getArgument(0, Country.class).getId())
                     .name(invocationOnMock.getArgument(0, Country.class).getName())
@@ -91,7 +91,7 @@ class CountryServiceTest {
     AppException appException2 = Assertions.assertThrows(AppException.class, () -> countryService.addCountryToDb(ModelMapper.mapCountryToCountryDto(country)));
     assertThat("exception message", appException2.getMessage(), equalTo(appException1.getMessage()));
 
-    then(countryRepository).should(never()).addOrUpdate(any());
+    then(countryRepository).should(never()).add(any());
     then(countryRepository).should(times(1)).findCountryByName(country.getName());
 
   }

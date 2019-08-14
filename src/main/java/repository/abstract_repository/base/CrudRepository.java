@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CrudRepository<T, ID> {
-  Optional<T> addOrUpdate(T t);
+  Optional<T> add(T t);
 
   Optional<T> findById(ID id);
 

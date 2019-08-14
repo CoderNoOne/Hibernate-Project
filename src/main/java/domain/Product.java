@@ -23,11 +23,11 @@ public class Product {
   private String name;
   private BigDecimal price;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(/*cascade = CascadeType.MERGE*/)
   @JoinColumn(name = "category_id")
   private Category category;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(/*cascade = CascadeType.MERGE*/)
   @JoinColumn(name = "producer_id")
   private Producer producer;
 

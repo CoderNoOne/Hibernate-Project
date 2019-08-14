@@ -98,7 +98,7 @@ class CustomerServiceTest {
     given(customerRepository.findById(argumentCaptor.capture()))
             .willReturn(customerFromDb);
 
-    given(customerRepository.addOrUpdate(argumentCaptorCustomer.capture()))
+    given(customerRepository.add(argumentCaptorCustomer.capture()))
             .willReturn(expectedUpdatedCustomer);
 
     given(countryRepository.findCountryByName(countryNameArgumentCaptor.capture()))
@@ -113,7 +113,7 @@ class CustomerServiceTest {
 
     InOrder inOrder = inOrder(customerRepository);
     inOrder.verify(customerRepository, times(1)).findById(customerDtoToUpdate.getId());
-    inOrder.verify(customerRepository, times(1)).addOrUpdate(customerToUpdate);
+    inOrder.verify(customerRepository, times(1)).add(customerToUpdate);
 
     then(countryRepository).should(times(1)).findCountryByName(customerToUpdate.getCountry().getName());
   }
@@ -168,7 +168,7 @@ class CustomerServiceTest {
     given(customerRepository.findById(argumentCaptor.capture()))
             .willReturn(customerFromDb);
 
-    given(customerRepository.addOrUpdate(argumentCaptorCustomer.capture()))
+    given(customerRepository.add(argumentCaptorCustomer.capture()))
             .willReturn(expectedUpdatedCustomer);
 
     given(countryRepository.findCountryByName("WALES"))
@@ -182,7 +182,7 @@ class CustomerServiceTest {
 
     InOrder inOrder = inOrder(customerRepository);
     inOrder.verify(customerRepository, times(1)).findById(customerDtoToUpdate.getId());
-    inOrder.verify(customerRepository, times(1)).addOrUpdate(customerToUpdate);
+    inOrder.verify(customerRepository, times(1)).add(customerToUpdate);
 
     then(countryRepository).should(times(1)).findCountryByName(customerToUpdate.getCountry().getName());
   }
@@ -236,7 +236,7 @@ class CustomerServiceTest {
     given(customerRepository.findById(argumentCaptor.capture()))
             .willReturn(customerFromDb);
 
-    given(customerRepository.addOrUpdate(argumentCaptorCustomer.capture()))
+    given(customerRepository.add(argumentCaptorCustomer.capture()))
             .willReturn(expectedUpdatedCustomer);
     //when
     //then
@@ -247,7 +247,7 @@ class CustomerServiceTest {
 
     InOrder inOrder = inOrder(customerRepository);
     inOrder.verify(customerRepository, times(1)).findById(customerDtoToUpdate.getId());
-    inOrder.verify(customerRepository, times(1)).addOrUpdate(customerToUpdate);
+    inOrder.verify(customerRepository, times(1)).add(customerToUpdate);
   }
 
   @Test
@@ -299,7 +299,7 @@ class CustomerServiceTest {
     given(customerRepository.findById(argumentCaptor.capture()))
             .willReturn(customerFromDb);
 
-    given(customerRepository.addOrUpdate(argumentCaptorCustomer.capture()))
+    given(customerRepository.add(argumentCaptorCustomer.capture()))
             .willReturn(expectedUpdatedCustomer);
     //when
     //then
@@ -310,6 +310,6 @@ class CustomerServiceTest {
 
     InOrder inOrder = inOrder(customerRepository);
     inOrder.verify(customerRepository, times(1)).findById(customerDtoToUpdate.getId());
-    inOrder.verify(customerRepository, times(1)).addOrUpdate(customerToUpdate);
+    inOrder.verify(customerRepository, times(1)).add(customerToUpdate);
   }
 }

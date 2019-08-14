@@ -1,5 +1,6 @@
 package service.entity;
 
+import domain.Shop;
 import dto.CountryDto;
 import dto.ShopDto;
 import exception.AppException;
@@ -46,9 +47,15 @@ public class ShopService {
 
   private Optional<ShopDto> addShopToDb(ShopDto shopDto) {
 
-    return shopRepository
-            .addOrUpdate(ModelMapper.mapShopDtoToShop(shopDto))
-            .map(ModelMapper::mapShopToShopDto);
+    Shop shop = ModelMapper.mapShopDtoToShop(shopDto);
+
+    countryRepository
+            .findCountryByName(shop.getCountry().getName())
+            .ifPresentOrElse(shop::setCountry, () -> countryRepository.add(shop.getCountry()));
+
+    shopRepository.add(shop);
+    return Optional.of(ModelMapper.mapShopToShopDto(shop));
+
   }
 
   public void addShopToDbFromUserInput(ShopDto shopDto) {
@@ -58,7 +65,7 @@ public class ShopService {
     }
 
     if (isShopUniqueByNameAndCountry(shopDto.getName(), shopDto.getCountryDto())) {
-      addShopToDb(setShopComponentsFromDbIfTheyExist(shopDto));
+      addShopToDb(/*setShopComponentsFromDbIfTheyExist*/(shopDto));
     } else {
       throw new AppException(String.format("You couldn't add shop to db. Shop is not unique by name: %s and country: %s", shopDto.getName(), shopDto.getCountryDto().getName()));
     }
@@ -145,7 +152,7 @@ public class ShopService {
       }
     });
 
-    return shopRepository.addOrUpdate(ModelMapper.mapShopDtoToShop(setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(shopToUpdate))))
+    return shopRepository.add(ModelMapper.mapShopDtoToShop(setShopComponentsFromDbIfTheyExist(getShopDtoIfValid(shopToUpdate))))
             .map(ModelMapper::mapShopToShopDto);
 
   }

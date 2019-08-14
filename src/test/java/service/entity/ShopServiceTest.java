@@ -198,7 +198,7 @@ class ShopServiceTest {
 
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+    given(shopRepository.add(argumentCaptor.capture()))
             .willReturn(Optional.of(updatedShop));
 
     given(countryRepository.findCountryByName("POLAND")).willReturn(Optional.of(Country.builder()
@@ -222,7 +222,7 @@ class ShopServiceTest {
     }, "Shop properties (name and country name) should be properly updated");
 
     then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
-    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
+    then(shopRepository).should(times(1)).add(updatedShop);
   }
 
   @Test
@@ -256,7 +256,7 @@ class ShopServiceTest {
 
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+    given(shopRepository.add(argumentCaptor.capture()))
             .willReturn(Optional.of(updatedShop));
 
     given(countryRepository.findCountryByName("GERMANY")).willReturn(Optional.empty());
@@ -276,7 +276,7 @@ class ShopServiceTest {
     }, "Shop properties (name) should be properly updated, country name should remain constant");
 
     then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
-    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
+    then(shopRepository).should(times(1)).add(updatedShop);
 
 
   }
@@ -312,7 +312,7 @@ class ShopServiceTest {
 
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+    given(shopRepository.add(argumentCaptor.capture()))
             .willReturn(Optional.of(updatedShop));
 
     given(countryRepository.findCountryByName("POLAND")).willReturn(Optional.of(Country.builder().id(2L).name("POLAND").build()));
@@ -332,7 +332,7 @@ class ShopServiceTest {
     }, "Shop properties (name) should be properly updated, country name should remain constant");
 
     then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
-    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
+    then(shopRepository).should(times(1)).add(updatedShop);
 
   }
 
@@ -364,7 +364,7 @@ class ShopServiceTest {
 
     ArgumentCaptor<Shop> argumentCaptor = ArgumentCaptor.forClass(Shop.class);
 
-    given(shopRepository.addOrUpdate(argumentCaptor.capture()))
+    given(shopRepository.add(argumentCaptor.capture()))
             .willReturn(Optional.of(updatedShop));
 
     given(countryRepository.findCountryByName("GERMANY")).willReturn(Optional.of(Country.builder().id(1L).name("GERMANY").build()));
@@ -384,7 +384,7 @@ class ShopServiceTest {
     }, "Shop properties (name) should be properly updated, country name should remain constant");
 
     then(countryRepository).should(times(1)).findCountryByName(argumentCaptor.getValue().getCountry().getName());
-    then(shopRepository).should(times(1)).addOrUpdate(updatedShop);
+    then(shopRepository).should(times(1)).add(updatedShop);
   }
 
   @Test
@@ -401,7 +401,7 @@ class ShopServiceTest {
     AppException appException = assertThrows(AppException.class, () -> shopService.update(shopDtoToUpdate, shopNewPropertyValues));
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
     then(countryRepository).should(never()).findCountryByName(any());
-    then(shopRepository).should(never()).addOrUpdate(any());
+    then(shopRepository).should(never()).add(any());
 
   }
 
@@ -424,7 +424,7 @@ class ShopServiceTest {
     AppException appException = assertThrows(AppException.class, () -> shopService.update(shopDtoToUpdate, shopNewPropertyValues));
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
     then(countryRepository).should(never()).findCountryByName(any());
-    then(shopRepository).should(never()).addOrUpdate(any());
+    then(shopRepository).should(never()).add(any());
 
   }
 

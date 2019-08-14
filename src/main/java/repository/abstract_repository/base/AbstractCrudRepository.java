@@ -23,13 +23,13 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
   protected final Class<Id> idType = (Class<Id>) (((ParameterizedType) this.getClass().getGenericSuperclass())).getActualTypeArguments()[1];
 
   @Override
-  public Optional<T> addOrUpdate(T t) {
+  public Optional<T> add(T t) {
 
     if (t == null) {
       throw new AppException(entityType.getSimpleName() + ";add or updateProduct - object is null");
     }
 
-    Optional<T> item ;
+    Optional<T> item = Optional.empty() ;
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction tx = entityManager.getTransaction();
@@ -37,7 +37,10 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
     try {
 
       tx.begin();
-      item = Optional.ofNullable(entityManager.merge(t));
+
+      entityManager.persist(t);
+      item = Optional.of(t);
+
       tx.commit();
 
     } catch (Exception e) {
@@ -77,7 +80,7 @@ public abstract class AbstractCrudRepository<T, Id> implements CrudRepository<T,
       if (tx != null) {
         tx.rollback();
       }
-      throw new AppException(entityType.getSimpleName() + ";find all - exception");
+      throw new AppException(entityType.getSimpleName() + ";find all - exception: " + e.getMessage());
     } finally {
       if (entityManager != null) {
         entityManager.close();

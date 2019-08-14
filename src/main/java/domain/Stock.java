@@ -20,11 +20,11 @@ public class Stock {
 
   private Integer quantity;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(/*cascade = CascadeType.MERGE*/)
   @JoinColumn(name = "shop_id")
   private Shop shop;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(/*cascade = CascadeType.MERGE*/)
   @JoinColumn(name = "product_id")
   private Product product;
 

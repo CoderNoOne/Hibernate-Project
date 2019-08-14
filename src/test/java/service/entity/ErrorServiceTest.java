@@ -57,7 +57,7 @@ class ErrorServiceTest {
     //then
     AppException appException = assertThrows(AppException.class, () -> errorService.addErrorToDb(errorDto));
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
-    then(errorRepository).should(never()).addOrUpdate(any());
+    then(errorRepository).should(never()).add(any());
   }
 
   @Test
@@ -80,7 +80,7 @@ class ErrorServiceTest {
             .build());
 
     ArgumentCaptor<Error> errorArgumentCaptor = ArgumentCaptor.forClass(Error.class);
-    given(errorRepository.addOrUpdate(errorArgumentCaptor.capture()))
+    given(errorRepository.add(errorArgumentCaptor.capture()))
             .willReturn(Optional.ofNullable(ModelMapper.mapErrorDtoToError(errorDto)));
 
     //when
@@ -91,7 +91,7 @@ class ErrorServiceTest {
     });
 
     System.out.println(errorArgumentCaptor.getValue());
-    then(errorRepository).should(times(1)).addOrUpdate(ModelMapper.mapErrorDtoToError(errorDto));
+    then(errorRepository).should(times(1)).add(ModelMapper.mapErrorDtoToError(errorDto));
   }
 
   @Test

@@ -149,7 +149,7 @@ class StockServiceTest {
     given(stockRepository.findById(argumentCaptor.capture()))
             .willReturn(stockFromDb);
 
-    given(stockRepository.addOrUpdate(argumentCaptorStock.capture()))
+    given(stockRepository.add(argumentCaptorStock.capture()))
             .willReturn(expectedUpdatedStock);
 
     given(shopRepository.findById(1L))
@@ -214,7 +214,7 @@ class StockServiceTest {
 
     InOrder inOrder = inOrder(stockRepository);
     inOrder.verify(stockRepository, times(1)).findById(stockDtoToUpdate.getId());
-    inOrder.verify(stockRepository, times(1)).addOrUpdate(stockToUpdate);
+    inOrder.verify(stockRepository, times(1)).add(stockToUpdate);
 
     then(tradeRepository).should(times(1)).findTradeByName(stockToUpdate.getProduct().getProducer().getTrade().getName());
     then(countryRepository).should(times(2)).findCountryByName(stockToUpdate.getProduct().getProducer().getCountry().getName());
@@ -359,7 +359,7 @@ class StockServiceTest {
     AppException appException = assertThrows(AppException.class, () -> stockService.updateStock(stockDtoToUpdate));
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
     then(stockRepository).should(never()).findById(anyLong());
-    then(stockRepository).should(never()).addOrUpdate(any());
+    then(stockRepository).should(never()).add(any());
 
   }
 
@@ -378,7 +378,7 @@ class StockServiceTest {
     AppException appException = assertThrows(AppException.class, () -> stockService.updateStock(stockDtoToUpdate));
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
     then(stockRepository).should(never()).findById(anyLong());
-    then(stockRepository).should(never()).addOrUpdate(any());
+    then(stockRepository).should(never()).add(any());
   }
 
   @Test
@@ -399,7 +399,7 @@ class StockServiceTest {
     assertThat(appException.getMessage(), is(equalTo(expectedExceptionMessage)));
 
     then(stockRepository).should(times(1)).findById(stockDtoToUpdate.getId());
-    then(stockRepository).should(never()).addOrUpdate(any());
+    then(stockRepository).should(never()).add(any());
   }
 
   @Test
@@ -507,7 +507,7 @@ class StockServiceTest {
 
     given(stockRepository.findById(stockDtoToUpdateArgument.getId())).willReturn(Optional.of(stockFromDb));
 
-    given(stockRepository.addOrUpdate(ModelMapper.mapStockDtoToStock(stockDto)))
+    given(stockRepository.add(ModelMapper.mapStockDtoToStock(stockDto)))
             .willReturn(Optional.of(stockFromDb));
     //when
     //then
@@ -518,7 +518,7 @@ class StockServiceTest {
     });
     InOrder inOrder = inOrder(stockRepository);
     inOrder.verify(stockRepository, times(1)).findById(stockDtoToUpdateArgument.getId());
-    inOrder.verify(stockRepository, times(1)).addOrUpdate(ModelMapper.mapStockDtoToStock(stockDto));
+    inOrder.verify(stockRepository, times(1)).add(ModelMapper.mapStockDtoToStock(stockDto));
 
     then(shopRepository).should(times(1)).findShopByNameAndCountry(stockDto.getShopDto().getName(), stockDto.getShopDto().getCountryDto().getName());
     then(countryRepository).should(times(2)).findCountryByName(stockDto.getShopDto().getCountryDto().getName());

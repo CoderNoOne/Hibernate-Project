@@ -30,7 +30,7 @@ public class CategoryService {
       throw new AppException("Category is not unique by name: " + categoryDto.getName());
     }
     return categoryRepository
-            .addOrUpdate(ModelMapper.mapCategoryDtoToCategory(categoryDto))
+            .add(ModelMapper.mapCategoryDtoToCategory(categoryDto))
             .map(ModelMapper::mapCategoryToCategoryDto);
   }
 

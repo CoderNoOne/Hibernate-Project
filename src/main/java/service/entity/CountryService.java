@@ -32,7 +32,7 @@ public class CountryService {
     }
 
     return countryRepository
-            .addOrUpdate(ModelMapper.mapCountryDtoToCountry(countryDto))
+            .add(ModelMapper.mapCountryDtoToCountry(countryDto))
             .map(ModelMapper::mapCountryToCountryDto);
   }
 

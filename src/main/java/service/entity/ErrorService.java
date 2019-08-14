@@ -26,7 +26,7 @@ public class ErrorService {
       throw new AppException("ErrorDto object is null");
     }
     return errorRepository
-            .addOrUpdate(ModelMapper.mapErrorDtoToError(errorDto))
+            .add(ModelMapper.mapErrorDtoToError(errorDto))
             .map(ModelMapper::mapErrorToErrorDto);
   }
 

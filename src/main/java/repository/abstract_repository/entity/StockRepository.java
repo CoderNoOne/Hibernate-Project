@@ -1,6 +1,8 @@
 package repository.abstract_repository.entity;
 
 import domain.*;
+import dto.ProductDto;
+import dto.ShopDto;
 import repository.abstract_repository.base.CrudRepository;
 
 import java.util.List;
@@ -14,5 +16,9 @@ public interface StockRepository extends CrudRepository<Stock, Long> {
   Map<Shop, Integer> findShopsWithProductInStock(Product product);
 
   List<Stock> findStocksWithProducerTradeName(String tradeName) ;
+
+  void decreaseStockQuantity(Stock stock, Integer quantity);
+
+  void increaseStockQuantity(Long stockId, Integer quantity);
 
 }

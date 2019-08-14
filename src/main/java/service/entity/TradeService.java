@@ -25,7 +25,7 @@ public class TradeService {
     if (tradeDto == null) {
       throw new AppException("TradeDto object is null");
     }
-    return tradeRepository.addOrUpdate(ModelMapper.mapTradeDtoToTrade(tradeDto))
+    return tradeRepository.add(ModelMapper.mapTradeDtoToTrade(tradeDto))
             .map(ModelMapper::mapTradeToTradeDto);
   }
 

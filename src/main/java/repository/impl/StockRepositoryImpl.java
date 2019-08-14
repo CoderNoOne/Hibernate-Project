@@ -1,6 +1,8 @@
 package repository.impl;
 
-import domain.*;
+import domain.Product;
+import domain.Shop;
+import domain.Stock;
 import exception.AppException;
 import repository.abstract_repository.base.AbstractCrudRepository;
 import repository.abstract_repository.entity.StockRepository;
@@ -11,6 +13,64 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class StockRepositoryImpl extends AbstractCrudRepository<Stock, Long> implements StockRepository {
+
+  @Override
+  public void increaseStockQuantity(Long stockId, Integer quantity) {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+
+    try {
+      tx.begin();
+      entityManager
+              .createQuery("select e from " + entityType.getSimpleName() + " as e where e.id =:stockId", entityType)
+              .setParameter("stockId", stockId)
+              .getResultList()
+              .stream()
+              .findFirst()
+              .ifPresentOrElse(stock -> stock.setQuantity(stock.getQuantity() + quantity),
+                      () -> {
+                        throw new AppException("Stock with shop:" + stockId + " doesn't exist!");
+                      });
+
+      tx.commit();
+    } catch (Exception e) {
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("decrease stock quantity - exception: " + e.getMessage());
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+  }
+
+  @Override
+  public void decreaseStockQuantity(Stock stock, Integer quantity) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction tx = entityManager.getTransaction();
+
+
+    try {
+      tx.begin();
+
+      stock = entityManager.merge(stock);
+      stock.setQuantity(stock.getQuantity() - quantity);
+
+      tx.commit();
+    } catch (Exception e) {
+      if (tx != null) {
+        tx.rollback();
+      }
+      throw new AppException("decrease stock quantity - exception");
+    } finally {
+      if (entityManager != null) {
+        entityManager.close();
+      }
+    }
+  }
 
   @Override
   public List<Stock> findStocksWithProducerTradeName(String tradeName) {

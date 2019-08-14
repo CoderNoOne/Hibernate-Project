@@ -34,9 +34,23 @@ public class CustomerOrderService {
   }
 
   private Optional<CustomerOrderDto> addCustomerOrderToDb(CustomerOrderDto customerOrderDto) {
-    return customerOrderRepository
-            .addOrUpdate(ModelMapper.mapCustomerOrderDtoToCustomerOrder(customerOrderDto))
-            .map(ModelMapper::mapCustomerOrderToCustomerOrderDto);
+
+    CustomerOrder customerOrder = ModelMapper.mapCustomerOrderDtoToCustomerOrder(customerOrderDto);
+
+    customerRepository.findByNameAndSurnameAndCountry(customerOrder.getCustomer().getName(), customerOrder.getCustomer().getSurname(),
+            customerOrder.getCustomer().getCountry()).ifPresent(customerOrder::setCustomer);
+
+    paymentRepository.findPaymentByEPayment(customerOrder.getPayment().getEpayment())
+            .ifPresentOrElse(customerOrder::setPayment, () -> paymentRepository.add(customerOrder.getPayment()));
+
+    productRepository.findByNameAndCategoryAndProducer(customerOrder.getProduct().getName(), customerOrder.getProduct().getCategory(),
+            customerOrder.getProduct().getProducer()).ifPresent(customerOrder::setProduct);
+
+    customerOrderRepository.add(customerOrder);
+
+    System.out.println(customerOrder);
+
+    return Optional.of(customerOrder).map(ModelMapper::mapCustomerOrderToCustomerOrderDto);
 
   }
 
@@ -58,8 +72,9 @@ public class CustomerOrderService {
             .build();
   }
 
-  public void addCustomerOrderToDbFromUserInput(CustomerOrderDto customerOrder) {
-    addCustomerOrderToDb(setCustomerOrderComponentsFromDbIfTheyExist(customerOrder));
+  public void addCustomerOrderToDbFromUserInput(CustomerOrderDto customerOrderDto) {
+
+    addCustomerOrderToDb(/*setCustomerOrderComponentsFromDbIfTheyExist*/(customerOrderDto));
   }
 
   public Map<CategoryDto, Map<ProductDto, Integer>> getTheMostExpensiveProductsInEachCategoryWithAmountOfProductSales() {

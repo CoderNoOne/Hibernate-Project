@@ -105,7 +105,7 @@ class CategoryServiceTest {
     CategoryDto categoryDto = CategoryDto.builder().id(1L).name("COMPUTERS").build();
 
     given(categoryRepository
-            .addOrUpdate(category))
+            .add(category))
             .willReturn(Optional.of(category));
 
     //when
@@ -113,7 +113,7 @@ class CategoryServiceTest {
 
     //then
     assertThat(categoryDtoResult, equalTo(Optional.of(CategoryDto.builder().id(1L).name("COMPUTERS").build())));
-    then(categoryRepository).should(times(1)).addOrUpdate(ModelMapper.mapCategoryDtoToCategory(categoryDto));
+    then(categoryRepository).should(times(1)).add(ModelMapper.mapCategoryDtoToCategory(categoryDto));
   }
 
   @Test
@@ -129,7 +129,7 @@ class CategoryServiceTest {
             = assertThrows(AppException.class, () -> categoryService.addCategoryToDb(categoryDto));
 
     assertThat(appException.getMessage(), equalTo("Category is null"));
-    then(categoryRepository).should(never()).addOrUpdate(any());
+    then(categoryRepository).should(never()).add(any());
   }
 
   @Test

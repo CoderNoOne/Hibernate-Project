@@ -35,9 +35,29 @@ public class ProductService {
   }
 
   private Optional<ProductDto> addProductToDb(ProductDto productDto) {
-    return productRepository
-            .addOrUpdate(ModelMapper.mapProductDtoToProduct(productDto))
-            .map(ModelMapper::mapProductToProductDto);
+
+    Product product = ModelMapper.mapProductDtoToProduct(productDto);
+
+    categoryRepository.findCategoryByName(product.getCategory().getName())
+            .ifPresentOrElse(product::setCategory, () -> categoryRepository.add(product.getCategory()));
+
+    producerRepository.findByNameAndTradeAndCountry(product.getProducer().getName(), product.getProducer().getTrade(),
+            product.getProducer().getCountry())
+            .ifPresentOrElse(product::setProducer, () -> {
+              tradeRepository.findTradeByName(product.getProducer().getTrade().getName())
+                      .ifPresentOrElse(trade -> product.getProducer().setTrade(trade),
+                              () -> tradeRepository.add(product.getProducer().getTrade()));
+              countryRepository.findCountryByName(product.getProducer().getCountry().getName())
+                      .ifPresentOrElse(country -> product.getProducer().setCountry(country),
+                              () -> countryRepository.add(product.getProducer().getCountry()));
+
+              producerRepository.add(product.getProducer());
+            });
+
+    productRepository.add(product);
+
+    return Optional.of(product).map(ModelMapper::mapProductToProductDto);
+
   }
 
 
@@ -80,7 +100,7 @@ public class ProductService {
     if (!isProductUniqueByNameAndCategoryAndProducer(productDto.getName(), productDto.getCategoryDto(), productDto.getProducerDto())) {
       throw new AppException(String.format("Couldn't add new product to db - product: %s is not unique by name and category and producer", productDto));
     }
-    addProductToDb(setProductComponentsFromDbIfTheyExist(productDto));
+    addProductToDb(/*setProductComponentsFromDbIfTheyExist*/(productDto));
 
   }
 
@@ -132,7 +152,7 @@ public class ProductService {
             .build();
 
     return productRepository
-            .addOrUpdate(ModelMapper.mapProductDtoToProduct(getProductDtoIfValid(setProductComponentsFromDbIfTheyExist((productToUpdate)))))
+            .add(ModelMapper.mapProductDtoToProduct(getProductDtoIfValid(setProductComponentsFromDbIfTheyExist((productToUpdate)))))
             .map(ModelMapper::mapProductToProductDto);
   }
 
