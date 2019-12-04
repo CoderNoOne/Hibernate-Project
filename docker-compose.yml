@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  hibernate-console-application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MYSQL_USER: "${user:-user}"
+        MYSQL_PASSWORD: "${password:-password}"
+        MYSQL_DATABASE: "${db:-db}"
+        MYSQL_SERVICE: "${mysql_service:-mysql_service}"
+    restart: always
+    networks:
+      - hibernate-app-network
+    depends_on:
+      - mysql_service
+
+  mysql_service:
+    image: mysql:5.7
+    ports:
+      - ${db_host_port:-1000}:3306
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: "${user:-user}"
+      MYSQL_PASSWORD: "${password:-password}"
+      MYSQL_DATABASE: "${db:-db}"
+    container_name: "${mysql_service:-mysql_service}"
+    networks:
+      - hibernate-app-network
+    volumes:
+      - mysql-database-data-volume:/var/lib/mysql
+
+networks:
+  hibernate-app-network:
+
+volumes:
+  mysql-database-data-volume:

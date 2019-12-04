@@ -52,7 +52,7 @@ public class DataService {
 
   public void init() {
 
-    initCountries("./example_data/exampleCountries.json");
+    initCountries("/resources/exampleCountries.json");
     initCustomers("./example_data/exampleCustomers.json");
     initCategories("./example_data/exampleCategories.json");
     initTrades("./example_data/exampleTrades.json");

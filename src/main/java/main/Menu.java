@@ -121,7 +121,8 @@ class Menu {
                     "Option no. 24 - {23}\n" +
                     "Option no. 25 - {24}\n" +
                     "Option no. 26 - {25}\n" +
-                    "Option no. 27 - {26}\n",
+                    "Option no. 27 - {26}\n" +
+                    "Option no. 28 - {27}\n",
 
 
             "Go to admin panel",
