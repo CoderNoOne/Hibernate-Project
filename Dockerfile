@@ -9,7 +9,8 @@ ARG MYSQL_SERVICE
 
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
-COPY src/main src/main
+ADD src src
+
 
 RUN /mvnw clean package \
 -DMYSQL_USER=${MYSQL_USER} \
@@ -17,11 +18,5 @@ RUN /mvnw clean package \
 -DMYSQL_DATABASE=${MYSQL_DATABASE} \
 -DMYSQL_SERVICE=${MYSQL_SERVICE} \
 -DskipTests
-
-RUN rm -r src \
-&& rm -r .mvn \
-&& unlink mvnw \
-&& unlink pom.xml
-#RUN cd target find ! -name "perhb-1.0-SNAPSHOT.jar" | xargs rm -r
 
 ENTRYPOINT ["sh", "-c", "java --enable-preview -jar /target/app-uber.jar"]

@@ -52,13 +52,14 @@ public class DataService {
 
   public void init() {
 
-    initCountries("/resources/exampleCountries.json");
-    initCustomers("./example_data/exampleCustomers.json");
-    initCategories("./example_data/exampleCategories.json");
-    initTrades("./example_data/exampleTrades.json");
-    initShops("./example_data/exampleShops.json");
-    initProducers("./example_data/exampleProducers.json");
-    initProducts("./example_data/exampleProducts.json");
+
+    initCountries("src/main/resources/example_data/exampleCategories.json");
+    initCustomers("src/main/resources/example_data/exampleCustomers.json");
+    initCategories("src/main/resources/example_data/exampleCategories.json");
+    initTrades("src/main/resources/example_data/exampleTrades.json");
+    initShops("src/main/resources/example_data/exampleShops.json");
+    initProducers("src/main/resources/example_data/exampleProducers.json");
+    initProducts("src/main/resources/example_data/exampleProducts.json");
 
   }
 
