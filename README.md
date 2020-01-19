@@ -40,7 +40,8 @@ Java-based library to serialize Java objects to JSON and vice versa
 
 * clone docker branch from repository into local machine with command:
 ```
-git clone -b docker  <local git repository name>
+git clone -b docker https://github.com/CoderNoOne/Hibernate-Project.git <local git repository name>
+
 ```
 * open a terminal and run a command (with default values for mysql container environemnt variables):
 
