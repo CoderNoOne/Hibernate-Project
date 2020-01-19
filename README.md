@@ -36,3 +36,53 @@ Java-based library to serialize Java objects to JSON and vice versa
 * configure your database connection (database url etc.) - change appropriate properties in **persistence.xml** file
 * change project sdk to 12 (Preview) with switch expressions enabled in your project structure
 
+## Docker version
+
+* clone docker branch from repository into local machine with command:
+```
+git clone -b docker  <local git repository name>
+```
+* open a terminal and run a command (with default values for mysql container environemnt variables):
+
+```docker
+docker-compose run hibernate-console-app
+```
+The default values can be found in docker-compose.yml file:
+
+user | password | database | db_host_port | mysql container name
+--- | --- | --- | --- | ---
+user | pass | db | 1000 | mysql_service
+
+You can specify custom values with a command:
+
+```
+<env_variable>=<custom_value> docker-compose run hibernate-console-app
+```
+
+For instance:
+
+```
+user=customUser password=customPassword docker-compose run hibernate-console-app
+```
+
+To log in with specified mysql user credentials you can:
+
+1. Log via exposed port on localhost using a command:
+
+```
+mysql -u user -p -P 1000 -h127.0.0.1
+```
+2. Log into bash of running mysql container with interactive mode using command:
+
+```
+docker container exec -ti mysql_service bash
+```
+
+Then you can log into mysql with:
+
+```
+mysql -u user -ppassword
+
+```
+3. Use mysql workbench and add a new mysql connection:
+![Alt text](http://i.imgur.com/xb1VlWb.png "MYSQL WORKBENCH")
